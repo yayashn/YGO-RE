@@ -1,0 +1,21 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "Name": "showField",
+            "ClassName": "RemoteEvent"
+        },
+        {
+            "Name": "createCard3D",
+            "ClassName": "RemoteEvent"
+        },
+        {
+            "Name": "moveCard3D",
+            "ClassName": "RemoteEvent"
+        },
+        {
+            "Name": "handLayout",
+            "ClassName": "RemoteFunction"
+        }
+    ]
+}
