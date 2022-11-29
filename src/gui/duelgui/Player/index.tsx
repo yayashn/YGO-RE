@@ -1,16 +1,18 @@
 import Roact from "@rbxts/roact";
-import Field from "./Field";
+import { FieldPlayer, FieldOpponent } from "./Field";
 import Hand from "./Hand";
 import Alt from "./Alt/index";
-import Cards from "./Cards/index";
+import { CardsPlayer, CardsOpponent } from "./Cards/index";
 
 export default () => {
-    return (
-        <Roact.Fragment>
-            <Field/>
-            <Alt/>
-            <Hand/>
-            <Cards/>
-        </Roact.Fragment>
-    )
-}
+	return (
+		<Roact.Fragment>
+			<CardsOpponent />
+			<FieldOpponent />
+			<FieldPlayer />
+			<Alt />
+			<Hand />
+			<CardsPlayer />
+		</Roact.Fragment>
+	);
+};

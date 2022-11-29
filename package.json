@@ -1,33 +1,33 @@
 {
-  "name": "YGORE",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "Yahya <yks@dr.com>",
-  "license": "MIT",
-  "scripts": {
-    "build": "rbxtsc",
-    "dev": "rbxtsc -w",
-    "start": "rojo serve"
-  },
-  "devDependencies": {
-    "@rbxts/compiler-types": "^2.0.4-types.0",
-    "@rbxts/roact": "^1.4.4-ts.0",
-    "@rbxts/types": "^1.0.646",
-    "@typescript-eslint/eslint-plugin": "^5.42.0",
-    "@typescript-eslint/parser": "^5.42.0",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-roblox-ts": "^0.0.34",
-    "prettier": "^2.7.1",
-    "rbxts-transformer-flamework": "^1.0.0-beta.14",
-    "typescript": "^4.8.4"
-  },
-  "dependencies": {
-    "@flamework/components": "^1.0.0-beta.10",
-    "@flamework/core": "^1.0.0-beta.7",
-    "@flamework/networking": "^1.0.0-beta.8",
-    "@rbxts/roact-flipper": "^2.1.0-ts.5",
-    "@rbxts/roact-hooked": "^2.1.2"
-  }
+	"name": "YGORE",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "Yahya <yks@dr.com>",
+	"license": "MIT",
+	"scripts": {
+		"build": "rbxtsc",
+		"dev": "rbxtsc -w",
+		"start": "rojo serve",
+		"pretty": "prettier --write \"./**/*.{ts,tsx,json}\"",
+		"postinstall": "patch-package"
+	},
+	"devDependencies": {
+		"@rbxts/compiler-types": "^2.0.4-types.0",
+		"@rbxts/roact": "^1.4.4-ts.0",
+		"@rbxts/types": "^1.0.646",
+		"@typescript-eslint/eslint-plugin": "^5.42.0",
+		"@typescript-eslint/parser": "^5.44.0",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-roblox-ts": "^0.0.34",
+		"prettier": "^2.7.1",
+		"roblox-ts": "^2.0.4",
+		"typescript": "^4.8.4"
+	},
+	"dependencies": {
+		"@rbxts/roact-flipper": "^2.1.0-ts.5",
+		"@rbxts/roact-hooked": "^2.1.2",
+		"patch-package": "^6.5.0"
+	}
 }

@@ -1,0 +1,16 @@
+diff --git a/node_modules/roblox-ts/out/TSTransformer/util/createImportExpression.js b/node_modules/roblox-ts/out/TSTransformer/util/createImportExpression.js
+index 71bc4e0..ffa4e91 100644
+--- a/node_modules/roblox-ts/out/TSTransformer/util/createImportExpression.js
++++ b/node_modules/roblox-ts/out/TSTransformer/util/createImportExpression.js
+@@ -115,11 +115,6 @@ function getImportParts(state, sourceFile, moduleSpecifier, moduleOutPath, modul
+         return [];
+     }
+     if (state.projectType === constants_1.ProjectType.Game) {
+-        if (state.rojoResolver.getNetworkType(moduleRbxPath) === rojo_resolver_1.NetworkType.Server &&
+-            state.rojoResolver.getNetworkType(sourceRbxPath) !== rojo_resolver_1.NetworkType.Server) {
+-            DiagnosticService_1.DiagnosticService.addDiagnostic(diagnostics_1.errors.noServerImport(moduleSpecifier));
+-            return [];
+-        }
+         const fileRelation = state.rojoResolver.getFileRelation(sourceRbxPath, moduleRbxPath);
+         if (fileRelation === rojo_resolver_1.FileRelation.OutToOut || fileRelation === rojo_resolver_1.FileRelation.InToOut) {
+             return getAbsoluteImport(moduleRbxPath);

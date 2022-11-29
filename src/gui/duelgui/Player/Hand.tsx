@@ -1,29 +1,19 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useRef, withHooks } from "@rbxts/roact-hooked";
-import { getPlayer, remote } from "shared/utils";
 import useIsUIMounted from "gui/hooks/useIsUIMounted";
 
-const player = getPlayer(script);
+const serverStorage = game.GetService("ServerStorage");
 
 export default withHooks(() => {
-    const HandRef = useRef<SurfaceGui>();
-    const isMounted = useIsUIMounted(HandRef);
+	const ref = useRef<SurfaceGui>();
+	const isMounted = useIsUIMounted(ref);
 
-    useEffect(() => {
-        if(isMounted) {
-            const handGui = HandRef.getValue()!;
-            handGui.ChildAdded.Connect((card) => {
-                remote<RemoteFunction>("handLayout").InvokeClient(player, card, "added");
-            })
-            handGui.ChildRemoved.Connect((card) => {
-                remote<RemoteFunction>("handLayout").InvokeClient(player, card, "removed");
-            })
-        }
-    }, [isMounted])
+	useEffect(() => {
+		if (isMounted) {
+			const handLayout = (serverStorage.FindFirstChild("handLayout") as LocalScript).Clone();
+			handLayout.Parent = ref.getValue();
+		}
+	}, [isMounted]);
 
-    return (
-        <surfacegui Ref={HandRef} Key="HandPlayer">
-
-        </surfacegui>
-    )
-})
+	return <surfacegui Ref={ref} Key="HandPlayer"></surfacegui>;
+});

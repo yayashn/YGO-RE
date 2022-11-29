@@ -1,7 +1,0 @@
-{
-	"version": 1,
-	"flameworkVersion": "1.0.0-beta.14",
-	"identifiers": {
-		"YGORE:out/gui/duelgui/Player/Cards/init@YGOCard": "gui/duelgui/Player/Cards/init@YGOCard"
-	}
-}

@@ -3,49 +3,44 @@ import { useEffect, withHooks } from "@rbxts/roact-hooked";
 import Card from "../Cards/Card";
 import { useGlobalState } from "gui/hooks/useGlobalState";
 import { cardsState } from "gui/duelgui/State/cardState";
-import { YGOLocation } from "shared/types";
 import { getPlayer } from "shared/utils";
+import useOpponentCards from "gui/hooks/useOpponentCards";
+import YGOCard from "shared/ygo/card";
 
 const player = getPlayer(script);
 
-export class YGOCard {
-    name: string;
-    location: YGOLocation;
-    owner: Player;
-    control: Player;
-    position: "atk" | "def";
-    face: "up" | "down";
+export const CardsPlayer = withHooks(() => {
+	const [cards, setCards] = useGlobalState<YGOCard[]>(cardsState);
 
-    constructor(name: string, location: YGOLocation) {
-      this.name = name;
-      this.location = location;
-      this.owner = player;
-      this.control = player;
-      this.position = "atk";
-      this.face = "down";
-    }
-}
+	useEffect(() => {
+		const card: YGOCard = new YGOCard(
+			"Dark Magician",
+			player.Name,
+			player.Name,
+			"Hand",
+			"atk",
+			"up",
+		);
+		setCards([card]);
+	}, []);
 
-export default withHooks(() => {
-    const [cards, setCards] = useGlobalState<YGOCard[]>(cardsState);
+	return (
+		<surfacegui Key="CardsPlayer">
+			{cards.map((card) => {
+				return <Card card={card} />;
+			})}
+		</surfacegui>
+	);
+});
 
-    useEffect(() => {
-        const card: YGOCard = new YGOCard("Dark Magician", "Deck");
-        setCards([card])
-    }, [])
+export const CardsOpponent = withHooks(() => {
+	const opponentCards = useOpponentCards();
 
-    useEffect(() => {
-        wait(3)
-        if(cards.size() > 0) {
-            cards[0].location = "Hand";
-        }
-    }, [cards])
-
-    return (
-        <surfacegui Key="CardsPlayer">
-            {cards.map((_, index) => {
-                return <Card index={index} />
-            })}
-        </surfacegui>
-    )
-})
+	return (
+		<surfacegui Key="CardsOpponent">
+			{opponentCards.map((card) => {
+				return <Card card={card} />;
+			})}
+		</surfacegui>
+	);
+});
