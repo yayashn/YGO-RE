@@ -5,7 +5,8 @@ import Cards from "./Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";
-import { PlayerValue } from "server/ygo";
+import { CardFolder, PlayerValue } from "server/ygo";
+import useDuel from "gui/hooks/useDuel";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -38,7 +39,7 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 	return (
 		<surfacegui Key={playerType}>
 			<Field field={field[playerType].Part}/>
-			<Hand hand={field[playerType].Hand}/>
+			<Hand />
 			<Zone zone={field[playerType].BZone}/>
 			<Zone zone={field[playerType].GZone}/>
 			<Zone zone={field[playerType].EZone}/>
@@ -48,9 +49,24 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 	)
 })
 
+const DevTools = withHooks(() => {
+	const player = useYGOPlayer();
+
+	return (
+		<frame Size={new UDim2(.2,0,.2,0)} BackgroundTransparency={1}>
+			<textbutton Text="MZone1" Size={new UDim2(1,0,1,0)} Event={{
+				MouseButton1Click: () => {
+					(player!.cards.GetChildren()[0] as CardFolder).location.Value = "MZone1"
+				}
+			}}/>
+		</frame>
+	)
+})
+
 Roact.mount(
 	<screengui>
 		<App/>
+		<DevTools/>
 	</screengui>,
 	playerGui,
 	"DuelGui",

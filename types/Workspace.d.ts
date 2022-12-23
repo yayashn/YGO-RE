@@ -8,8 +8,6 @@ interface Workspace extends Model {
 		Pri: Part;
 		LP1: Part;
 		Card: Part & {
-			LayoutOrder: IntValue;
-			card2D: ObjectValue;
 			Menu: ClickDetector;
 		};
 		Part: Part;
@@ -49,11 +47,12 @@ interface Workspace extends Model {
 		Field: Model & {
 			Opponent: Model & {
 				GZone: Vector3Value;
-				Deck: Vector3Value;
 				EZone: Vector3Value;
 				FZone: Vector3Value;
 				Part: Part;
 				BZone: Vector3Value;
+				Cards: Model;
+				Deck: Vector3Value;
 				Hand: Model & {
 					Center: Part;
 				};
@@ -74,11 +73,12 @@ interface Workspace extends Model {
 			};
 			Player: Model & {
 				GZone: Vector3Value;
-				Deck: Vector3Value;
 				EZone: Vector3Value;
 				FZone: Vector3Value;
 				Part: Part;
 				BZone: Vector3Value;
+				Cards: Model;
+				Deck: Vector3Value;
 				Hand: Model & {
 					Center: Part;
 				};

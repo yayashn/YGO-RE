@@ -4,7 +4,7 @@ type Hand = Model & {
     Center: Part;
 }
 
-export const Hand = ({hand}: {hand: Hand}) => {
+export const Hand = () => {
 
     return (
         <surfacegui Key="Hand">

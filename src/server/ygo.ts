@@ -25,6 +25,11 @@ interface LocationValue extends StringValue {
     | "SZone1" | "SZone2" | "SZone3" | "SZone4" | "SZone5";
 }
 
+export type Position = "FaceUpAttack" | "FaceUpDefense" | "FaceDownDefense" | "FaceUp" | "FaceDown";
+interface PositionValue extends StringValue {
+    Value: Position
+}
+
 export interface CardFolder extends Folder {
     controller: PlayerValue;
     name: StringValue;
@@ -34,6 +39,7 @@ export interface CardFolder extends Folder {
     atk: NumberValue;
     def: NumberValue;
     order: IntValue;
+    position: PositionValue;
 }
 
 export interface DuelFolder extends Folder {
@@ -111,10 +117,12 @@ export const Card = (n: string, owner: PlayerValue, o: number) => {
     const controller = instance("ObjectValue", "controller", folder) as PlayerValue;
     const location = instance("StringValue", "location", folder) as LocationValue;
     const order = instance("IntValue", "order", folder) as IntValue;
+    const position = instance("StringValue", "position", folder) as PositionValue;
 
     order.Value = o;
     controller.Value = owner.Value;
     name.Value = n;
     location.Value = "Deck";
     typ.Value = "Monster";
+    position.Value = "FaceUpAttack";
 }
