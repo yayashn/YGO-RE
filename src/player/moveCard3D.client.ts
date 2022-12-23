@@ -19,26 +19,33 @@ const field = game.Workspace.Field3D.Field;
 
 [field.Player, field.Opponent].forEach((playerField) => {
     // Hand animations
-    playerField.Hand.ChildAdded.Connect((card3D) => {
-        const hand = playerField.Hand;
-        const margin = 40;
-    
-        const handCards = () => hand.GetChildren().filter((card3D) => card3D.Name === "Card");
-        handCards().forEach((card3D) => {
-            const tweenGoal = {Position: new Vector3()};
-            const position = (card3D as Card3D).Position;
-            tweenGoal.Position = new Vector3(position.X + (handCards().size()) * margin, position.Y, position.Z);
-            const tween = tweenService.Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>);
-            tween.Play();
-            tween.Completed.Wait();
+    const center = playerField.Hand.Center.Position;
+    const orientation = playerField.Hand.Center.Orientation;
+    const handCards = () => playerField.Hand.GetChildren().filter((card3D) => card3D.Name === "Card") as Card3D[];
+    const margin = 10;
+    const layoutCards = (card3D: Instance) => {
+        const parentSize = playerField.Hand.Center.Size;
+        const childSize = (card3D as Card3D).Size;
+        const handCards = playerField.Hand.GetChildren().filter((card3D) => card3D.Name === "Card") as Card3D[];
+      
+        let totalWidth = 0;
+        handCards.forEach((card3D) => {
+          totalWidth += card3D.Size.X + margin;
         });
-        const tweenGoal = {Position: new Vector3()};
-        const position = (card3D as Card3D).Position;
-        tweenGoal.Position = new Vector3(position.X + (handCards().size()) * margin, position.Y, position.Z);
-        const tween = tweenService.Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>);
-        tween.Play();
-        tween.Completed.Wait();    
-    })
+      
+        let currentX = center.X - totalWidth / 2 + childSize.X / 2;
+      
+        handCards.forEach((card3D, index) => {
+          const tweenGoal = {Position: new Vector3(currentX, center.Y, center.Z)};
+          (card3D as Card3D).Orientation = orientation;
+          tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
+      
+          currentX += childSize.X + margin;
+        });
+      }
+      
+    playerField.Hand.ChildAdded.Connect(layoutCards)
+    playerField.Hand.ChildRemoved.Connect(layoutCards)
 
     // Field zone animations
     playerField.Field.GetChildren().filter(zone => zone.IsA("Vector3Value")).forEach((zone) => {
