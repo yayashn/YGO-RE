@@ -13,10 +13,6 @@ const moveCard3D = new Instance("RemoteEvent");
 moveCard3D.Name = "moveCard3D.re";
 moveCard3D.Parent = replicatedStorage;
 
-const adornee = new Instance("RemoteEvent");
-adornee.Name = "adornee.re";
-adornee.Parent = replicatedStorage;
-
 players.PlayerAdded.Connect((player) => {
 	const playerFolder = new Instance("Folder");
 	playerFolder.Name = player.Name;

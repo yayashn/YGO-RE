@@ -7,7 +7,7 @@ import { FieldZone } from "shared/types";
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const tweenService = game.GetService("TweenService");
-const adornee = replicatedStorage.WaitForChild("adornee.re") as RemoteEvent;
+const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 
 interface FieldZoneButtonProps {
 	zoneName: FieldZone;
@@ -24,11 +24,10 @@ const FieldZoneButton = withHooks(
 		const [tween, setTween] = useState<Tween>();
 		const [selected, setSelected] = useState<boolean>();
 
-		useEffect(() => {
-			if (buttonRef.getValue()) {
-				setTween(tweenService.Create(buttonRef.getValue()!, tweenInfo, tweenGoal));
-			}
-		}, [buttonRef]);
+
+		useMount(() => {
+			setTween(tweenService.Create(buttonRef.getValue()!, tweenInfo, tweenGoal));
+		}, [buttonRef], buttonRef)
 
 		useEffect(() => {
 			if (animate) {
@@ -60,14 +59,12 @@ const FieldZoneButton = withHooks(
 						}
 					},
 					MouseEnter: () => {
-						if (!animate) {
-							setIsHovered(true);
-						}
+						print("enter")
+						setIsHovered(true);
 					},
 					MouseLeave: () => {
-						if (!animate) {
-							setIsHovered(false);
-						}
+						print("leave")
+						setIsHovered(false);
 					},
 				}}
 			/>
@@ -75,16 +72,12 @@ const FieldZoneButton = withHooks(
 	},
 );
 
-export const Field = withHooks(({field}: {field: Part}) => {
+export const Field = withHooks(({playerType}: {playerType: "Player" | "Opponent"}) => {
 	const [animateFieldZones, setAnimateFieldZones] = useState<FieldZone[]>([]);
-	const fieldRef = useRef<SurfaceGui>();
-
-	useMount(() => {
-		adornee.FireClient(player, fieldRef.getValue(), field)
-	}, [], fieldRef)
+	const field = game.Workspace.Field3D.Field.FindFirstChild(playerType)!.FindFirstChild("Field")!.FindFirstChild("Part") as Part;
 
 	return (
-		<surfacegui Ref={fieldRef} Key="Field" Face="Top">
+		<surfacegui Key="Field" Face="Top" Adornee={field}>
 			<uigridlayout
 				SortOrder="LayoutOrder"
 				CellPadding={new UDim2(0, 0, 0.005, 0)}

@@ -17,7 +17,7 @@ export default withHooks(({PlayerValue}: {PlayerValue: PlayerValue}) => {
     return (
         <surfacegui Key="Cards">
             {cards?.map((card) => {
-                return <CardButton card={card as CardFolder} />
+                return <CardButton card={card} />
             })}
         </surfacegui>
     )
@@ -26,6 +26,7 @@ export default withHooks(({PlayerValue}: {PlayerValue: PlayerValue}) => {
 export type CardButton = {
     card: CardFolder
     getPosition?: RemoteFunction
+    card3D?: ObjectValue
 }
 
 interface DuelGuiPlayerField extends SurfaceGui {
@@ -64,6 +65,8 @@ export const CardButton = withHooks(({card}: CardButton) => {
         card3DValue.Value = cardRef.getValue();
         card3DValue.Name = "card3D";
         card3DValue.Parent = cardRef.getValue();
+        card.cardButton.Value = cardRef.getValue()!;
+        const cardFolderValue = instance("ObjectValue", "cardFolder", cardRef.getValue()) as ObjectValue;
 
         const isOpponent = card.controller.Value !== player;
 

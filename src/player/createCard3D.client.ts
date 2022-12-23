@@ -12,6 +12,7 @@ export interface Card2DValue {
 export type Card3D = Part & {
     Menu: ClickDetector;
     card2D: Card2DValue;
+    order: IntValue;
 }
 
 createCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: string }, isOpponent?: boolean) => {
@@ -21,4 +22,6 @@ createCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: s
     card3DValue.Value = card3D;
     const card2DValue = instance("ObjectValue", "card2D", card3D) as ObjectValue;
     card2DValue.Value = cardButton;
+    const orderValue = instance("IntValue", "order", card3D) as IntValue;
+    orderValue.Value = 0;
 });

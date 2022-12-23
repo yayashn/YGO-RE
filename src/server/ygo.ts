@@ -1,10 +1,13 @@
 import { instance } from "shared/utils";
 import { getCards, getDuel } from "./utils";
+import { CardButton } from "gui/duel/Cards";
 
 const serverStorage = game.GetService("ServerStorage")
 const playersFolder = serverStorage.WaitForChild("players")!
 const httpService = game.GetService("HttpService");
 const duels = serverStorage.WaitForChild("duels")!
+const replicatedStorage = game.GetService("ReplicatedStorage");
+const drawCardFromClient = replicatedStorage.FindFirstChild("remotes")!.FindFirstChild("drawCard") as RemoteFunction;
 
 interface PhaseValue extends StringValue {
     Value: "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
@@ -40,6 +43,7 @@ export interface CardFolder extends Folder {
     def: NumberValue;
     order: IntValue;
     position: PositionValue;
+    cardButton: ObjectValue;
 }
 
 export interface DuelFolder extends Folder {
@@ -49,6 +53,7 @@ export interface DuelFolder extends Folder {
     player1: PlayerValue;
     player2: PlayerValue;
 }
+
 
 
 export const Duel = (p1: Player, p2: Player) => {
@@ -65,9 +70,10 @@ export const Duel = (p1: Player, p2: Player) => {
     player1.Value = p1;
     player2.Value = p2;
 
-    [player1, player2].forEach((player) => {
+    const thread = [player1, player2].map((player) => coroutine.wrap(() => {
         const lifePoints = instance("NumberValue", "lifePoints", player) as NumberValue;
         const cards = instance("Folder", "cards", player) as Folder;
+        const opponent = player === player1 ? player2 : player1;
 
         lifePoints.Value = 8000;
 
@@ -88,24 +94,30 @@ export const Duel = (p1: Player, p2: Player) => {
                 deck[i].order.Value = i;
             }
         }
-        (instance("BindableEvent", "shuffle", folder) as BindableEvent).Event.Connect(shuffle)
+        (instance("BindableEvent", "shuffle", player) as BindableEvent).Event.Connect(shuffle)
 
         const draw = (n: number) => {
             for(let i = 0; i < n; i++) {
                 let deck = (cards.GetChildren() as CardFolder[]).filter((card) => card.location.Value === "Deck");
                 const topCard = deck.find((card) => card.order.Value === 0)!;
                 topCard.location.Value = "Hand";
+                if(!topCard.cardButton.Value) {
+                    while (!topCard.cardButton.Value) wait();
+                }
                 deck = (cards.GetChildren() as CardFolder[]).filter((card) => card.location.Value === "Deck");
-                deck.forEach((_, i) => {
-                    deck[i].order.Value -= 1;
-                })
+                deck.forEach((_, x) => {
+                    deck[x].order.Value -= 1;
+                });
             }
         }
-        (instance("BindableEvent", "draw", folder) as BindableEvent).Event.Connect(shuffle)
+        (instance("BindableEvent", "draw", player) as BindableEvent).Event.Connect(draw)
 
         shuffle();
         draw(5);
-    })
+    }));
+
+    thread[0]();
+    thread[1]();
 }
 
 export const Card = (n: string, owner: PlayerValue, o: number) => {
@@ -118,6 +130,7 @@ export const Card = (n: string, owner: PlayerValue, o: number) => {
     const location = instance("StringValue", "location", folder) as LocationValue;
     const order = instance("IntValue", "order", folder) as IntValue;
     const position = instance("StringValue", "position", folder) as PositionValue;
+    const card = instance("ObjectValue", "cardButton", folder) as ObjectValue;
 
     order.Value = o;
     controller.Value = owner.Value;

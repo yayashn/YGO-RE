@@ -12,7 +12,7 @@ export default (player: Player) => {
             return;
         };
         const playerValue = [duel.player1, duel.player2].find((p) => p.Value === player)!;
-        setCards(playerValue.cards.GetChildren() as CardFolder[])
+        setCards(playerValue.WaitForChild("cards").GetChildren() as CardFolder[])
     }, [duel])
 
     return cards;

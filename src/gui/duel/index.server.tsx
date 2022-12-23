@@ -1,13 +1,13 @@
 import Roact from "@rbxts/roact";
-import { useEffect, withHooks } from "@rbxts/roact-hooked";
+import { withHooks } from "@rbxts/roact-hooked";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import Cards from "./Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";
 import { CardFolder, PlayerValue } from "server/ygo";
-import useDuel from "gui/hooks/useDuel";
 
+const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 const field = game.Workspace.Field3D.Field;
@@ -15,6 +15,7 @@ const field = game.Workspace.Field3D.Field;
 export const App = withHooks(() => {
 	const YGOPlayer = useYGOPlayer();
 	const YGOOpponent = useYGOPlayer(true);
+
 
 	if(YGOPlayer && YGOOpponent) {
 		return (
@@ -38,7 +39,7 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 
 	return (
 		<surfacegui Key={playerType}>
-			<Field field={field[playerType].Part}/>
+			<Field playerType={playerType}/>
 			<Hand />
 			<Zone zone={field[playerType].BZone}/>
 			<Zone zone={field[playerType].GZone}/>
