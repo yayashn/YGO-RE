@@ -1,12 +1,12 @@
 import Roact, { Ref } from "@rbxts/roact";
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { CardGui } from "shared/types";
-import { getPlayer } from "shared/utils";
 
-const player = getPlayer(script);
+const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.FindFirstChild("PlayerGui")!;
 
-export default (uiRef: Ref<GuiObject | CardGui | SurfaceGui | Frame>) => {
+export type UseIsMountedRef = Ref<GuiObject | SurfaceGui | Frame>;
+
+export default (uiRef: Ref<GuiObject | SurfaceGui | Frame>) => {
 	const [isMounted, setIsMounted] = useState(false);
 
 	useEffect(() => {

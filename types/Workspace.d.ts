@@ -47,56 +47,56 @@ interface Workspace extends Model {
 			};
 		};
 		Field: Model & {
-			CardsOpponent: Model;
-			HandOpponent: Model & {
-				Center: Part;
-			};
-			AltOpponent: Model & {
+			Opponent: Model & {
 				GZone: Vector3Value;
+				Deck: Vector3Value;
 				EZone: Vector3Value;
 				FZone: Vector3Value;
-				Deck: Vector3Value;
+				Part: Part;
 				BZone: Vector3Value;
+				Hand: Model & {
+					Center: Part;
+				};
+				Field: Model & {
+					MZone4: Vector3Value;
+					SZone5: Vector3Value;
+					Part: Part;
+					SZone2: Vector3Value;
+					SZone1: Vector3Value;
+					Union: UnionOperation;
+					SZone3: Vector3Value;
+					MZone2: Vector3Value;
+					MZone5: Vector3Value;
+					MZone1: Vector3Value;
+					SZone4: Vector3Value;
+					MZone3: Vector3Value;
+				};
 			};
-			AltPlayer: Model & {
+			Player: Model & {
 				GZone: Vector3Value;
+				Deck: Vector3Value;
 				EZone: Vector3Value;
 				FZone: Vector3Value;
-				Deck: Vector3Value;
+				Part: Part;
 				BZone: Vector3Value;
+				Hand: Model & {
+					Center: Part;
+				};
+				Field: Model & {
+					MZone1: Vector3Value;
+					SZone5: Vector3Value;
+					Part: Part;
+					SZone2: Vector3Value;
+					SZone1: Vector3Value;
+					Union: UnionOperation;
+					SZone3: Vector3Value;
+					MZone2: Vector3Value;
+					MZone5: Vector3Value;
+					MZone4: Vector3Value;
+					SZone4: Vector3Value;
+					MZone3: Vector3Value;
+				};
 			};
-			FieldPlayer: Model & {
-				MZone1: Vector3Value;
-				SZone5: Vector3Value;
-				Part: Part;
-				SZone2: Vector3Value;
-				SZone1: Vector3Value;
-				Union: UnionOperation;
-				SZone3: Vector3Value;
-				MZone2: Vector3Value;
-				MZone5: Vector3Value;
-				MZone4: Vector3Value;
-				SZone4: Vector3Value;
-				MZone3: Vector3Value;
-			};
-			FieldOpponent: Model & {
-				MZone4: Vector3Value;
-				SZone5: Vector3Value;
-				Part: Part;
-				SZone2: Vector3Value;
-				SZone1: Vector3Value;
-				Union: UnionOperation;
-				SZone3: Vector3Value;
-				MZone2: Vector3Value;
-				MZone5: Vector3Value;
-				MZone1: Vector3Value;
-				SZone4: Vector3Value;
-				MZone3: Vector3Value;
-			};
-			HandPlayer: Model & {
-				Center: Part;
-			};
-			CardsPlayer: Model;
 		};
 	};
 }

@@ -1,23 +1,28 @@
 import Roact from "@rbxts/roact";
-import { useRef, useState, withHooks, useEffect, SetStateAction, Dispatch } from "@rbxts/roact-hooked";
+import { useRef, useState, withHooks, useEffect } from "@rbxts/roact-hooked";
+import useMount from "gui/hooks/useMount";
+import { fieldZones } from "shared/defs";
 import { FieldZone } from "shared/types";
 
+const replicatedStorage = game.GetService("ReplicatedStorage");
+const player = script.FindFirstAncestorWhichIsA("Player")!;
 const tweenService = game.GetService("TweenService");
+const adornee = replicatedStorage.WaitForChild("adornee.re") as RemoteEvent;
 
 interface FieldZoneButtonProps {
 	zoneName: FieldZone;
 	layoutOrder: number;
 	animate?: boolean;
-	useSelected: [FieldZone | undefined, Dispatch<SetStateAction<FieldZone | undefined>>];
 }
 
 const FieldZoneButton = withHooks(
-	({ zoneName, layoutOrder, animate, useSelected: [selected, setSelected] }: FieldZoneButtonProps) => {
+	({ zoneName, layoutOrder, animate }: FieldZoneButtonProps) => {
 		const buttonRef = useRef<TextButton>();
 		const [isHovered, setIsHovered] = useState<boolean>();
 		const tweenInfo = new TweenInfo(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true, 0);
 		const tweenGoal = { BackgroundTransparency: 0.5 };
 		const [tween, setTween] = useState<Tween>();
+		const [selected, setSelected] = useState<boolean>();
 
 		useEffect(() => {
 			if (buttonRef.getValue()) {
@@ -51,7 +56,7 @@ const FieldZoneButton = withHooks(
 				Event={{
 					MouseButton1Click: () => {
 						if (selected === undefined) {
-							setSelected(zoneName);
+							print(zoneName)
 						}
 					},
 					MouseEnter: () => {
@@ -70,25 +75,16 @@ const FieldZoneButton = withHooks(
 	},
 );
 
-export const FieldPlayer = withHooks(() => {
-	const FieldPlayer = game.Workspace.Field3D.Field.FieldPlayer.Part;
-	const fieldZones: FieldZone[] = [
-		"MZone1",
-		"MZone2",
-		"MZone3",
-		"MZone4",
-		"MZone5",
-		"SZone1",
-		"SZone2",
-		"SZone3",
-		"SZone4",
-		"SZone5",
-	];
-	const [selected, setSelected] = useState<FieldZone>();
+export const Field = withHooks(({field}: {field: Part}) => {
 	const [animateFieldZones, setAnimateFieldZones] = useState<FieldZone[]>([]);
+	const fieldRef = useRef<SurfaceGui>();
+
+	useMount(() => {
+		adornee.FireClient(player, fieldRef.getValue(), field)
+	}, [], fieldRef)
 
 	return (
-		<surfacegui Key="FieldPlayer" Face="Top" Adornee={FieldPlayer}>
+		<surfacegui Ref={fieldRef} Key="Field" Face="Top">
 			<uigridlayout
 				SortOrder="LayoutOrder"
 				CellPadding={new UDim2(0, 0, 0.005, 0)}
@@ -98,46 +94,6 @@ export const FieldPlayer = withHooks(() => {
 				const zone = zonesArray[zonesArray.size() - i - 1];
 				return (
 					<FieldZoneButton
-						useSelected={[selected, setSelected]}
-						animate={animateFieldZones.find((n: string) => n === zone) !== undefined}
-						zoneName={zone}
-						layoutOrder={i}
-					/>
-				);
-			})}
-		</surfacegui>
-	);
-});
-
-export const FieldOpponent = withHooks(() => {
-	const FieldOpponent = game.Workspace.Field3D.Field.FieldOpponent.Part;
-	const fieldZones: FieldZone[] = [
-		"MZone1",
-		"MZone2",
-		"MZone3",
-		"MZone4",
-		"MZone5",
-		"SZone1",
-		"SZone2",
-		"SZone3",
-		"SZone4",
-		"SZone5",
-	];
-	const [selected, setSelected] = useState<FieldZone>();
-	const [animateFieldZones, setAnimateFieldZones] = useState<FieldZone[]>([]);
-
-	return (
-		<surfacegui Key="FieldOpponent" Face="Top" Adornee={FieldOpponent}>
-			<uigridlayout
-				SortOrder="LayoutOrder"
-				CellPadding={new UDim2(0, 0, 0.005, 0)}
-				CellSize={new UDim2(0.2, 0, 0.5, 0)}
-			/>
-			{fieldZones.map((_, i, zonesArray) => {
-				const zone = zonesArray[zonesArray.size() - i - 1];
-				return (
-					<FieldZoneButton
-						useSelected={[selected, setSelected]}
 						animate={animateFieldZones.find((n: string) => n === zone) !== undefined}
 						zoneName={zone}
 						layoutOrder={i}

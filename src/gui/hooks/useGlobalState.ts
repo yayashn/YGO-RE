@@ -5,9 +5,15 @@ const serverStorage = game.GetService("ServerStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerFolder = serverStorage.FindFirstChild("players")!.WaitForChild(player.Name);
 
-const globalStore = new Instance("Folder");
-globalStore.Name = "GlobalStore";
-globalStore.Parent = playerFolder;
+let globalStore: Folder;
+
+if(!playerFolder.FindFirstChild("GlobalStore")) {
+    globalStore = new Instance("Folder");
+    globalStore.Name = "GlobalStore";
+    globalStore.Parent = playerFolder;   
+} else {
+    globalStore = playerFolder.FindFirstChild("GlobalStore") as Folder;
+}
 
 export type ValueType = string | number | boolean | Instance | Ray | Vector3 | CFrame | Color3 | any[] | {};
 
@@ -47,28 +53,38 @@ export const createGlobalState = (key: string, initialValue: ValueType) => {
 	return stateStore;
 };
 
-export const useGlobalState = <T>(stateStore: ValueBase) => {
-	let isDecodable: boolean;
-	try {
-		httpService.JSONDecode(stateStore.Value as string);
-		isDecodable = true;
-	} catch (error) {
-		isDecodable = false;
-	}
+export const getGlobalState = (key: string, player?: Player) => {
+    if(!player) {
+        return globalStore.FindFirstChild(key) as ValueBase;
+    } else {
+        const playerFolder = serverStorage.FindFirstChild("players")!.WaitForChild(player.Name);
+        const globalStore = playerFolder.FindFirstChild("GlobalStore") as Folder;
+        return globalStore.FindFirstChild(key) as ValueBase;
+    }
+};
 
-	const [state, setState] = useState(
-		isDecodable ? httpService.JSONDecode(stateStore.Value as string) : stateStore.Value,
-	);
+export const useGlobalState = <T>(stateStore: ValueBase): [T, (value: T) => void] => {
+  let isDecodable: boolean;
+  try {
+    httpService.JSONDecode(stateStore.Value as string);
+    isDecodable = true;
+  } catch (error) {
+    isDecodable = false;
+  }
 
-	const setGlobalState = (value: ValueType) => {
-		stateStore.Value = isDecodable ? httpService.JSONEncode(value) : value;
-	};
+  const [state, setState] = useState<T>(
+    (isDecodable ? httpService.JSONDecode(stateStore.Value as string) : stateStore.Value) as T
+  );
 
-	useEffect(() => {
-		stateStore.Changed.Connect((newValue) => {
-			setState(isDecodable ? httpService.JSONDecode(newValue as string) : newValue);
-		});
-	}, []);
+  const setGlobalState = (value: T) => {
+    stateStore.Value = isDecodable ? httpService.JSONEncode(value) : value;
+  };
 
-	return [state, setGlobalState] as [T, (value: ValueType) => void];
+  useEffect(() => {
+    stateStore.Changed.Connect((newValue) => {
+      setState((isDecodable ? httpService.JSONDecode(newValue as string) : newValue) as T);
+    });
+  }, []);
+
+  return [state, setGlobalState];
 };
