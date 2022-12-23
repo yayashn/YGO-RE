@@ -4,6 +4,7 @@ const playersFolder = new Instance("Folder");
 playersFolder.Name = "players";
 playersFolder.Parent = serverStorage;
 const replicatedStorage = game.GetService("ReplicatedStorage");
+const httpService = game.GetService("HttpService");
 
 const createCard3D = new Instance("RemoteEvent");
 createCard3D.Name = "createCard3D.re";
@@ -20,14 +21,11 @@ players.PlayerAdded.Connect((player) => {
 
 	const deck = new Instance("StringValue");
 	deck.Name = "deck";
-	deck.Value = `[
-		"Dark Magician",
-		"Blue-Eyes White Dragon",
-		"Red-Eyes Black Dragon",
-		"Summoned Skull",
-		"Exodia the Forbidden One",
-		"Magician of Faith"
-	]`;
+	const deckData = []
+	for(let i = 0; i < 40; i++) {
+		deckData.push("Dark Magician");
+	}
+	deck.Value = httpService.JSONEncode(deckData);
 	deck.Parent = playerFolder;
 
 	const sleeve = new Instance("StringValue");

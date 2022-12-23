@@ -1,13 +1,8 @@
 import { instance } from "shared/utils";
-import { getCards, getDuel } from "./utils";
-import { CardButton } from "gui/duel/Cards";
+import { getCards } from "./utils";
 
 const serverStorage = game.GetService("ServerStorage")
-const playersFolder = serverStorage.WaitForChild("players")!
-const httpService = game.GetService("HttpService");
 const duels = serverStorage.WaitForChild("duels")!
-const replicatedStorage = game.GetService("ReplicatedStorage");
-const drawCardFromClient = replicatedStorage.FindFirstChild("remotes")!.FindFirstChild("drawCard") as RemoteFunction;
 
 interface PhaseValue extends StringValue {
     Value: "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
@@ -108,11 +103,13 @@ export const Duel = (p1: Player, p2: Player) => {
                 deck.forEach((_, x) => {
                     deck[x].order.Value -= 1;
                 });
+                wait(0.3)
             }
         }
         (instance("BindableEvent", "draw", player) as BindableEvent).Event.Connect(draw)
 
         shuffle();
+        wait(.5)
         draw(5);
     }));
 

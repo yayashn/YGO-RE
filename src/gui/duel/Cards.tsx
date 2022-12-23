@@ -27,6 +27,7 @@ export type CardButton = {
     card: CardFolder
     getPosition?: RemoteFunction
     card3D?: ObjectValue
+    getOrder?: RemoteFunction
 }
 
 interface DuelGuiPlayerField extends SurfaceGui {
@@ -90,6 +91,11 @@ export const CardButton = withHooks(({card}: CardButton) => {
         const getPositionFromClient = (instance("RemoteFunction", "getPosition", cardRef.getValue()) as RemoteFunction)
         getPositionFromClient.OnServerInvoke = () => {
             return card.position.Value
+        }
+
+        const getOrderFromClient = (instance("RemoteFunction", "getOrder", cardRef.getValue()) as RemoteFunction)
+        getOrderFromClient.OnServerInvoke = () => {
+            return card.order.Value
         }
     }, [], cardRef)
 
