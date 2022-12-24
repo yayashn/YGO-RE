@@ -49,7 +49,9 @@ export interface DuelFolder extends Folder {
     player2: PlayerValue;
 }
 
-
+export interface CardInventory {
+    name: string;
+}
 
 export const Duel = (p1: Player, p2: Player) => {
     const folder = instance("Folder", `${p1.Name}|${p2.Name}`, duels) as DuelFolder;
@@ -74,7 +76,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
         let o = 0;
         for(const card of getCards(player.Value)!) {
-            Card(card, player, o)
+            Card((card as CardInventory).name, player, o)
             o++;
         }
 
@@ -108,9 +110,10 @@ export const Duel = (p1: Player, p2: Player) => {
         }
         (instance("BindableEvent", "draw", player) as BindableEvent).Event.Connect(draw)
 
-        shuffle();
-        wait(.5)
-        draw(5);
+        wait(1.5)
+        shuffle()
+        wait(1.5)
+        draw(5)
     }));
 
     thread[0]();

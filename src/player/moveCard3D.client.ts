@@ -11,7 +11,6 @@ moveCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: str
     card3D.Parent = get3DZone(card.location, isOpponent);
 });
 
-
 const tweenService = game.GetService("TweenService");
 const tweenInfo = new TweenInfo(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0);
 
@@ -27,13 +26,11 @@ const field = game.Workspace.Field3D.Field;
             zone.GetChildren().forEach((card3D) => {
                 const cardButton = ((card3D as Card3D).WaitForChild("card2D") as ObjectValue).Value as unknown as CardButton;
                 const order = cardButton.getOrder!.InvokeServer() as number;
-                print(order)
-                const tweenGoal = {Position: new Vector3(position.X, position.Y + order*50, position.Z)} as Partial<ExtractMembers<Instance, Tweenable>>;
+                const tweenGoal = {Position: new Vector3(position.X, position.Y + order*.5, position.Z)} as Partial<ExtractMembers<Instance, Tweenable>>;
                 tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
             })
         }
         zone.ChildAdded.Connect(stackCards);
-        zone.ChildRemoved.Connect(stackCards);
         stackCards();
     })
     

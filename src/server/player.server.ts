@@ -21,12 +21,12 @@ players.PlayerAdded.Connect((player) => {
 
 	const deck = new Instance("StringValue");
 	deck.Name = "deck";
-	const deckData = []
-	for(let i = 0; i < 40; i++) {
-		deckData.push("Dark Magician");
+	const deckInventory = [];
+	for (let i = 0; i < 40; i++) {
+		deckInventory.push({ name: "Dark Magician" })
 	}
-	deck.Value = httpService.JSONEncode(deckData);
 	deck.Parent = playerFolder;
+	deck.Value = httpService.JSONEncode(deckInventory);
 
 	const sleeve = new Instance("StringValue");
 	sleeve.Name = "sleeve";
