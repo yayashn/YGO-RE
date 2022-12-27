@@ -15,8 +15,8 @@ export type Card3D = Part & {
     order: IntValue;
 }
 
-createCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: string }, isOpponent?: boolean) => {
-	const card3D = card3DTemplate.Clone() as Card3D;
+createCard3D.OnClientEvent.Connect((cardButton: SurfaceGui, card: { location: string }, isOpponent?: boolean) => {
+    const card3D = card3DTemplate.Clone() as Card3D;
     card3D.Parent = get3DZone(card.location, isOpponent);
     const card3DValue = (cardButton.FindFirstChild("card3D") as ObjectValue);
     card3DValue.Value = card3D;
@@ -24,4 +24,10 @@ createCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: s
     card2DValue.Value = cardButton;
     const orderValue = instance("IntValue", "order", card3D) as IntValue;
     orderValue.Value = 0;
+    const art = cardButton.WaitForChild("Art") as SurfaceGui;
+    art.Adornee = card3D;
+    const sleeve = cardButton.WaitForChild("Sleeve") as SurfaceGui;
+    sleeve.Adornee = card3D;
+    const cardMenu = cardButton.WaitForChild("CardMenu") as BillboardGui;
+    cardMenu.Adornee = card3D;
 });

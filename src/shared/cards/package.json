@@ -1,0 +1,12 @@
+{
+  "name": "cards",
+  "scripts": {
+    "create-set": "node create-set.js",
+    "create-set-images": "node create-set-images.js"
+  },
+  "dependencies": {
+    "fs-extra": "^11.1.0",
+    "json-pretty": "^0.0.1",
+    "request": "^2.88.2"
+  }
+}

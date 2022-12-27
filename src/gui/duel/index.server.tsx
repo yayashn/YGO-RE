@@ -5,22 +5,42 @@ import Cards from "./Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";
-import { CardFolder, PlayerValue } from "server/ygo";
+import { Phase, PlayerValue } from "server/ygo";
+import useDuel from "gui/hooks/useDuel";
 
-const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 const field = game.Workspace.Field3D.Field;
 
 export const App = withHooks(() => {
+	const duel = useDuel();
 	const YGOPlayer = useYGOPlayer();
 	const YGOOpponent = useYGOPlayer(true);
-
 
 	if(YGOPlayer && YGOOpponent) {
 		return (
 			<surfacegui Key="Field">
 				<Player playerValue={YGOOpponent}/>
+				<billboardgui>
+					<uilistlayout FillDirection="Horizontal"/>
+					{(["DP", "SP", "MP1", "BP", "MP2", "EP"] as Phase[]).map((phaseName) => {
+						return (
+							<textbutton 
+							Event={{
+								MouseButton1Click: () => {
+									if(duel!.phase.Value === "MP1") {
+										if(phaseName === "BP") {
+											duel!.phase.Value = phaseName;
+										} else if(phaseName === "EP") {
+											duel!.phase.Value = "MP2"
+										}
+									}
+								}
+							}}
+							Text={phaseName} />
+						)
+					})}
+				</billboardgui>
 				<Player playerValue={YGOPlayer}/>
 			</surfacegui>
 		)
@@ -50,24 +70,9 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 	)
 })
 
-const DevTools = withHooks(() => {
-	const player = useYGOPlayer();
-
-	return (
-		<frame Size={new UDim2(.2,0,.2,0)} BackgroundTransparency={1}>
-			<textbutton Text="MZone1" Size={new UDim2(1,0,1,0)} Event={{
-				MouseButton1Click: () => {
-					(player!.cards.GetChildren()[0] as CardFolder).location.Value = "MZone1"
-				}
-			}}/>
-		</frame>
-	)
-})
-
 Roact.mount(
 	<screengui>
 		<App/>
-		<DevTools/>
 	</screengui>,
 	playerGui,
 	"DuelGui",

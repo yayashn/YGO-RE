@@ -1,0 +1,7469 @@
+{
+  "Children": [
+    {
+      "ClassName": "Folder",
+      "Name": "Aqua Madoor",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-85639257"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 85639257
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A wizard of the waters that conjures a liquid wall to crush any enemies that oppose him."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Armaill",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-53153481"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 53153481
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A strange warrior who manipulates three deadly blades with both hands and his tail."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Armed Ninja",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-9076207"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 9076207
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Flip Effect Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "FLIP: Target 1 Spell Card on the field; destroy that target. (If the target is Set, reveal it, and destroy it if it is a Spell Card. Otherwise, return it to its original position.)"
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Armored Starfish",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-17535588"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 17535588
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A bluish starfish with a solid hide capable of fending off attacks."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 850
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Aqua"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Basic Insect",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-89091579"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 89091579
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Usually found traveling in swarms, this creature's ideal environment is the forest."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Insect"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Beast Fangs",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-46009906"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 46009906
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A Beast-Type monster equipped with this card increases its ATK and DEF by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Beaver Warrior",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-32452818"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 32452818
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "What this creature lacks in size it makes up for in defense when battling in the prairie."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast-Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Blue-Eyes White Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-89631139"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 89631139
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This legendary dragon is a powerful engine of destruction. Virtually invincible, very few have faced this awesome creature and lived to tell the tale."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 3000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 8
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Book of Secret Arts",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-91595718"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 91595718
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A Spellcaster-Type monster equipped with this card increases its ATK and DEF by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Celtic Guardian",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-91152256"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 91152256
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "An elf who learned to wield a sword, he baffles enemies with lightning-swift attacks."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Charubin the Fire Knight",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-37421579"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 37421579
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Monster Egg\" + \"Hinotama Soul\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1100
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Pyro"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "FIRE"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Curse of Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-28279543"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 28279543
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A wicked dragon that taps into dark forces to execute a powerful attack."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dark Energy",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-4614116"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 4614116
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Increase the ATK and DEF of a Fiend-Type monster equipped with this card by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dark Gray",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-9159938"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 9159938
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Entirely gray, this beast has rarely been seen by mortal eyes."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dark Hole",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-53129443"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 53129443
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Destroy all monsters on the field."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dark King of the Abyss",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-53375573"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 53375573
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "It's said that this King of the Netherworld once had the power to rule over the dark."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dark Magician",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-36996508"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 36996508
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "''The ultimate wizard in terms of attack and defense.''"
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2100
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 7
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Darkfire Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-17881964"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 17881964
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Firegrass\" + \"Petit Dragon\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1250
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Darkworld Thorns",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-43500484"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 43500484
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A thorny plant found in the darklands that wraps itself around any unwary traveler."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Plant"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dissolverock",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-40826495"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 40826495
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A monster born in the lava pits, it generates intense heat that can melt away its enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Rock"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dragon Capture Jar",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-50045299"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 50045299
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Trap Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Change all face-up Dragon-Type monsters on the field to Defense Position, also they cannot change their battle positions."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Continuous"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dragon Treasure",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-1435851"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 1435851
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A Dragon-Type monster equipped with this card increases its ATK and DEF by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Dragoness the Wicked Knight",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-70681994"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 70681994
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Armaill\" + \"One-Eyed Shield Dragon\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Drooling Lizard",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-16353197"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 16353197
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A blood-sucking snake in human form that attacks any living being that passes nearby."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Reptile"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Electro-Whip",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-37820550"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 37820550
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Increase the ATK and DEF of a Thunder-Type monster equipped with this card by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Exodia the Forbidden One",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-33396948"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 33396948
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Effect Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "If you have \"Right Leg of the Forbidden One\", \"Left Leg of the Forbidden One\", \"Right Arm of the Forbidden One\" and \"Left Arm of the Forbidden One\" in addition to this card in your hand, you win the Duel."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Fiend Reflection #2",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-2863439"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 2863439
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A bird-beast that summons reinforcements with a hand mirror."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1100
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Winged Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Final Flame",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-73134081"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 73134081
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Inflict 600 points of damage to your opponent's Life Points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Firegrass",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-53293545"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 53293545
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A fire-breathing plant found growing near volcanoes."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Plant"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Fireyarou",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-71407486"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 71407486
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A malevolent creature wrapped in flames that attacks enemies with intense fire."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Pyro"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "FIRE"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Fissure",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-66788016"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 66788016
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Destroy the 1 face-up monster your opponent controls that has the lowest ATK (your choice, if tied)."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Flame Ghost",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-58528964"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 58528964
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Skull Servant\" + \"Dissolverock\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Zombie"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Flame Manipulator",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-34460851"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 34460851
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This Spellcaster attacks enemies with fire-related spells such as \"Sea of Flames\" and \"Wall of Fire\"."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "FIRE"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Flame Swordsman",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-45231177"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 45231177
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Flame Manipulator\" + \"Masaki the Legendary Swordsman\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "FIRE"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Flower Wolf",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-95952802"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 95952802
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Silver Fang\" + \"Darkworld Thorns\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Follow Wind",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-98252586"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 98252586
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Increase the ATK and DEF of a Winged Beast-Type monster equipped with this card by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Forest",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-87430998"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 87430998
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Insect, Beast, Plant, and Beast-Warrior monsters on the field gain 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Frenzied Panda",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-98818516"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 98818516
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A savage beast that carries a big bamboo stick for beating down its enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Fusionist",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-1641882"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 1641882
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Petit Angel\" + \"Mystical Sheep #2\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Gaia the Dragon Champion",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-66889139"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 66889139
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Gaia The Fierce Knight\" + \"Curse of Dragon\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2100
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 7
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Gaia The Fierce Knight",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-6368038"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 6368038
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A knight whose horse travels faster than the wind. His battle-charge is a force to be reckoned with."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2100
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 7
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Giant Soldier of Stone",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-13039848"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 13039848
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A giant warrior made of stone. A punch from this creature has earth-shaking results."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Rock"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Goblin's Secret Remedy",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-11868825"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 11868825
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Increase your Life Points by 600 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Gravedigger Ghoul",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-82542267"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 82542267
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Select up to 2 Monster Card(s) from your opponent's Graveyard. Remove the selected card(s) from play."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Green Phantom King",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-22910685"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 22910685
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This youthful king of the forests lives in a green world, abundant with trees and wildlife."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Plant"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Hane-Hane",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-7089711"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 7089711
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Flip Effect Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "FLIP: Select 1 monster on the field and return it to its owner's hand."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 450
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Hard Armor",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-20060230"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 20060230
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A living suit of armor that attacks enemies with a bone-jarring tackle."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Hinotama",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-46130346"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 46130346
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Inflict 500 damage to your opponent."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Hinotama Soul",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-96851799"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 96851799
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "An intensely hot flame creature that rams anything standing in its way."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Pyro"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "FIRE"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Hitotsu-Me Giant",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-76184692"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 76184692
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A one-eyed behemoth with thick, powerful arms made for delivering punishing blows."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast-Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Kagemusha of the Blue Flame",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-15401633"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 15401633
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Serving as a double for the Ruler of the Blue Flame, he's a master swordsman that wields a fine blade."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Karbonala Warrior",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-54541900"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 54541900
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"M-Warrior #1\" + \"M-Warrior #2\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "King Fog",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-84686841"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 84686841
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A fiend that dwells in a blinding curtain of smoke."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Kumootoko",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-56283725"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 56283725
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A massive, intelligent spider that traps enemies with webbing."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Insect"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Kurama",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-85705804"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 85705804
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A vicious bird that attacks from the skies with its whip-like tail."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Winged Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Larvas",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-94675535"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 94675535
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A fast-moving, bird-like creature that strangles opposing monsters with its long, thin arms."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Laser Cannon Armor",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-77007920"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 77007920
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to an Insect monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Left Arm of the Forbidden One",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-7902349"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 7902349
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A forbidden left arm sealed by magic. Whosoever breaks this seal will know infinite power."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Left Leg of the Forbidden One",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-44519536"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 44519536
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A forbidden left leg sealed by magic. Whosoever breaks this seal will know infinite power."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Legendary Sword",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-61854111"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 61854111
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to a Warrior monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Lesser Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-55444629"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 55444629
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A minor dragon incapable of breathing fire."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "M-Warrior #1",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-56342351"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 56342351
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Specializing in combination attacks, this warrior uses magnetism to block an enemy's escape."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "M-Warrior #2",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-92731455"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 92731455
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Specializing in combination attacks, this warrior is equipped with a tough, magnetically coated armor."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Machine Conversion Factory",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-25769732"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 25769732
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to a Machine monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Mammoth Graveyard",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-40374923"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 40374923
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A mammoth that protects the graves of its pack and is absolutely merciless when facing grave-robbers."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dinosaur"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Man Eater",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-93553943"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 93553943
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Man-eating plant with poison feelers for attacking enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Plant"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Man-Eater Bug",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-54652250"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 54652250
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Flip Effect Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "FLIP: Target 1 monster on the field; destroy it."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 450
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Insect"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Masaki the Legendary Swordsman",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-44287299"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 44287299
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Legendary swordmaster Masaki is a veteran of over 100 battles."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1100
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1100
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Meda Bat",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-76211194"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 76211194
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "An eyeball fiend created by a servant of the wicked, it uses \"Dark Blasts\" to blow away its enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Metal Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-9293977"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 9293977
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Fusion Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "\"Steel Ogre Grotto #1\" + \"Lesser Dragon\""
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1850
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 6
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Machine"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Misairuzame",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-33178416"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 33178416
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A missile-launching fish protected by deadly spikes."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fish"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Monster Egg",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-36121917"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 36121917
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A warrior hidden within an egg that attacks enemies by flinging eggshells."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Warrior"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Monster Reborn",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-83764718"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 83764718
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Target 1 monster in either GY; Special Summon it."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Mountain",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-50913601"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 50913601
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Dragon, Winged Beast, and Thunder monsters on the field gain 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Mystical Elf",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-15025844"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 15025844
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A delicate elf that lacks offense, but has a terrific defense backed by mystical power."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Mystical Moon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-36607978"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 36607978
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to a Beast-Warrior-Type monster. It gains 300 ATK and DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Mystical Sheep #2",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-83464209"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 83464209
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A monstrous sheep with a long tail for hypnotizing enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Nemuriko",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-90963488"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 90963488
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A child-like creature that controls a sleep fiend to beckon enemies into eternal slumber."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "One-Eyed Shield Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-33064647"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 33064647
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This dragon wears a shield not only for its own protection, but also for ramming its enemies."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Petit Angel",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-38142739"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 38142739
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A quick-moving and tiny fairy that's very difficult to hit."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fairy"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Petit Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-75356564"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 75356564
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A very small dragon known for its vicious attacks."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 2
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Polymerization",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-24094653"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 24094653
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Fusion Summon 1 Fusion Monster from your Extra Deck, using monsters from your hand or field as Fusion Material."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Pot of Greed",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-55144522"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 55144522
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Draw 2 cards."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Power of Kaishin",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-77027445"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 77027445
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to an Aqua monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Raigeki",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-12580477"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 12580477
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Destroy all monsters your opponent controls."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Raise Body Heat",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-51267887"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 51267887
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Equip only to a Dinosaur monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Ray & Temperature",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-85309439"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 85309439
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "The Sun and the North Wind join hands to deliver a devastating combination of heat and gale-force winds."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fairy"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Reaper of the Cards",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-33066139"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 33066139
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Flip Effect Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "FLIP: Select 1 Trap Card on the field and destroy it. If the selected card is Set, pick up and see the card. If it is a Trap Card, it is destroyed. If it is a Spell Card, return it to its original position."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1380
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1930
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Red Medicine",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-38199696"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 38199696
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Increase your Life Points by 500 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Red-Eyes Black Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-74677422"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 74677422
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "''A ferocious dragon with a deadly attack.''"
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2400
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 7
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Remove Trap",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-51482758"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 51482758
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Select 1 face-up Trap Card on the field and destroy it."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Right Arm of the Forbidden One",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-70903634"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 70903634
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A forbidden right arm sealed by magic. Whosoever breaks this seal will know infinite power."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Right Leg of the Forbidden One",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-8124921"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 8124921
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A forbidden right leg sealed by magic. Whosoever breaks this seal will know infinite power."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Spellcaster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Root Water",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-39004808"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 39004808
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "An amphibian capable of calling up a massive tidal wave from the dark seas to wipe out enemy monsters."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fish"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Sand Stone",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-73051941"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 73051941
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Appears from underground and attacks with long, snake-like tentacles."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1600
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Rock"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Silver Bow and Arrow",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-1557499"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 1557499
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A Fairy-Type monster equipped with this card increases its ATK and DEF by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Silver Fang",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-90357090"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 90357090
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A snow wolf that's beautiful to the eye, but absolutely vicious in battle."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Skull Red Bird",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-10202894"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 10202894
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This monster swoops down and attacks with a rain of knives stored in its wings."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1550
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Winged Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Skull Servant",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-32274490"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 32274490
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A skeletal ghost that isn't strong but can mean trouble in large numbers."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 200
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 1
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Zombie"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Sogen",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-86318356"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 86318356
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Warrior and Beast-Warrior monsters on the field gain 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Sparks",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-76103675"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 76103675
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Inflict 200 points of damage to your opponent's Life Points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Spike Seadra",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-85326399"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 85326399
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Using the spikes sprouting from its body, this creature stabs its opponents and floods them with electricity."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1600
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Sea Serpent"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Spirit of the Harp",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-80770678"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 80770678
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A spirit that soothes the soul with the music of its heavenly harp."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2000
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fairy"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "LIGHT"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Steel Ogre Grotto #1",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-29172562"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 29172562
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A steel idol worshipped in the Land of Machines."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 5
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Machine"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Stop Defense",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-63102017"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 63102017
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Select 1 Defense Position monster on your opponent's side of the field and change it to Attack Position."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Swords of Revealing Light",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-72302403"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 72302403
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "After this card's activation, it remains on the field, but you must destroy it during the End Phase of your opponent's 3rd turn. When this card is activated: If your opponent controls a face-down monster, flip all monsters they control face-up. While this card is face-up on the field, your opponent's monsters cannot declare an attack."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Terra the Terrible",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-63308047"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 63308047
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Known as a swamp dweller, this creature is a minion of the dark forces."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "The 13th Grave",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-32864"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 32864
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A zombie that suddenly appeared from plot #13 - an empty grave."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Zombie"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "The Furious Sea King",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-18710707"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 18710707
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Grand King of the Seven Seas, he's able to summon massive tidal waves to drown the enemy."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Aqua"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Trap Hole",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-4206964"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 4206964
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Trap Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "When your opponent Normal or Flip Summons 1 monster with 1000 or more ATK: Target that monster; destroy that target."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Tri-Horned Dragon",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-39111158"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 39111158
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "An unworthy dragon with three sharp horns sprouting from its head."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 2850
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 2350
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 8
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dragon"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Trial of Nightmare",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-77827521"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 77827521
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This fiend passes judgment on enemies that are locked in coffins."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Tripwire Beast",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-45042329"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 45042329
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "This creature attacks with electromagnetic waves."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Thunder"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Turtle Tiger",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-37313348"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 37313348
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A tiger encased in a protective shell that attacks with razor-sharp fangs."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1000
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Aqua"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WATER"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Two-Mouth Darkruler",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-57305373"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 57305373
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A dinosaur with two deadly jaws, it stores electricity in its horn and releases high voltage bolts from the mouth on its back."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 900
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 700
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 3
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dinosaur"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Two-Pronged Attack",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-83887306"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 83887306
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Trap Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Select and destroy 2 of your monsters and 1 of your opponent's monsters."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Normal"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Tyhone",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-72842870"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 72842870
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Capable of firing cannonballs from its mouth for long-range attacks, this creature is particularly effective in mountain battles."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1200
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Winged Beast"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "WIND"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Umi",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-22702055"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 22702055
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Fish, Sea Serpent, Thunder, and Aqua monsters on the field gain 200 ATK/DEF, also all Machine and Pyro monsters on the field lose 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Uraby",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-1784619"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 1784619
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Fast on its feet, this dinosaur rips enemies to shreds with its sharp claws."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1500
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 800
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Dinosaur"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "EARTH"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Vile Germs",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-39774685"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 39774685
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "A Plant-Type monster equipped with this card increases its ATK and DEF by 300 points."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Violet Crystal",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-15052462"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 15052462
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "(This card is not treated as a \"Crystal\" card.)\r\nEquip only to a Zombie monster. It gains 300 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Equip"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Wasteland",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-23424603"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 23424603
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Dinosaur, Zombie, and Rock monsters on the field gain 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Witty Phantom",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-36304921"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 36304921
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Normal Monster"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "Dressed in a night-black tuxedo, this creature presides over the darkness."
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "atk",
+          "Properties": {
+            "Value": 1400
+          }
+        },
+        {
+          "ClassName": "NumberValue",
+          "Name": "def",
+          "Properties": {
+            "Value": 1300
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "level",
+          "Properties": {
+            "Value": 4
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Fiend"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "attribute",
+          "Properties": {
+            "Value": "DARK"
+          }
+        }
+      ]
+    },
+    {
+      "ClassName": "Folder",
+      "Name": "Yami",
+      "Children": [
+        {
+          "ClassName": "ImageButton",
+          "Name": "art",
+          "Properties": {
+            "Image": "rbxgameasset://Images/card-59197169"
+          }
+        },
+        {
+          "ClassName": "IntValue",
+          "Name": "id",
+          "Properties": {
+            "Value": 59197169
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "type",
+          "Properties": {
+            "Value": "Spell Card"
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "desc",
+          "Properties": {
+            "Value": "All Fiend and Spellcaster monsters on the field gain 200 ATK/DEF, also all Fairy monsters on the field lose 200 ATK/DEF."
+          }
+        },
+        {
+          "ClassName": "StringValue",
+          "Name": "race",
+          "Properties": {
+            "Value": "Field"
+          }
+        }
+      ]
+    }
+  ],
+  "ClassName": "Folder"
+}

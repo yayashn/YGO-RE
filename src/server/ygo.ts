@@ -3,42 +3,31 @@ import { getCards } from "./utils";
 
 const serverStorage = game.GetService("ServerStorage")
 const duels = serverStorage.WaitForChild("duels")!
+const replicatedStorage = game.GetService("ReplicatedStorage")
+const cards = replicatedStorage.WaitForChild("cards") as Folder
 
+export type Phase = "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
 interface PhaseValue extends StringValue {
-    Value: "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
-}
-
-export interface PlayerValue extends ObjectValue {
-    cards: Folder;
-    Value: Player;
+    Value: Phase;
 }
 
 interface TypeValue extends StringValue {
     Value: "Monster" | "Spell" | "Trap";   
 }
 
-interface LocationValue extends StringValue {
-    Value: "Deck" | "Hand" | "GZone" | "BZone" | "EZone" | "FZone" 
-    | "MZone1" | "MZone2" | "MZone3" | "MZone4" | "MZone5" 
-    | "SZone1" | "SZone2" | "SZone3" | "SZone4" | "SZone5";
+export type MZone = "MZone1" | "MZone2" | "MZone3" | "MZone4" | "MZone5"
+export type SZone = "SZone1" | "SZone2" | "SZone3" | "SZone4" | "SZone5"
+export type Zone = "Deck" | "Hand" | "GZone" | "BZone" | "EZone" | "FZone" 
+| MZone 
+| SZone
+
+export interface LocationValue extends StringValue {
+    Value: Zone
 }
 
 export type Position = "FaceUpAttack" | "FaceUpDefense" | "FaceDownDefense" | "FaceUp" | "FaceDown";
-interface PositionValue extends StringValue {
+export interface PositionValue extends StringValue {
     Value: Position
-}
-
-export interface CardFolder extends Folder {
-    controller: PlayerValue;
-    name: StringValue;
-    type: TypeValue;
-    location: LocationValue;
-    owner: PlayerValue;
-    atk: NumberValue;
-    def: NumberValue;
-    order: IntValue;
-    position: PositionValue;
-    cardButton: ObjectValue;
 }
 
 export interface DuelFolder extends Folder {
@@ -47,30 +36,52 @@ export interface DuelFolder extends Folder {
     mover: ObjectValue;
     player1: PlayerValue;
     player2: PlayerValue;
+    handlePhases: BindableEvent;
 }
 
 export interface CardInventory {
     name: string;
 }
 
+export interface PlayerValue extends ObjectValue {
+    cards: Folder;
+    Value: Player;
+    draw: BindableEvent;
+    shuffle: BindableEvent;
+    canAttack: BoolValue;
+    responseWindow: BoolValue;
+    selectableZones: StringValue;
+    selectedZone: StringValue;
+    canNormalSummon: BoolValue;
+}
+
 export const Duel = (p1: Player, p2: Player) => {
     const folder = instance("Folder", `${p1.Name}|${p2.Name}`, duels) as DuelFolder;
     const turn = instance("IntValue", "turn", folder) as IntValue;
     const phase = instance("StringValue", "phase", folder) as PhaseValue;
-    const mover = instance("ObjectValue", "mover", folder) as ObjectValue;
+    const turnPlayer = instance("ObjectValue", "turnPlayer", folder) as unknown as {Value: PlayerValue};
+    const mover = instance("ObjectValue", "mover", folder) as PlayerValue;
     const player1 = instance("ObjectValue", "player1", folder) as PlayerValue;
     const player2 = instance("ObjectValue", "player2", folder) as PlayerValue;
+    const opponent = (player: PlayerValue) => player.Value === p1 ? player2 : player1;
 
-    phase.Value = "DP";
-    turn.Value = 1;
-    mover.Value = p1;
     player1.Value = p1;
     player2.Value = p2;
+    turn.Value = 1;
+    mover.Value = p1;
+    turnPlayer.Value = player1;
+    phase.Value = "DP";
 
     const thread = [player1, player2].map((player) => coroutine.wrap(() => {
         const lifePoints = instance("NumberValue", "lifePoints", player) as NumberValue;
         const cards = instance("Folder", "cards", player) as Folder;
-        const opponent = player === player1 ? player2 : player1;
+        const responseWindow = instance("BoolValue", "responseWindow", player) as BoolValue;
+        const canAttack = instance("BoolValue", "canAttack", player) as BoolValue;
+        const selectableZones = instance("StringValue", "selectableZones", player) as StringValue;
+        const selectedZone = instance("StringValue", "selectedZone", player) as StringValue;
+        const canNormalSummon = instance("BoolValue", "canNormalSummon", player) as BoolValue;
+
+        canNormalSummon.Value = true;
 
         lifePoints.Value = 8000;
 
@@ -109,33 +120,137 @@ export const Duel = (p1: Player, p2: Player) => {
             }
         }
         (instance("BindableEvent", "draw", player) as BindableEvent).Event.Connect(draw)
+    }))
+    thread[0]()
+    thread[1]()
 
-        wait(1.5)
-        shuffle()
-        wait(1.5)
-        draw(5)
-    }));
+    const promptPlayer = (p: PlayerValue) => {
+        return false
+    }
 
-    thread[0]();
-    thread[1]();
+    const handleResponseWindow = (p: PlayerValue) => {
+        if(p.responseWindow.Value) {
+            const pause = promptPlayer(p);
+            if(pause) {
+                while(p.responseWindow.Value) wait();
+            } else {
+                p.responseWindow.Value = false;
+            }
+        }
+    }
+
+    const handlePhases = (p: Phase) => {
+        if(p === "DP") {
+            phase.Value = p;
+            turnPlayer.Value.canNormalSummon.Value = true;
+            if(turn.Value === 1) {
+                const thread = [player1, player2].map((player) => coroutine.wrap(() => {
+                    player.shuffle.Fire(5);
+                    wait(player.cards.GetChildren().size() * 0.03);
+                    player.draw.Fire(5);
+                    if(player === player1) {
+                        wait(1);
+                        player.draw.Fire(1);
+                    }
+                }))
+                thread[0]();
+                thread[1]();
+            } 
+            if (turn.Value >= 2) {
+                turn.Value++;
+                turnPlayer.Value.canAttack.Value = true;
+            }
+            wait(1)
+            handleResponseWindow(turnPlayer.Value);
+            handleResponseWindow(opponent(turnPlayer.Value));
+            handlePhases("SP");
+        } else if(p === "SP") {
+            phase.Value = p;
+            wait(1)
+            handleResponseWindow(turnPlayer.Value);
+            handleResponseWindow(opponent(turnPlayer.Value));
+            handlePhases("MP1");
+        } else if(p === "MP2") {
+            phase.Value = p;
+            wait(1)
+            handleResponseWindow(turnPlayer.Value);
+            handleResponseWindow(opponent(turnPlayer.Value));
+            handlePhases("EP");
+        } else if(p === "EP") {
+            if(phase.Value === "MP1" || phase.Value === "MP2") {
+                phase.Value = p;
+                wait(1)
+                handleResponseWindow(turnPlayer.Value);
+                handleResponseWindow(opponent(turnPlayer.Value));
+                handlePhases("DP");   
+            } else if(phase.Value === "BP") {
+                handlePhases("MP2");
+            }
+        }
+    }
+    handlePhases("DP");
+    (instance("BindableEvent", "handlePhases", folder) as BindableEvent).Event.Connect(handlePhases)
 }
 
-export const Card = (n: string, owner: PlayerValue, o: number) => {
-    const folder = instance("Folder", "card", owner.cards) as CardFolder;
-    const name = instance("StringValue", "name", folder) as StringValue;
-    const atk = instance("IntValue", "atk", folder) as IntValue;
-    const def = instance("IntValue", "def", folder) as IntValue;
-    const typ = instance("StringValue", "type", folder) as TypeValue;
-    const controller = instance("ObjectValue", "controller", folder) as PlayerValue;
+export interface CardFolder extends Folder {
+    art: ImageButton;
+    controller: ControllerValue;
+    type: TypeValue;
+    location: LocationValue;
+    owner: PlayerValue;
+    atk: NumberValue;
+    def: NumberValue;
+    order: IntValue;
+    position: PositionValue;
+    cardButton: ObjectValue;
+    attribute: StringValue;
+    desc: StringValue;
+    level: IntValue;
+    race: StringValue;
+    normalSummon: BindableEvent;
+    set: BindableEvent;
+}
+
+export interface ControllerValue extends ObjectValue {
+    Value: PlayerValue;
+}
+
+export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
+    const cardDataFolder = cards.FindFirstChild(_name, true);
+    const folder = cardDataFolder!.Clone() as CardFolder;
+    folder.art.Image = "rbxassetid://3955072236"
+    folder.Name = _name;
+    folder.Parent = _owner.cards;
+    const controller = instance("ObjectValue", "controller", folder) as ControllerValue;
     const location = instance("StringValue", "location", folder) as LocationValue;
     const order = instance("IntValue", "order", folder) as IntValue;
     const position = instance("StringValue", "position", folder) as PositionValue;
-    const card = instance("ObjectValue", "cardButton", folder) as ObjectValue;
+    instance("ObjectValue", "cardButton", folder) as ObjectValue;
 
-    order.Value = o;
-    controller.Value = owner.Value;
-    name.Value = n;
+    order.Value = _order;
+    controller.Value = _owner;
     location.Value = "Deck";
-    typ.Value = "Monster";
     position.Value = "FaceUpAttack";
+
+    const Summon = (_location: MZone) => {
+        location.Value = _location;
+    }
+
+    const NormalSummon = (_location: MZone) => {
+        position.Value = "FaceUpAttack";
+        controller.Value.canNormalSummon.Value = false;
+        Summon(_location);
+    }
+    (instance("BindableEvent", "normalSummon", folder) as BindableEvent).Event.Connect(NormalSummon);
+
+    const Set = (_location: SZone | MZone) => {
+        if(folder.type.Value.match("Monster").size() > 0) {
+            position.Value = "FaceDownDefense";
+            controller.Value.canNormalSummon.Value = false;
+        } else {
+            position.Value = "FaceDown";
+        }
+        location.Value = _location;
+    }
+    (instance("BindableEvent", "set", folder) as BindableEvent).Event.Connect(Set);
 }

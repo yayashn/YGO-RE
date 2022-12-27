@@ -2,3 +2,7 @@
 /out
 /include
 *.tsbuildinfo
+
+node_modules
+lob-images
+yarn.lock

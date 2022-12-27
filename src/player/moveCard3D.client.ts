@@ -31,35 +31,39 @@ const field = game.Workspace.Field3D.Field;
             })
         }
         zone.ChildAdded.Connect(stackCards);
-        stackCards();
+        zone.ChildRemoved.Connect(() => {
+            wait(1.5); 
+            stackCards();
+        });
     })
     
     // Hand animations
     const center = playerField.Hand.Center.Position;
     const orientation = playerField.Hand.Center.Orientation;
-    const handCards = () => playerField.Hand.GetChildren().filter((card3D) => card3D.Name === "Card") as Card3D[];
-    const margin = 10;
-    const layoutCards = (card3D: Instance) => {
+    const margin = playerField === field.Player ? 20 : 10;
+    const layoutCards = (child: Instance) => {
         const parentSize = playerField.Hand.Center.Size;
-        const childSize = (card3D as Card3D).Size;
+        const childSize = (child as Card3D).Size;
         
         let totalWidth = 0;
         const handCards = playerField.Hand.GetChildren().filter((card3D) => card3D.Name === "Card") as Card3D[];
         
         handCards.forEach((card3D) => {
-          totalWidth += card3D.Size.X + margin;
+          totalWidth += card3D.Size.X - margin;
         });
         
         let currentX = parentSize.X / 2 - totalWidth / 2;
         
         handCards.forEach((card3D, index) => {
-            const tweenGoal = {Position: new Vector3(currentX + index * (childSize.X + margin), center.Y, center.Z)};
+            // Subtract center's X value from the desired X position
+            const tweenGoal = {Position: new Vector3(currentX + index * (childSize.X - margin) + (playerField === field.Player ? center.X/2 : center.X), center.Y, center.Z)};
             (card3D as Card3D).Orientation = orientation;
             tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
         });        
     }
     playerField.Hand.ChildAdded.Connect(layoutCards)
     playerField.Hand.ChildRemoved.Connect(layoutCards)
+    
 
     // Field zone animations
     playerField.Field.GetChildren().filter(zone => zone.IsA("Vector3Value")).forEach((zone) => {

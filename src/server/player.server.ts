@@ -1,3 +1,5 @@
+import { instance } from "shared/utils";
+
 const players = game.GetService("Players");
 const serverStorage = game.GetService("ServerStorage");
 const playersFolder = new Instance("Folder");
@@ -5,6 +7,7 @@ playersFolder.Name = "players";
 playersFolder.Parent = serverStorage;
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const httpService = game.GetService("HttpService");
+const lob = replicatedStorage.FindFirstChild("cards")!.FindFirstChild("legend of blue eyes white dragon") as Folder;
 
 const createCard3D = new Instance("RemoteEvent");
 createCard3D.Name = "createCard3D.re";
@@ -23,7 +26,8 @@ players.PlayerAdded.Connect((player) => {
 	deck.Name = "deck";
 	const deckInventory = [];
 	for (let i = 0; i < 40; i++) {
-		deckInventory.push({ name: "Dark Magician" })
+		const name = lob.GetChildren()[math.random(0, lob.GetChildren().size() - 1)].Name;
+		deckInventory.push({ name: name })
 	}
 	deck.Parent = playerFolder;
 	deck.Value = httpService.JSONEncode(deckInventory);
