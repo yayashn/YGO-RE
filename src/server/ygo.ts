@@ -37,6 +37,7 @@ export interface DuelFolder extends Folder {
     player1: PlayerValue;
     player2: PlayerValue;
     handlePhases: BindableEvent;
+    turnPlayer: ControllerValue;
 }
 
 export interface CardInventory {
@@ -67,7 +68,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
     player1.Value = p1;
     player2.Value = p2;
-    turn.Value = 1;
+    turn.Value = 0;
     mover.Value = p1;
     turnPlayer.Value = player1;
     phase.Value = "DP";
@@ -141,6 +142,11 @@ export const Duel = (p1: Player, p2: Player) => {
 
     const handlePhases = (p: Phase) => {
         if(p === "DP") {
+            turn.Value++;
+            if (turn.Value >= 2) {
+                turnPlayer.Value = opponent(turnPlayer.Value);
+                turnPlayer.Value.canAttack.Value = true;
+            }
             phase.Value = p;
             turnPlayer.Value.canNormalSummon.Value = true;
             if(turn.Value === 1) {
@@ -148,34 +154,35 @@ export const Duel = (p1: Player, p2: Player) => {
                     player.shuffle.Fire(5);
                     wait(player.cards.GetChildren().size() * 0.03);
                     player.draw.Fire(5);
-                    if(player === player1) {
-                        wait(1);
-                        player.draw.Fire(1);
-                    }
+                    wait(1)
                 }))
                 thread[0]();
                 thread[1]();
             } 
-            if (turn.Value >= 2) {
-                turn.Value++;
-                turnPlayer.Value.canAttack.Value = true;
-            }
+            turnPlayer.Value.draw.Fire(1)
             wait(1)
             handleResponseWindow(turnPlayer.Value);
             handleResponseWindow(opponent(turnPlayer.Value));
+            print("Calling SP")
             handlePhases("SP");
+            print("Going to SP")
         } else if(p === "SP") {
+            print("SP Sucess")
             phase.Value = p;
+            print(phase.Value)
             wait(1)
             handleResponseWindow(turnPlayer.Value);
             handleResponseWindow(opponent(turnPlayer.Value));
+            print("Calling MP1")
             handlePhases("MP1");
-        } else if(p === "MP2") {
+        }
+        else if(p === "MP1") {
             phase.Value = p;
-            wait(1)
-            handleResponseWindow(turnPlayer.Value);
-            handleResponseWindow(opponent(turnPlayer.Value));
-            handlePhases("EP");
+        } else if(p === "BP") {
+            phase.Value = p;
+        }
+        else if(p === "MP2") {
+            phase.Value = p;
         } else if(p === "EP") {
             if(phase.Value === "MP1" || phase.Value === "MP2") {
                 phase.Value = p;
@@ -189,7 +196,7 @@ export const Duel = (p1: Player, p2: Player) => {
         }
     }
     handlePhases("DP");
-    (instance("BindableEvent", "handlePhases", folder) as BindableEvent).Event.Connect(handlePhases)
+    (instance("BindableEvent", "handlePhases", folder) as BindableEvent).Event.Connect(handlePhases);
 }
 
 export interface CardFolder extends Folder {

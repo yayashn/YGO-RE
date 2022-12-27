@@ -213,7 +213,7 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
 type CardAction = "Activate" | "Attack" | "Normal Summon" | "Tribute Summon" | "Special Summon" | "Set" | "Flip";
 
 const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => {
-    const cardChanged = useCardChanged(card);
+    const duel = useDuel();
     const phase = usePhase();
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
     const YGOPlayer = useYGOPlayer()!;
@@ -295,9 +295,10 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
         const isSpellTrap = !isMonster
         const inHand = card.location.Value === "Hand";
         const isMainPhase = phase === "MP1" || phase === "MP2";
+        const isTurnPlayer = duel?.turnPlayer.Value.Value === player;
 
         //Hand Logic
-        if(inHand && isMainPhase) {
+        if(inHand && isTurnPlayer && isMainPhase) {
             if(isMonster) {
                 if(canNormalSummon) {
                     if(card.level.Value <= 4) {
