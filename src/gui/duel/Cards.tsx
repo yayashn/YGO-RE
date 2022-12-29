@@ -9,6 +9,7 @@ import useMount from "gui/hooks/useMount";
 import usePhase from "gui/hooks/usePhase";
 import useSelectableZones from "gui/hooks/useSelectableZones";
 import useShowArt from "gui/hooks/useShowArt";
+import useMonstersInMZone from "gui/hooks/useMonstersInMZone";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import { getCardInfo, getDuel } from "server/utils";
 import { PlayerValue, CardFolder, MZone } from "server/ygo";
@@ -219,6 +220,7 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
     const YGOPlayer = useYGOPlayer()!;
     const YGOOpponent = useYGOPlayer(true)!;
     const canNormalSummon = useCanNormalSummon(card.controller);
+    const monstersInMZone = useMonstersInMZone();
 
     const removeCardAction = (action: CardAction) => {
         setEnabledActions(actions => actions.filter(a => action !== a));
@@ -286,7 +288,7 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
 
         },
         "Tribute Summon": () => {
-
+            
         }
     }
 
@@ -298,28 +300,36 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
         const isTurnPlayer = duel?.turnPlayer.Value.Value === player;
 
         //Hand Logic
-        if(inHand && isTurnPlayer && isMainPhase) {
-            if(isMonster) {
-                if(canNormalSummon) {
-                    if(card.level.Value <= 4) {
-                        addCardAction("Normal Summon");
-                        addCardAction("Set")
-                    } else if(card.level.Value > 4) {
-                        addCardAction("Tribute Summon");
-                        addCardAction("Set")
-                    }
-                } else {
-                    removeCardAction("Normal Summon");
-                    removeCardAction("Tribute Summon");
-                    removeCardAction("Set");
+        if (inHand && isTurnPlayer && isMainPhase) {
+            if (isMonster) {
+              if (canNormalSummon) {
+                if (card.level.Value <= 4) {
+                  addCardAction("Normal Summon");
+                  addCardAction("Set");
+                } else if (card.level.Value === 5 || card.level.Value === 6) {
+                  if (monstersInMZone.size() >= 1) {
+                    addCardAction("Tribute Summon");
+                    addCardAction("Set");
+                  }
+                } else if (card.level.Value >= 7) {
+                  if (monstersInMZone.size() >= 2) {
+                    addCardAction("Tribute Summon");
+                    addCardAction("Set");
+                  }
                 }
-            } else if(isSpellTrap) {
+              } else {
+                removeCardAction("Normal Summon");
+                removeCardAction("Tribute Summon");
+                removeCardAction("Set");
+                }
+            } else if (isSpellTrap) {
                 addCardAction("Set");
             }
-        } else {
-            removeCardAction("Normal Summon");
-            removeCardAction("Set");
-        }
+            } else {
+                removeCardAction("Normal Summon");
+                removeCardAction("Set");
+            }
+
 
         // Battle Phase Logic
         const inMZone = card.location.Value.match("MZone").size() > 0;

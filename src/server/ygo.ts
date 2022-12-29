@@ -5,6 +5,7 @@ const serverStorage = game.GetService("ServerStorage")
 const duels = serverStorage.WaitForChild("duels")!
 const replicatedStorage = game.GetService("ReplicatedStorage")
 const cards = replicatedStorage.WaitForChild("cards") as Folder
+const httpService = game.GetService("HttpService")
 
 export type Phase = "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
 interface PhaseValue extends StringValue {
@@ -53,7 +54,10 @@ export interface PlayerValue extends ObjectValue {
     responseWindow: BoolValue;
     selectableZones: StringValue;
     selectedZone: StringValue;
+    selectableCards: StringValue;
+    selectedCard: StringValue;
     canNormalSummon: BoolValue;
+    targets: StringValue;
 }
 
 export const Duel = (p1: Player, p2: Player) => {
@@ -80,7 +84,13 @@ export const Duel = (p1: Player, p2: Player) => {
         const canAttack = instance("BoolValue", "canAttack", player) as BoolValue;
         const selectableZones = instance("StringValue", "selectableZones", player) as StringValue;
         const selectedZone = instance("StringValue", "selectedZone", player) as StringValue;
+        const selectableCards = instance("StringValue", "selectableCards", player) as StringValue;
+        const selectedCards = instance("StringValue", "selectedCards", player) as StringValue;
+        const targets = instance("StringValue", "targets", player) as StringValue;
         const canNormalSummon = instance("BoolValue", "canNormalSummon", player) as BoolValue;
+
+        selectableCards.Value = `{}`
+        targets.Value = `[]`
 
         canNormalSummon.Value = true;
 
@@ -154,26 +164,20 @@ export const Duel = (p1: Player, p2: Player) => {
                     player.shuffle.Fire(5);
                     wait(player.cards.GetChildren().size() * 0.03);
                     player.draw.Fire(5);
-                    wait(1)
                 }))
                 thread[0]();
                 thread[1]();
             } 
+            wait(1)
             turnPlayer.Value.draw.Fire(1)
-            wait(1)
             handleResponseWindow(turnPlayer.Value);
             handleResponseWindow(opponent(turnPlayer.Value));
-            print("Calling SP")
             handlePhases("SP");
-            print("Going to SP")
         } else if(p === "SP") {
-            print("SP Sucess")
             phase.Value = p;
-            print(phase.Value)
             wait(1)
             handleResponseWindow(turnPlayer.Value);
             handleResponseWindow(opponent(turnPlayer.Value));
-            print("Calling MP1")
             handlePhases("MP1");
         }
         else if(p === "MP1") {
@@ -200,6 +204,7 @@ export const Duel = (p1: Player, p2: Player) => {
 }
 
 export interface CardFolder extends Folder {
+    uid: StringValue;
     art: ImageButton;
     controller: ControllerValue;
     type: TypeValue;
@@ -216,6 +221,7 @@ export interface CardFolder extends Folder {
     race: StringValue;
     normalSummon: BindableEvent;
     set: BindableEvent;
+    tribute: BindableEvent;
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -228,6 +234,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     folder.art.Image = "rbxassetid://3955072236"
     folder.Name = _name;
     folder.Parent = _owner.cards;
+    const uid = instance("StringValue", "uid", folder) as StringValue;
     const controller = instance("ObjectValue", "controller", folder) as ControllerValue;
     const location = instance("StringValue", "location", folder) as LocationValue;
     const order = instance("IntValue", "order", folder) as IntValue;
@@ -238,6 +245,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     controller.Value = _owner;
     location.Value = "Deck";
     position.Value = "FaceUpAttack";
+    uid.Value = httpService.GenerateGUID(true);
 
     const Summon = (_location: MZone) => {
         location.Value = _location;
@@ -260,4 +268,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         location.Value = _location;
     }
     (instance("BindableEvent", "set", folder) as BindableEvent).Event.Connect(Set);
+
+    const toGraveyard = () => {
+        location.Value = "GZone";
+    }
+
+    const tribute = () => {
+        toGraveyard();
+    }
+    (instance("BindableEvent", "tribute", folder) as BindableEvent).Event.Connect(tribute);
 }

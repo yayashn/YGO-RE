@@ -1,13 +1,17 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
 import useDuel from "./useDuel"
 import { Phase } from "server/ygo";
+import { getDuel } from "server/utils";
+
+const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default () => {
-    const duel = useDuel();
-    const [phase, setPhase] = useState(duel?.phase.Value);
+    const [duel] = getDuel(player)!;
+    const [phase, setPhase] = useState((duel.WaitForChild("phase") as StringValue).Value);
 
     useEffect(() => {
-        duel?.phase.Changed.Connect((newPhase) => {
+        if(!phase) return;
+        (duel?.WaitForChild("phase") as StringValue).Changed.Connect((newPhase) => {
             setPhase(newPhase as Phase);
         })
     }, [duel])

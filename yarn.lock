@@ -62,6 +62,11 @@
   resolved "https://registry.yarnpkg.com/@rbxts/compiler-types/-/compiler-types-2.0.4-types.0.tgz#355a81892168118432a743dd1cdd349c4bc2abe9"
   integrity sha512-kRdXA7RzIUnLrQhjvVLQ//9Nwfndlui43Frqg3k8xrPVz+QJNIqzwx6LHLSwq4c1OBZpYcGgUWIQJkuKxwlskA==
 
+"@rbxts/object-utils@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@rbxts/object-utils/-/object-utils-1.0.4.tgz#c53d80f89e75c401365446be63fa1396bc2cffe7"
+  integrity sha512-dLLhf022ipV+9i910sOE7kl9losKHoon0WgeerHqVMQA5EYsLUsVT2AxhJuhk8MiDn5oJ2GiFofE/LadY9TpJQ==
+
 "@rbxts/roact-flipper@^2.1.0-ts.5":
   version "2.1.0-ts.5"
   resolved "https://registry.yarnpkg.com/@rbxts/roact-flipper/-/roact-flipper-2.1.0-ts.5.tgz#0cc0887731135dd3753585ddf671800907b9203d"

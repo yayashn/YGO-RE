@@ -13,7 +13,7 @@ export default (player: Player) => {
         };
         const playerValue = [duel.player1, duel.player2].find((p) => p.Value === player)!;
         setCards(playerValue.WaitForChild("cards").GetChildren() as CardFolder[])
-    }, [duel])
+    }, [duel, ...(cards?.map((c) => c.location.Value) || []), ...(cards?.map((c) => c.controller.Value) || [])])
 
     return cards;
 }
