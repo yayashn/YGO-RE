@@ -27,12 +27,17 @@ export default (card: UseShowInfo) => {
                     setShowInfo(false);
                 }
             }
-            
         }
 
-        card.position.Changed.Connect(onChange)
-        card.controller.Changed.Connect(onChange)
-        card.location.Changed.Connect(onChange)
+        const connections = [card.location, card.position, card.controller].map((value) => {
+            return value.Changed.Connect(onChange)
+        })
+
+        return () => {
+            connections.forEach((connection) => {
+                connection.Disconnect()
+            })
+        }
     }, [])
 
     return showInfo;

@@ -5,9 +5,13 @@ export default (card: CardFolder) => {
     const [controller, setController] = useState<ControllerValue>(card.controller);
 
     useEffect(() => {
-        card.controller.Changed.Connect((newValue) => {
+        const connection = card.controller.Changed.Connect((newValue) => {
             setController(newValue as ControllerValue);
         })
+
+        return () => {
+            connection.Disconnect();
+        }
     }, [])
 
     return controller;

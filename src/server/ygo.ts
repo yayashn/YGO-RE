@@ -91,6 +91,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
         selectableCards.Value = `{}`
         targets.Value = `[]`
+        selectableZones.Value = `[]`
 
         canNormalSummon.Value = true;
 

@@ -6,9 +6,13 @@ export default () => {
     const [turn, setTurn] = useState(duel?.turn.Value);
 
     useEffect(() => {
-        duel?.turn.Changed.Connect((newTurn) => {
+        const connection = duel?.turn.Changed.Connect((newTurn) => {
             setTurn(newTurn as number);
         })
+
+        return () => {
+            connection?.Disconnect();
+        }
     }, [duel])
 
     return turn;

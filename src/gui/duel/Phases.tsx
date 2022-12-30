@@ -1,5 +1,6 @@
 import Roact from "@rbxts/roact";
-import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
+import { withHooks } from "@rbxts/roact-hooked";
+import usePhase from "gui/hooks/usePhase";
 import { getDuel } from "server/utils";
 import { Phase } from "server/ygo";
 
@@ -8,14 +9,8 @@ const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(() => {
     const [duel, YGOPlayer] = getDuel(player)!;
-    const [phase, setPhase] = useState<Phase>();
+    const phase = usePhase();
     
-    useEffect(() => {
-        duel.phase.Changed.Connect(() => {
-            setPhase(duel.phase.Value)
-        });
-    }, [])
-
     return (
         <billboardgui 
         Active={true}

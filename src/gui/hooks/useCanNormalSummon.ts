@@ -14,6 +14,10 @@ export default (controllerValue: ControllerValue) => {
                 setCanNormalSummon(newValue);
             })
         })
+
+        return () => {
+            canNormalSummonConnection.Disconnect();
+        }
     }, [])
 
     return canNormalSummon

@@ -20,9 +20,14 @@ export default () => {
             setDuel(duelFound);
         }
 
-        duels.ChildAdded.Connect(duelChanged)
-        duels.ChildRemoved.Connect(duelChanged)
+        const connections = [duels.ChildAdded.Connect(duelChanged), duels.ChildRemoved.Connect(duelChanged)];
         duelChanged()
+
+        return () => {
+            connections.forEach((connection) => {
+                connection.Disconnect();
+            })
+        }
     }, [])
 
     return duel;

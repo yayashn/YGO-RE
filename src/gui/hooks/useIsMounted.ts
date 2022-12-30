@@ -11,9 +11,10 @@ export default (uiRef: Ref<GuiObject | SurfaceGui | Frame>) => {
 
 	useEffect(() => {
 		const ui = uiRef.getValue();
+		let connection: RBXScriptConnection;
 		if (ui) {
 			if (ui.FindFirstAncestorWhichIsA("PlayerGui") === undefined) {
-				const connection = playerGui.DescendantAdded.Connect((descendant) => {
+				connection = playerGui.DescendantAdded.Connect((descendant) => {
 					if (descendant === ui) {
 						setIsMounted(true);
 						connection.Disconnect();
@@ -21,6 +22,12 @@ export default (uiRef: Ref<GuiObject | SurfaceGui | Frame>) => {
 				});
 			} else {
 				setIsMounted(true);
+			}
+		}
+
+		return () => {
+			if (connection) {
+				connection.Disconnect();
 			}
 		}
 	}, []);

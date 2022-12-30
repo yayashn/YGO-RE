@@ -29,9 +29,13 @@ export default () => {
 
     useEffect(() => {
         if(!player) return;
-        player.selectableZones.Changed.Connect((newValue) => {
+        const connection = player.selectableZones.Changed.Connect((newValue) => {
             setSelectableZones(httpService.JSONDecode(newValue) as SelectableZone[]);
         })
+
+        return () => {
+            connection.Disconnect();
+        }
     }, [player])
 
     return [selectableZones, includesZone] as [SelectableZone[], typeof includesZone];
