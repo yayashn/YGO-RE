@@ -12,8 +12,8 @@ export default () => {
     const cards = useCards(YGOPlayer.Value);
     const cardsOpponent = useCards(YGOOpponent.Value);
 
-    const addTarget = (target: string) => {
-        YGOPlayer.targets.Value = httpService.JSONEncode([...(httpService.JSONDecode(YGOPlayer.targets.Value) as string[]), target])
+    const addTarget = (target: CardFolder) => {
+        YGOPlayer.targets.Value = httpService.JSONEncode([...(httpService.JSONDecode(YGOPlayer.targets.Value) as string[]), target.uid])
     }
 
     const resetTargets = () => {
@@ -26,5 +26,5 @@ export default () => {
         }))
     }, [cards, cardsOpponent, YGOPlayer.targets.Value, YGOOpponent.targets.Value])
 
-    return [targets, addTarget, resetTargets] as [CardFolder[], (target: string) => void, () => void]
+    return [targets, addTarget, resetTargets] as [CardFolder[], (target: CardFolder) => void, () => void]
 }

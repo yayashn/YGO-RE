@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import type { PlayerValue, PositionValue, LocationValue, ControllerValue } from "server/ygo";
+import type { PositionValue, LocationValue, ControllerValue } from "server/ygo";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 

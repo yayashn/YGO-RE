@@ -12,12 +12,11 @@ export default (card: CardFolder) => {
             const position = card.position.Value;
             const controller = card.controller.Value;
             const location = card.location.Value;
-            const art = (getCardInfo(card.Name) as CardFolder).art.Image;
-
-            if(position.match("FaceUp")) {
+            
+            if(position.match("FaceUp").size() > 0) {
                 setShowArt(true);
             } else {
-                if(location === "Hand") {
+                if(location !== "Deck") {
                     setShowArt(player === controller.Value);
                 } else {
                     setShowArt(false);

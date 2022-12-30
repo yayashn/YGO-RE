@@ -3,14 +3,10 @@ import { useRef, useState, withHooks, useEffect } from "@rbxts/roact-hooked";
 import useMount from "gui/hooks/useMount";
 import useSelectableZones from "gui/hooks/useSelectableZones";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
-import { SZone, Zone } from "server/ygo";
+import { Zone } from "server/ygo";
 import { fieldZones } from "shared/defs";
-import { MZone } from "shared/types";
 
-const replicatedStorage = game.GetService("ReplicatedStorage");
-const player = script.FindFirstAncestorWhichIsA("Player")!;
 const tweenService = game.GetService("TweenService");
-const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 
 interface FieldZoneButtonProps {
 	zoneName: Zone;

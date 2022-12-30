@@ -11,6 +11,10 @@ export default (card: CardFolder) => {
     const [duel, YGOPlayer] = getDuel(player)!;
 
     useEffect(() => {
+      if(YGOPlayer.selectableCards.Value === "{}") {
+        setIsSelectable(false);
+        return;
+      }
       const cardFilters = Object.entries(httpService.JSONDecode(YGOPlayer.selectableCards.Value) as { [key: string]: string });
       let selectable = 0;
       cardFilters.forEach(([key, value]) => {
