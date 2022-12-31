@@ -70,6 +70,11 @@ export default (card: CardFolder) => {
         })
     }
 
+    const isTargetted = () => {
+        if(YGOPlayer.targets.Value === "[]") return false;
+        return (JSON.parse(YGOPlayer.targets.Value) as string[]).find(uid => uid === card.uid.Value) !== undefined
+    }
+
     return {
         targettableCards: targettableCards,
         isValidTarget,
@@ -77,5 +82,6 @@ export default (card: CardFolder) => {
         checkValidTarget,
         handleTarget,
         getTargets,
+        isTargetted
     }
 }

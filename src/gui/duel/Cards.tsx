@@ -78,7 +78,35 @@ export const CardButton = withHooks(({card}: CardButton) => {
     const artRef = useRef<ImageButton>();
     const sleeveRef = useRef<ImageButton>();
     const [showMenu, setShowMenu] = useState(false);
-    const { checkValidTarget, isValidTarget, handleTarget } = useTargets(card);
+    const { checkValidTarget, handleTarget, isTargetted } = useTargets(card);
+
+    useMount(() => {
+        const tweenInfo = new TweenInfo(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true);
+        const tween = tweenService.Create(artRef.getValue()!, tweenInfo, {
+            ImageTransparency: 0.5
+        } as Partial<ExtractMembers<ImageButton, Tweenable>>)
+        const handleTween = () => {
+            if(checkValidTarget() && !isTargetted()) {
+                tween.Play();
+            } else if(isTargetted()) {
+                tween.Pause();
+                artRef.getValue()!.ImageTransparency = 0.5;
+            } else {
+                tween.Pause();
+                artRef.getValue()!.ImageTransparency = 0;
+            }
+        }
+        const connections = [
+            card.controller.Value.targets.Changed.Connect(handleTween),
+            card.controller.Value.targettableCards.Changed.Connect(handleTween),
+        ]
+
+        return () => {
+            connections.forEach((connection) => {
+                connection.Disconnect();
+            })
+        }
+    }, [], artRef)
 
     useMount(() => {
         if(sleeveRef.getValue()?.FindFirstAncestorWhichIsA("PlayerGui") === undefined) {
@@ -153,7 +181,7 @@ export const CardButton = withHooks(({card}: CardButton) => {
                 Ref={artRef} 
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
-                ImageTransparency={showArt ? (isValidTarget ? 0.5 : 0) : 1}
+                ImageTransparency={showArt ? 0 : 1}
                 AnchorPoint={new Vector2(0.5,0.5)}
                 Position={new UDim2(0.5,0,0.5,0)}
                 Image={(getCardInfo(card.Name).FindFirstChild("art") as ImageButton).Image}
@@ -183,7 +211,6 @@ export const CardButton = withHooks(({card}: CardButton) => {
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
                 Image={(card.controller.Value.Value.FindFirstChild("sleeve") as StringValue).Value}
-                ImageTransparency={isValidTarget ? 0.5 : 0}
                 AnchorPoint={new Vector2(0.5,0.5)}
                 Position={new UDim2(0.5,0,0.5,0)}
                 Event={{
@@ -218,7 +245,7 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
     const YGOPlayer = useYGOPlayer()!;
     const YGOOpponent = useYGOPlayer(true)!;
     const canNormalSummon = useCanNormalSummon(card.controller);
-    const { targets, getTargets } = useTargets(card);
+    const { getTargets } = useTargets(card);
 
     if(!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>;
 
@@ -303,8 +330,9 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
                     getTargets().forEach((target) => {
                         target.tribute.Fire();
                     })
-                    YGOPlayer.targettableCards.Value = "[]";
+                    YGOPlayer.targettableCards.Value = "{}";
                     YGOPlayer.targets.Value = "[]";
+                    wait()
                     YGOPlayer.canNormalSummon.Value = false;
                     YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
                     const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
@@ -375,6 +403,12 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
         }
     }, [canNormalSummon, phase, card.location.Value, YGOPlayer.selectableZones.Value])
 
+    useEffect(() => {
+        if(!show) {
+            removeCardAction();
+        }
+    }, [show])
+ 
     return (
         <billboardgui
             Enabled={show}
