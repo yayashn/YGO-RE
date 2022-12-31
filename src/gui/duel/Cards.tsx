@@ -11,6 +11,8 @@ import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import { getCardInfo } from "server/utils";
 import { PlayerValue, CardFolder } from "server/ygo";
 import { instance } from "shared/utils";
+import useTargets from "gui/hooks/useTargets";
+import useAllCards from "gui/hooks/useAllCards";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -22,27 +24,11 @@ const httpService = game.GetService("HttpService");
 
 export default withHooks(({PlayerValue}: {PlayerValue: PlayerValue}) => {
     const cards = useCards(PlayerValue.Value);
-    const [clicked, setClicked] = useState<number>();
-
-    useEffect(() => {
-        const clickRemote = (player.FindFirstChild("click") || instance("RemoteEvent", "click", player)) as RemoteEvent;
-
-        clickRemote.OnServerEvent.Connect(() => {
-            setClicked(undefined)
-        })
-    }, [])
 
     return (
         <surfacegui Key="Cards">
             {cards?.map((card, i) => {
                 return <CardButton Key={i} 
-                useClicked={[i === clicked, () => {
-                    if(i === clicked) {
-                        setClicked(undefined)
-                    } else {
-                        setClicked(i)
-                    }
-                }]} 
                 card={card} />
             })}
         </surfacegui>
@@ -55,10 +41,9 @@ export type CardButton = {
     card3D?: ObjectValue
     getOrder?: RemoteFunction
     Parent?: Instance
-    useClicked: [boolean, Callback]
 }
 
-interface DuelGuiPlayerField extends SurfaceGui {
+export interface DuelGuiPlayerField extends SurfaceGui {
     MZone1: TextButton;
     MZone2: TextButton;
     MZone3: TextButton;
@@ -70,7 +55,7 @@ interface DuelGuiPlayerField extends SurfaceGui {
     SZone4: TextButton;
     SZone5: TextButton;
 }
-interface DuelGuiPlayer extends SurfaceGui {
+export interface DuelGuiPlayer extends SurfaceGui {
     BZone: SurfaceGui;
     GZone: SurfaceGui;
     EZone: SurfaceGui;
@@ -78,21 +63,22 @@ interface DuelGuiPlayer extends SurfaceGui {
     Field: DuelGuiPlayerField;
     Hand: SurfaceGui;
 }
-interface DuelGui extends ScreenGui {
+export interface DuelGui extends ScreenGui {
     Field: {
         Player: DuelGuiPlayer;
         Opponent: DuelGuiPlayer;
     }
 }
 
-export const CardButton = withHooks(({card, useClicked}: CardButton) => {
+export const CardButton = withHooks(({card}: CardButton) => {
     const duelGui = playerGui.WaitForChild("DuelGui") as DuelGui;
     const cardRef = useRef<SurfaceGui>();
     const showArt = useShowArt(card);
     const [hover, setHover] = useState(false);
     const artRef = useRef<ImageButton>();
     const sleeveRef = useRef<ImageButton>();
-    const [clicked, setClicked] = useClicked;
+    const [showMenu, setShowMenu] = useState(false);
+    const { checkValidTarget, isValidTarget, handleTarget } = useTargets(card);
 
     useMount(() => {
         if(sleeveRef.getValue()?.FindFirstAncestorWhichIsA("PlayerGui") === undefined) {
@@ -100,7 +86,7 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
                 wait();
             }
         };
-        card.location.Changed.Connect((value) => {
+        const connection = card.location.Changed.Connect((value) => {
             if(value === "Hand") {
                 artRef.getValue()!.Size = new UDim2(0.8,0,0.8,0);
             } else {
@@ -115,6 +101,10 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
             } as Partial<ExtractMembers<SurfaceGui, Tweenable>>)
             tween.Play();
         })
+
+        return () => {
+            connection.Disconnect();
+        }
     }, [hover], artRef)
 
     useMount(() => {
@@ -157,13 +147,13 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
 
     return (
         <surfacegui Ref={cardRef} Key="Card">
-            <CardMenu card={card} show={clicked}/>
+            <CardMenu card={card} show={showMenu}/>
             <surfacegui Key="Art" Face="Bottom">
                 <imagebutton
                 Ref={artRef} 
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
-                ImageTransparency={showArt ? 0 : 1}
+                ImageTransparency={showArt ? (isValidTarget ? 0.5 : 0) : 1}
                 AnchorPoint={new Vector2(0.5,0.5)}
                 Position={new UDim2(0.5,0,0.5,0)}
                 Image={(getCardInfo(card.Name).FindFirstChild("art") as ImageButton).Image}
@@ -175,7 +165,12 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
                         setHover(false)
                     },
                     MouseButton1Click: () => {
-                        setClicked();
+                        if(checkValidTarget()) {
+                            handleTarget();
+                            setShowMenu(false);
+                        } else {
+                            setShowMenu(state => !state);
+                        }
                     }
                 }}
                 >
@@ -188,6 +183,7 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
                 Image={(card.controller.Value.Value.FindFirstChild("sleeve") as StringValue).Value}
+                ImageTransparency={isValidTarget ? 0.5 : 0}
                 AnchorPoint={new Vector2(0.5,0.5)}
                 Position={new UDim2(0.5,0,0.5,0)}
                 Event={{
@@ -198,7 +194,11 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
                         setHover(false)
                     },
                     MouseButton1Click: () => {
-                        setClicked();
+                        if(checkValidTarget()) {
+                            handleTarget()
+                        } else {
+                            setShowMenu(state => !state);
+                        }
                     }
                 }}
                 >
@@ -211,13 +211,14 @@ export const CardButton = withHooks(({card, useClicked}: CardButton) => {
 type CardAction = "Activate" | "Attack" | "Normal Summon" | "Tribute Summon" | "Special Summon" | "Set" | "Flip";
 
 const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => {
+    const { getCardsIn } = useAllCards();
     const duel = useDuel();
     const phase = usePhase();
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
     const YGOPlayer = useYGOPlayer()!;
     const YGOOpponent = useYGOPlayer(true)!;
     const canNormalSummon = useCanNormalSummon(card.controller);
-    const monstersInMZone = useMonstersInMZone();
+    const { targets, getTargets } = useTargets(card);
 
     if(!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>;
 
@@ -289,7 +290,31 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
 
         },
         "Tribute Summon": () => {
-            
+            YGOPlayer.targettableCards.Value = `
+                {
+                    "location": "MZone",
+                    "controller": "${player.Name}"
+                }
+            `
+            const tributesRequired = card.level.Value <= 6 ? 1 : 2;
+            const targetsConnection = YGOPlayer.targets.Changed.Connect(() => {
+                if(getTargets().size() === tributesRequired) {
+                    targetsConnection.Disconnect();
+                    getTargets().forEach((target) => {
+                        target.tribute.Fire();
+                    })
+                    YGOPlayer.targettableCards.Value = "[]";
+                    YGOPlayer.targets.Value = "[]";
+                    YGOPlayer.canNormalSummon.Value = false;
+                    YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
+                    const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
+                        card.tributeSummon.Fire(zone);
+                        selectZone.Disconnect();
+                        YGOPlayer.selectedZone.Value = "";
+                        YGOPlayer.selectableZones.Value = "[]";
+                    })
+                }
+            })
         }
     }
 
@@ -310,12 +335,12 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
                     addCardAction("Normal Summon");
                     addCardAction("Set");
                     } else if (card.level.Value === 5 || card.level.Value === 6) {
-                    if (monstersInMZone.size() >= 1) {
+                    if (getCardsIn("MZone").size() >= 1) {
                         addCardAction("Tribute Summon");
                         addCardAction("Set");
                     }
                     } else if (card.level.Value >= 7) {
-                    if (monstersInMZone.size() >= 2) {
+                    if (getCardsIn("MZone").size() >= 2) {
                         addCardAction("Tribute Summon");
                         addCardAction("Set");
                     }

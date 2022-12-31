@@ -1,3 +1,5 @@
+const httpService = game.GetService("HttpService");
+
 export const remoteEvent = (name: string, parent: Instance) => {
     const re = new Instance("RemoteEvent");
     re.Name = name;
@@ -29,4 +31,9 @@ export const get3DZone = (name: string, isOpponent?: boolean) => {
     } else {
         return field.Player.FindFirstChild(name, true);
     }
+}
+
+export const JSON = {
+    stringify: (input: unknown) => httpService.JSONEncode(input),
+    parse: (str: string) => httpService.JSONDecode(str) as Record<string, unknown> | unknown[]
 }

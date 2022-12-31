@@ -1,5 +1,4 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { getCardInfo } from "server/utils";
 import type { CardFolder } from "server/ygo";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;

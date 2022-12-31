@@ -54,8 +54,7 @@ export interface PlayerValue extends ObjectValue {
     responseWindow: BoolValue;
     selectableZones: StringValue;
     selectedZone: StringValue;
-    selectableCards: StringValue;
-    selectedCard: StringValue;
+    targettableCards: StringValue;
     canNormalSummon: BoolValue;
     targets: StringValue;
 }
@@ -84,12 +83,11 @@ export const Duel = (p1: Player, p2: Player) => {
         const canAttack = instance("BoolValue", "canAttack", player) as BoolValue;
         const selectableZones = instance("StringValue", "selectableZones", player) as StringValue;
         const selectedZone = instance("StringValue", "selectedZone", player) as StringValue;
-        const selectableCards = instance("StringValue", "selectableCards", player) as StringValue;
-        const selectedCards = instance("StringValue", "selectedCards", player) as StringValue;
+        const targettableCards = instance("StringValue", "targettableCards", player) as StringValue;
         const targets = instance("StringValue", "targets", player) as StringValue;
         const canNormalSummon = instance("BoolValue", "canNormalSummon", player) as BoolValue;
 
-        selectableCards.Value = `{}`
+        targettableCards.Value = `{}`
         targets.Value = `[]`
         selectableZones.Value = `[]`
 
@@ -223,6 +221,7 @@ export interface CardFolder extends Folder {
     normalSummon: BindableEvent;
     set: BindableEvent;
     tribute: BindableEvent;
+    tributeSummon: BindableEvent;
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -246,7 +245,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     controller.Value = _owner;
     location.Value = "Deck";
     position.Value = "FaceUpAttack";
-    uid.Value = httpService.GenerateGUID(true);
+    uid.Value = httpService.GenerateGUID(false);
 
     const Summon = (_location: MZone) => {
         location.Value = _location;
@@ -278,4 +277,9 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         toGraveyard();
     }
     (instance("BindableEvent", "tribute", folder) as BindableEvent).Event.Connect(tribute);
+
+    const tributeSummon = (_location: MZone) => {
+        NormalSummon(_location);
+    }
+    (instance("BindableEvent", "tributeSummon", folder) as BindableEvent).Event.Connect(tributeSummon);
 }
