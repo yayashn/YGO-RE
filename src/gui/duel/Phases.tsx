@@ -36,6 +36,10 @@ export default withHooks(() => {
                                 if(phaseName === "EP") {
                                     duel!.handlePhases.Fire("EP")
                                 }
+                            } else if(phase === "BP") {
+                                if(phaseName === "EP" || phaseName === "MP2") {
+                                    duel!.handlePhases.Fire("MP2")
+                                }
                             }
                         }
                     }}

@@ -270,6 +270,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     (instance("BindableEvent", "set", folder) as BindableEvent).Event.Connect(Set);
 
     const toGraveyard = () => {
+        controller.Value = _owner;
+        position.Value = "FaceUp";
         location.Value = "GZone";
     }
 

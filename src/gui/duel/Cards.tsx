@@ -85,15 +85,23 @@ export const CardButton = withHooks(({card}: CardButton) => {
         const tween = tweenService.Create(artRef.getValue()!, tweenInfo, {
             ImageTransparency: 0.5
         } as Partial<ExtractMembers<ImageButton, Tweenable>>)
+        const tweenSleeve = tweenService.Create(sleeveRef.getValue()!, tweenInfo, {
+            ImageTransparency: 0.5
+        } as Partial<ExtractMembers<ImageButton, Tweenable>>)
         const handleTween = () => {
             if(checkValidTarget() && !isTargetted()) {
                 tween.Play();
+                tweenSleeve.Play();
             } else if(isTargetted()) {
                 tween.Pause();
+                tweenSleeve.Pause();
                 artRef.getValue()!.ImageTransparency = 0.5;
+                sleeveRef.getValue()!.ImageTransparency = 0.5;
             } else {
                 tween.Pause();
+                tweenSleeve.Pause();
                 artRef.getValue()!.ImageTransparency = 0;
+                sleeveRef.getValue()!.ImageTransparency = 0;
             }
         }
         const connections = [
@@ -181,10 +189,9 @@ export const CardButton = withHooks(({card}: CardButton) => {
                 Ref={artRef} 
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
-                ImageTransparency={showArt ? 0 : 1}
                 AnchorPoint={new Vector2(0.5,0.5)}
                 Position={new UDim2(0.5,0,0.5,0)}
-                Image={(getCardInfo(card.Name).FindFirstChild("art") as ImageButton).Image}
+                Image={showArt ? (getCardInfo(card.Name).FindFirstChild("art") as ImageButton).Image : ""}
                 Event={{
                     MouseEnter: () => {
                         setHover(true)
@@ -296,7 +303,30 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
         },
         "Set": () => {
             if(card.type.Value.match("Monster").size() > 0) {
-                YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
+                YGOPlayer.canNormalSummon.Value = false;
+                if(card.level.Value <= 4) {
+                    YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
+                } else {
+                    YGOPlayer.targettableCards.Value = `
+                        {
+                            "location": "MZone",
+                            "controller": "${player.Name}"
+                        }
+                    `
+                    const tributesRequired = card.level.Value <= 6 ? 1 : 2;
+                    const targetsConnection = YGOPlayer.targets.Changed.Connect(() => {
+                        if(getTargets().size() === tributesRequired) {
+                            targetsConnection.Disconnect();
+                            getTargets().forEach((target) => {
+                                target.tribute.Fire();
+                            })
+                            YGOPlayer.targettableCards.Value = "{}";
+                            YGOPlayer.targets.Value = "[]";
+                            wait()
+                            YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
+                        }
+                    })
+                }
             } else {
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones("SZone");
             }
@@ -385,7 +415,6 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
                     removeCardAction("Normal Summon");
                     removeCardAction("Set");
                 }
-
 
             // Battle Phase Logic
             const inMZone = card.location.Value.match("MZone").size() > 0;
