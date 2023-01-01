@@ -81,7 +81,7 @@ export const CardButton = withHooks(({card}: CardButton) => {
     const { checkValidTarget, handleTarget, isTargetted } = useTargets(card);
 
     useMount(() => {
-        const tweenInfo = new TweenInfo(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true);
+        const tweenInfo = new TweenInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true);
         const tween = tweenService.Create(artRef.getValue()!, tweenInfo, {
             ImageTransparency: 0.5
         } as Partial<ExtractMembers<ImageButton, Tweenable>>)
