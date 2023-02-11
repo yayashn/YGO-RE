@@ -1,13 +1,10 @@
-import { PlayerFolder } from "shared/types";
 import { CardFolder, DuelFolder, PlayerValue } from "./ygo";
 import { ServerScriptService } from "@rbxts/services";
 import profileTemplate from "./profile/profileTemplate";
 
 const duels = ServerScriptService.WaitForChild("instances").WaitForChild("duels") as Folder;
-const httpService = game.GetService("HttpService");
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const cards = replicatedStorage.WaitForChild("cards") as Folder;
-const playersFolder = ServerScriptService.WaitForChild("instances").WaitForChild("players") as Folder;
 
 export const getDuel = (player: Player) => {
     for(const d of duels.GetChildren()) {
@@ -20,11 +17,7 @@ export const getDuel = (player: Player) => {
     }
 }
 
-export const getCards = (player: Player) => {
-    const getPlayerData = player.FindFirstChild("getPlayerData") as BindableFunction;
-    const playerData = getPlayerData.Invoke() as typeof profileTemplate;
-    return playerData.decks[playerData.equipped.deck]
-}
+
 
 export const getCard = (duel: DuelFolder, uid: string) => {
     const cards1 = duel.player1.cards.GetChildren() as CardFolder[];

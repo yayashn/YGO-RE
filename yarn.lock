@@ -77,10 +77,10 @@
   resolved "https://registry.yarnpkg.com/@rbxts/roact-flipper/-/roact-flipper-2.1.0-ts.5.tgz#0cc0887731135dd3753585ddf671800907b9203d"
   integrity sha512-/3Td9dI0xZHxdZWLtMDKqNcvr0KUCAG2sSm6gGGZItX/5ADygAAk+nN+vdBx+BiBPNlc5rS22oS6H1HVPbyvQg==
 
-"@rbxts/roact-hooked@^2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@rbxts/roact-hooked/-/roact-hooked-2.1.2.tgz#855d2ddeff3906d1a422ed5120a9806f366cb293"
-  integrity sha512-fomTAjb6jHuV+zwk6nU5Sfeq3vmZPwKre1DMPYoXCZy6SrTdzv5tShm7nkOCOcaaEVHX/Vfhfaz8bn8sli6P3Q==
+"@rbxts/roact-hooked@^2.3.2":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@rbxts/roact-hooked/-/roact-hooked-2.3.3.tgz#86cbd9c1fa152ea97cc2131b614424a630de88d5"
+  integrity sha512-qj/Fx2Q1hOae9giRqxdDWXPi2k92aIADck7Lj1ou5KGNp/oUT8x3FD8yt6lpLq44MveWV3cY/W/f0X4NLltMEA==
 
 "@rbxts/roact@^1.4.4-ts.0":
   version "1.4.4-ts.0"

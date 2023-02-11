@@ -7,6 +7,10 @@
 		"$className": "ServerScriptService",
 		"$path": "out/server"
 	  },
+	  "ServerStorage": {
+		"$className": "ServerStorage",
+		"$path": "out/server-storage"
+	  },
 	  "StarterGui": {
 		"$className": "StarterGui",
 		"TS": {

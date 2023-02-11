@@ -1,9 +1,11 @@
 import { instance } from "shared/utils";
 import { Players, ServerScriptService, ReplicatedStorage, HttpService } from "@rbxts/services"
 import ProfileService from "@rbxts/profileservice";
-import profileTemplate from "./profileTemplate";
+import profileTemplate, { Card, ProfileTemplate } from "./profileTemplate";
 import initPlayer from "./functions/initPlayer";
 import { Profile } from "@rbxts/profileservice/globals";
+import initDataFunctions from "./functions/initDataFunctions";
+import Object from "@rbxts/object-utils";
 
 const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players") as Folder;
 
@@ -22,16 +24,8 @@ Players.PlayerAdded.Connect((player) => {
 		if(player.IsDescendantOf(Players)) {
 			profiles[player.UserId] = profile;
 			initPlayer(player);
-
-			const getPlayerData = instance("BindableFunction", "getPlayerData", player) as BindableFunction;
-			getPlayerData.OnInvoke = () => {
-				return profile.Data
-			}
-
-			const setPlayerData = instance("BindableFunction", "setPlayerData", player) as BindableFunction;
-			setPlayerData.OnInvoke = (data) => {
-				profile.Data = data;
-			}
+		//	profile.Data = profileTemplate; // RESET DATA
+			initDataFunctions(profile, player);
 		} else {
 			profile.Release();
 		}

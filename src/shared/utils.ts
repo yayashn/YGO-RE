@@ -1,3 +1,5 @@
+import { ReplicatedStorage } from "@rbxts/services";
+
 const httpService = game.GetService("HttpService");
 
 export const remoteEvent = (name: string, parent: Instance) => {
@@ -36,4 +38,16 @@ export const get3DZone = (name: string, isOpponent?: boolean) => {
 export const JSON = {
     stringify: (input: unknown) => httpService.JSONEncode(input),
     parse: (str: string) => httpService.JSONDecode(str) as Record<string, unknown> | unknown[]
+}
+
+export const getCardData = (cardName: string) => {
+    const cards = [];
+    for(const set of ReplicatedStorage.FindFirstChild("cards")!.GetChildren()) {
+        for(const card of set.GetChildren()) {
+            if(card.FindFirstChild("art")) {
+                cards.push(card);
+            }
+        }
+    }
+    return cards.find((c) => c.Name === cardName);
 }
