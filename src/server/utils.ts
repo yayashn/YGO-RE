@@ -1,6 +1,7 @@
 import { PlayerFolder } from "shared/types";
 import { CardFolder, DuelFolder, PlayerValue } from "./ygo";
 import { ServerScriptService } from "@rbxts/services";
+import profileTemplate from "./profile/profileTemplate";
 
 const duels = ServerScriptService.WaitForChild("instances").WaitForChild("duels") as Folder;
 const httpService = game.GetService("HttpService");
@@ -20,7 +21,9 @@ export const getDuel = (player: Player) => {
 }
 
 export const getCards = (player: Player) => {
-    return httpService.JSONDecode((playersFolder.FindFirstChild(player.Name)!.FindFirstChild("deck") as StringValue).Value) as [];
+    const getPlayerData = player.FindFirstChild("getPlayerData") as BindableFunction;
+    const playerData = getPlayerData.Invoke() as typeof profileTemplate;
+    return playerData.decks[playerData.equipped.deck]
 }
 
 export const getCard = (duel: DuelFolder, uid: string) => {
