@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 import { withHookDetection } from "@rbxts/roact-hooked";
-import DeckBuilder from "./DeckBuilder/DeckBuilder";
+import DeckBuilder from "./pages/DeckBuilder/DeckBuilder";
 import { Div } from "gui/rowindcss";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!
