@@ -1,11 +1,12 @@
 import { PlayerFolder } from "shared/types";
 import { CardFolder, DuelFolder, PlayerValue } from "./ygo";
+import { ServerScriptService } from "@rbxts/services";
 
-const serverStorage = game.GetService("ServerStorage");
-const duels = serverStorage.WaitForChild("duels")!;
+const duels = ServerScriptService.WaitForChild("instances").WaitForChild("duels") as Folder;
 const httpService = game.GetService("HttpService");
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const cards = replicatedStorage.WaitForChild("cards") as Folder;
+const playersFolder = ServerScriptService.WaitForChild("instances").WaitForChild("players") as Folder;
 
 export const getDuel = (player: Player) => {
     for(const d of duels.GetChildren()) {
@@ -19,7 +20,7 @@ export const getDuel = (player: Player) => {
 }
 
 export const getCards = (player: Player) => {
-    return httpService.JSONDecode((serverStorage.FindFirstChild("players")!.FindFirstChild(player.Name)!.FindFirstChild("deck") as StringValue).Value) as [];
+    return httpService.JSONDecode((playersFolder.FindFirstChild(player.Name)!.FindFirstChild("deck") as StringValue).Value) as [];
 }
 
 export const getCard = (duel: DuelFolder, uid: string) => {

@@ -67,6 +67,11 @@
   resolved "https://registry.yarnpkg.com/@rbxts/object-utils/-/object-utils-1.0.4.tgz#c53d80f89e75c401365446be63fa1396bc2cffe7"
   integrity sha512-dLLhf022ipV+9i910sOE7kl9losKHoon0WgeerHqVMQA5EYsLUsVT2AxhJuhk8MiDn5oJ2GiFofE/LadY9TpJQ==
 
+"@rbxts/profileservice@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@rbxts/profileservice/-/profileservice-1.4.1.tgz#892c41afa40b77677da9b9684cb18360a88c5073"
+  integrity sha512-cB9+hz7EOaqMKMDLrYE/aSzN2+hNlOBgmJTRdFwbZJ/EsJVqXVwaNx4REh+b6doqlnkPv6O2VIKP9LC2WypeYA==
+
 "@rbxts/roact-flipper@^2.1.0-ts.5":
   version "2.1.0-ts.5"
   resolved "https://registry.yarnpkg.com/@rbxts/roact-flipper/-/roact-flipper-2.1.0-ts.5.tgz#0cc0887731135dd3753585ddf671800907b9203d"
@@ -81,6 +86,11 @@
   version "1.4.4-ts.0"
   resolved "https://registry.yarnpkg.com/@rbxts/roact/-/roact-1.4.4-ts.0.tgz#7f297bec03dbea9473bd2d82b148d3ae6e4f6c00"
   integrity sha512-gn9mBoGG/Clzgv2kyOvLNVd9dh5t6z+jukC3ITv2HnfPqvf/sMbz/VMaBoiB7t5umuiIe0LjW0ctZrkrS+uTOA==
+
+"@rbxts/services@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@rbxts/services/-/services-1.5.1.tgz#4536a87932f28797507ed591f0061277c52ea77f"
+  integrity sha512-SRtfIjga0K4YYSXRpK+eH3kcTq7ZXo9OHOt0jszaOOoEOIJloMGlyuRPqesPHyhveh2AMXAZr3TYbRMSD+u+kQ==
 
 "@rbxts/types@^1.0.646":
   version "1.0.646"

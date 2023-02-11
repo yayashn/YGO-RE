@@ -1,0 +1,13 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Folder",
+            "Name": "players"
+        },
+        {
+            "ClassName": "Folder",
+            "Name": "duels"
+        }
+    ]
+}

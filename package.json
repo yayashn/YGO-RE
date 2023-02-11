@@ -27,8 +27,10 @@
 	},
 	"dependencies": {
 		"@rbxts/object-utils": "^1.0.4",
+		"@rbxts/profileservice": "^1.4.1",
 		"@rbxts/roact-flipper": "^2.1.0-ts.5",
 		"@rbxts/roact-hooked": "^2.1.2",
+		"@rbxts/services": "^1.5.1",
 		"patch-package": "^6.5.0"
 	}
 }

@@ -1,13 +1,12 @@
 import { Duel } from "server/ygo";
-import { remoteEvent } from "shared/utils";
+import { ServerScriptService } from "@rbxts/services";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
 const clickDetector = character.WaitForChild("ClickDetector") as ClickDetector;
-const serverStorage = game.GetService("ServerStorage");
-const duels = serverStorage.WaitForChild("duels")!;
+const duels = ServerScriptService.FindFirstChild("instances")!.WaitForChild("duels")!;
 
-const showFieldRe = remoteEvent("showField.re", player)
+const showFieldRe = player.WaitForChild("showField.re") as RemoteEvent;
 
 clickDetector.MouseClick.Connect((opponent) => {
     for(const duel of duels.GetChildren()) {

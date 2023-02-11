@@ -1,8 +1,9 @@
 import { useState, useEffect } from "@rbxts/roact-hooked";
 import { DuelFolder } from "server/ygo";
+import { ServerScriptService } from "@rbxts/services";
 
-const serverStorage = game.GetService("ServerStorage");
-const duels = serverStorage.WaitForChild("duels")!;
+
+const duels = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("duels") as Folder;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default () => {

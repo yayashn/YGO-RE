@@ -4,7 +4,7 @@ import type { Position } from "server/ygo";
 import { CardButton } from "gui/duel/Cards";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
-const moveCard3D = replicatedStorage.WaitForChild("moveCard3D.re") as RemoteEvent;
+const moveCard3D = replicatedStorage.FindFirstChild("moveCard3D.re", true) as RemoteEvent;
 
 moveCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: string }, isOpponent?: boolean) => {
 	const card3D = (cardButton.FindFirstChild("card3D") as ObjectValue).Value!;

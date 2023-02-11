@@ -1,9 +1,11 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
+import { ServerScriptService } from "@rbxts/services";
+
 
 const httpService = game.GetService("HttpService");
-const serverStorage = game.GetService("ServerStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
-const playerFolder = serverStorage.FindFirstChild("players")!.WaitForChild(player.Name);
+const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players")!
+const playerFolder = playersFolder.WaitForChild(player.Name);
 
 let globalStore: Folder;
 
@@ -57,7 +59,7 @@ export const getGlobalState = (key: string, player?: Player) => {
     if(!player) {
         return globalStore.FindFirstChild(key) as ValueBase;
     } else {
-        const playerFolder = serverStorage.FindFirstChild("players")!.WaitForChild(player.Name);
+        const playerFolder = playersFolder.WaitForChild(player.Name);
         const globalStore = playerFolder.FindFirstChild("GlobalStore") as Folder;
         return globalStore.FindFirstChild(key) as ValueBase;
     }
