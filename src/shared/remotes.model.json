@@ -7,14 +7,6 @@
         },
         {
             "ClassName": "RemoteEvent",
-            "Name": "createCard3D.re"
-        },
-        {
-            "ClassName": "RemoteEvent",
-            "Name": "moveCard3D.re"
-        },
-        {
-            "ClassName": "RemoteEvent",
             "Name": "cardSearchInput"
         }
     ]

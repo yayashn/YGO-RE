@@ -3,7 +3,7 @@ import { get3DZone, instance } from "shared/utils";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const card3DTemplate = game.Workspace.Field3D.Card;
-const createCard3D = replicatedStorage.FindFirstChild("createCard3D.re", true) as RemoteEvent;
+const createCard3D = replicatedStorage.WaitForChild("createCard3D.re") as RemoteEvent;
 
 export interface Card2DValue {
     Value: CardButton

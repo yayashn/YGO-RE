@@ -17,8 +17,8 @@ import useAllCards from "gui/hooks/useAllCards";
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
-const createCard3D = replicatedStorage.FindFirstChild("createCard3D.re", true) as RemoteEvent;
-const moveCard3D = replicatedStorage.FindFirstChild("moveCard3D.re", true) as RemoteEvent;
+const createCard3D = replicatedStorage.WaitForChild("createCard3D.re") as RemoteEvent;
+const moveCard3D = replicatedStorage.WaitForChild("moveCard3D.re") as RemoteEvent;
 const tweenService = game.GetService("TweenService");
 const httpService = game.GetService("HttpService");
 

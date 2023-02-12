@@ -1,5 +1,5 @@
 import { CardFolder, DuelFolder, PlayerValue } from "./ygo";
-import { ServerScriptService } from "@rbxts/services";
+import { ServerScriptService, HttpService, ServerStorage } from "@rbxts/services";
 import profileTemplate from "./profile/profileTemplate";
 
 const duels = ServerScriptService.WaitForChild("instances").WaitForChild("duels") as Folder;
@@ -17,7 +17,9 @@ export const getDuel = (player: Player) => {
     }
 }
 
-
+export const getCards = (player: Player) => {
+    return HttpService.JSONDecode((ServerStorage.FindFirstChild("players")!.FindFirstChild(player.Name)!.FindFirstChild("deck") as StringValue).Value) as [];
+}
 
 export const getCard = (duel: DuelFolder, uid: string) => {
     const cards1 = duel.player1.cards.GetChildren() as CardFolder[];

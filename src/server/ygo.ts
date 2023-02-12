@@ -1,5 +1,6 @@
 import { instance } from "shared/utils";
 import { ServerScriptService } from "@rbxts/services";
+import { getCards } from "./utils";
 
 const duels = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("duels") as Folder
 const replicatedStorage = game.GetService("ReplicatedStorage")
@@ -95,7 +96,7 @@ export const Duel = (p1: Player, p2: Player) => {
         lifePoints.Value = 8000;
 
         let o = 0;
-        for(const card of (player.Value.WaitForChild("getCards") as BindableFunction).Invoke()) {
+        for(const card of getCards(player.Value)!) {
             Card((card as CardInventory).name, player, o)
             o++;
         }

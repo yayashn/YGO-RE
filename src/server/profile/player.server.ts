@@ -7,6 +7,17 @@ import { Profile } from "@rbxts/profileservice/globals";
 import initDataFunctions from "./functions/initDataFunctions";
 import Object from "@rbxts/object-utils";
 
+///
+
+const createCard3D = new Instance("RemoteEvent");
+createCard3D.Name = "createCard3D.re";
+createCard3D.Parent = ReplicatedStorage;
+
+const moveCard3D = new Instance("RemoteEvent");
+moveCard3D.Name = "moveCard3D.re";
+moveCard3D.Parent = ReplicatedStorage;
+///
+
 const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players") as Folder;
 
 const profileStore = ProfileService.GetProfileStore("playerProfile", profileTemplate);
