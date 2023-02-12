@@ -8,7 +8,7 @@ import Rounded from "../components/Rounded"
 import getElementProps from "../utils/getElementProps"
 import Overflow from "../components/Overflow"
 import BgImage from "../components/BgImage"
-import { useEffect, useRef, useState, withHooks, withHookDetection, useCallback, useMemo } from "@rbxts/roact-hooked"
+import { useEffect, useRef, useState, withHooks, useCallback, useMemo } from "@rbxts/roact-hooked"
 import Aspect from "../components/Aspect"
 import Scale from "../components/Scale"
 import MinMaxSize from "../components/MinMaxSize"
@@ -29,9 +29,9 @@ interface RowindProps extends Roact.PropsWithChildren<{}> {
     key?: string | number
 }
 
-withHookDetection(Roact)
 
-export default (props: RowindProps) => {
+
+export default withHooks((props: RowindProps) => {
     const classList = (props.className ?? "").split(" ") as ClassName[]
     const [hovered, setHovered] = useState<Frame | TextButton | TextLabel | TextBox | ImageLabel | undefined>()
     const elementProps = getElementProps([...classList, ((hovered ? "+hovered" : "-hovered") as unknown as ClassName)], props)
@@ -141,4 +141,4 @@ export default (props: RowindProps) => {
             }
         </ElementContext.Provider>
     )
-}
+})

@@ -2,9 +2,8 @@ import Roact from "@rbxts/roact";
 import Div from "./elements/Div";
 import Text from "./elements/Text";
 import Button from "./elements/Button";
-import { useEffect, useRef, withHookDetection } from "@rbxts/roact-hooked";
+import { useEffect, useRef, withHooks } from "@rbxts/roact-hooked";
 
-withHookDetection(Roact)
 
 export = (target: Instance) => {    
     let tree = Roact.mount((
@@ -17,7 +16,7 @@ export = (target: Instance) => {
     }
 }
 
-const Component = () => {
+const Component = withHooks(() => {
     const ref = useRef<TextButton>()
 
     useEffect(() => {
@@ -47,4 +46,4 @@ const Component = () => {
             </Div>
         </Div>
     )
-}
+})

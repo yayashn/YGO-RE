@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { useEffect, useRef, useState, withHookDetection } from "@rbxts/roact-hooked";
+import { useEffect, useRef, useState } from "@rbxts/roact-hooked";
 import DeckBuilder from "./pages/DeckBuilder/DeckBuilder";
 import { instance } from "shared/utils";
 import PageContext from "./PageContext";

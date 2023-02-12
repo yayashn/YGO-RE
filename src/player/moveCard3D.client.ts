@@ -25,7 +25,7 @@ const field = game.Workspace.Field3D.Field;
         const stackCards = () => {
             zone.GetChildren().forEach((card3D) => {
                 const cardButton = ((card3D as Card3D).WaitForChild("card2D") as ObjectValue).Value as unknown as CardButton;
-                const order = cardButton.getOrder!.InvokeServer() as number;
+                const order = ((cardButton as unknown as Instance).WaitForChild("getOrder") as RemoteFunction).InvokeServer() as number;
                 const tweenGoal = {Position: new Vector3(position.X, position.Y + order*.5, position.Z)} as Partial<ExtractMembers<Instance, Tweenable>>;
                 tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
             })
