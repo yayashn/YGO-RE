@@ -6,11 +6,12 @@ interface RowindProps extends Roact.PropsWithChildren<{}> {
     Text?: string,
     Event?: Roact.JsxInstanceEvents<TextBox> | undefined,
     ref?: Roact.Ref<TextBox>,
-    placeholder?: string
+    placeholder?: string,
+    key?: string | number
 }
 
-export default ({className = "", Text = "", Event, ref, placeholder=""}: RowindProps) => {
+export default ({key, className = "", Text = "", Event, ref, placeholder=""}: RowindProps) => {
     return (
-        <RowindElement placeholder={placeholder} ref={ref} Event={Event} tagName="input" Text={Text} className={className}/>
+        <RowindElement key={key} placeholder={placeholder} ref={ref} Event={Event} tagName="input" Text={Text} className={className}/>
     )
 }

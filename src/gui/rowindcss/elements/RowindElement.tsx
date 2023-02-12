@@ -8,32 +8,35 @@ import Rounded from "../components/Rounded"
 import getElementProps from "../utils/getElementProps"
 import Overflow from "../components/Overflow"
 import BgImage from "../components/BgImage"
-import { useEffect, useRef, useState, withHooks, withHookDetection } from "@rbxts/roact-hooked"
+import { useEffect, useRef, useState, withHooks, withHookDetection, useCallback, useMemo } from "@rbxts/roact-hooked"
 import Aspect from "../components/Aspect"
 import Scale from "../components/Scale"
 import MinMaxSize from "../components/MinMaxSize"
+import { HttpService } from "@rbxts/services"
 
 interface RowindProps extends Roact.PropsWithChildren<{}> {
-    tagName: "div" | "button" | "text" | "input",
+    tagName: "div" | "button" | "text" | "input" | "img",
     className?: string,
     Text?: string,
     Event?: Roact.JsxInstanceEvents<Frame> |
              Roact.JsxInstanceEvents<TextButton> |
              Roact.JsxInstanceEvents<TextLabel> | 
              Roact.JsxInstanceEvents<TextBox> |
+             Roact.JsxInstanceEvents<ImageLabel> |
              undefined,
     ref?: Roact.Ref<Frame | TextButton | TextLabel | TextBox>,
     placeholder?: string,
+    key?: string | number
 }
 
 withHookDetection(Roact)
 
 export default (props: RowindProps) => {
     const classList = (props.className ?? "").split(" ") as ClassName[]
-    const [hovered, setHovered] = useState<Frame | TextButton | TextLabel | TextBox | undefined>()
+    const [hovered, setHovered] = useState<Frame | TextButton | TextLabel | TextBox | ImageLabel | undefined>()
     const elementProps = getElementProps([...classList, ((hovered ? "+hovered" : "-hovered") as unknown as ClassName)], props)
-    const elementRef = props.ref || useRef<Frame | TextButton | TextLabel | TextBox>()
-
+    const elementRef = props.ref || useRef<Frame | TextButton | TextLabel | TextBox | ImageLabel>()
+    
     useEffect(() => {
         if(!elementRef.getValue()) return
         if(!classList.some(className => className.match("^hover").size() > 0)) return
@@ -56,7 +59,8 @@ export default (props: RowindProps) => {
             classList: [...classList, ((hovered ? "+hovered" : "-hovered") as unknown as ClassName)],
         }}>
             {props.tagName === "div" && 
-                <frame Event={props.Event as Roact.JsxInstanceEvents<Frame> || {}}
+                <frame
+                Event={props.Event as Roact.JsxInstanceEvents<Frame> || {}}
                 Ref={elementRef as Roact.Ref<Frame>}
                 {...elementProps}>
                     <Overflow>
@@ -73,7 +77,8 @@ export default (props: RowindProps) => {
                 </frame>
             }
             {props.tagName === "button" &&
-                <textbutton Event={props.Event as Roact.JsxInstanceEvents<TextButton> || {}}
+                <textbutton
+                Event={props.Event as Roact.JsxInstanceEvents<TextButton> || {}}
                 Ref={elementRef as Roact.Ref<TextButton>}
                 {...elementProps}>
                     <Overflow>
@@ -89,7 +94,8 @@ export default (props: RowindProps) => {
                 </textbutton>
             }
             {props.tagName === "text" &&
-                <textlabel Event={props.Event as Roact.JsxInstanceEvents<TextLabel> || {}}
+                <textlabel
+                Event={props.Event as Roact.JsxInstanceEvents<TextLabel> || {}}
                 Ref={elementRef as Roact.Ref<TextLabel>}
                 {...elementProps}>
                     <Overflow>
@@ -121,6 +127,17 @@ export default (props: RowindProps) => {
                     <Rounded/>  
                     <MinMaxSize/>
                 </textbox>
+            }
+            {props.tagName === "img" &&
+                <imagelabel
+                Event={props.Event as Roact.JsxInstanceEvents<ImageLabel> || {}}
+                Ref={elementRef as Roact.Ref<ImageLabel>}
+                {...elementProps}>
+                    <Scale/>
+                    <Aspect/>
+                    <Rounded/>  
+                    <MinMaxSize/>
+                </imagelabel>
             }
         </ElementContext.Provider>
     )

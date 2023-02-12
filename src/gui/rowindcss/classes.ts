@@ -74,6 +74,9 @@ export default {
     "justify-start": {
         valueTypes: ["special"]
     },
+    "order": {
+        valueTypes: ["special"]
+    },
     gap: {
         valueTypes: ["udim"]
     },
@@ -130,4 +133,7 @@ export default {
     "min-h": {
         valueTypes: ["min-h"]
     },
+    opacity: {
+        valueTypes: ["opacity"]
+    }
 }

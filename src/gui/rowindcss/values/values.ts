@@ -14,6 +14,7 @@ import minH from "./minH"
 import minW from "./minW"
 import maxH from "./maxH"
 import maxW from "./maxW"
+import opacityCore from "./opacity-core"
 
 const values = {
     udim,
@@ -31,7 +32,8 @@ const values = {
     minH,
     minW,
     maxH,
-    maxW
+    maxW,
+    opacityCore
 }
 
 export default values

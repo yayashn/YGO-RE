@@ -23,12 +23,14 @@ export type MinHValueName = keyof typeof values.minH
 export type MinWValueName = keyof typeof values.minW
 export type MaxHValueName = keyof typeof values.maxH
 export type MaxWValueName = keyof typeof values.maxW
+export type OpacityCoreValueName = keyof typeof values.opacityCore
 
 export type ClassValueName = UDimValueName | Color3ValueName | Vector2ValueName |
 LeadingValueName | BorderValueName | ZValueName | RoundedValueName | OpacityValueName
 | TextValueName | FontWeightValueName | AspectValueName | ScaleValueName |
-MinHValueName | MinWValueName | MaxHValueName | MaxWValueName
+MinHValueName | MinWValueName | MaxHValueName | MaxWValueName | OpacityCoreValueName
 
 export type ClassValueType = "udim" | "color3" | "vector2" | "leading" 
 | "border" | "z" | "special" | "rounded" | "opacity" | "text" | "font-weight"
-| "string" | "aspect" | "scale" | "min-w" | "min-h" | "max-w" | "max-h"
+| "string" | "aspect" | "scale" | "min-w" | "min-h" | "max-w" | "max-h" | "image"
+| "opacity-core" | "number"

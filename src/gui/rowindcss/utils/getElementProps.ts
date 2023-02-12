@@ -1,14 +1,16 @@
 import Roact from "@rbxts/roact"
 import { ClassList } from "../types"
 import getClassValue from "./getClassValue"
+import startsWith from "./startsWith"
 
 interface RowindProps extends Roact.PropsWithChildren<{}> {
-    tagName: "div" | "button" | "text" | "input",
+    tagName: "div" | "button" | "text" | "input" | "img",
     className?: string,
     Text?: string,
     Events?: Roact.JsxInstanceEvents<Frame> |
              Roact.JsxInstanceEvents<TextButton> |
-             Roact.JsxInstanceEvents<TextLabel>
+             Roact.JsxInstanceEvents<TextLabel>,
+    key?: string | number
 }
 
 export default (classList: ClassList, props: RowindProps) => {
@@ -19,6 +21,7 @@ export default (classList: ClassList, props: RowindProps) => {
     const hasOverflowHidden = getClassValue(classList, "overflow") === "overflow-hidden"
     const hasBgColor = getClassValue(classList, "bg", "color3") !== false
     const hasBgOpacity = getClassValue(classList, "bg", "opacity") !== false
+    const hasOpacity = getClassValue(classList, "opacity", "opacity-core") !== false
 
     let elementProps = {
         Size: new UDim2(getClassValue(classList, "w", "udim") as UDim || new UDim(0,40), 
@@ -36,6 +39,11 @@ export default (classList: ClassList, props: RowindProps) => {
         ZIndex: getClassValue(classList, "z", "z") as number || 0,
         ClipsDescendants: hasOverflowHidden,
         BorderSizePixel: 0,
+        LayoutOrder: getClassValue(classList, "order", "number") as number || 0,
+    }
+
+    if(props.key) {
+        (elementProps as unknown) = {...elementProps, Key: props.key}
     }
 
     const hasCapitalize = getClassValue(classList, "capitalize", "special") === "capitalize"
@@ -68,6 +76,13 @@ export default (classList: ClassList, props: RowindProps) => {
     if(props.tagName === "input") {
         (elementProps as unknown) = {...elementProps, 
            PlaceholderColor3: getClassValue(classList, "text", "color3") as Color3 || new Color3(0, 0, 0)
+        }
+    }
+
+    if(props.tagName === "img") {
+        (elementProps as unknown) = {...elementProps, 
+            Image: props.Text,
+            ImageTransparency: getClassValue(classList, "opacity", "opacity-core") || 0,
         }
     }
 

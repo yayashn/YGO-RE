@@ -17,7 +17,7 @@ export default withHooks(() => {
     let flex: any = {
         FillDirection: hasFlexCol ? Enum.FillDirection.Vertical : Enum.FillDirection.Horizontal,
         Padding: getClassValue(classList, "gap", "udim") as UDim || new UDim(0, 0),
-       // SortOrder: Enum.SortOrder.LayoutOrder
+        SortOrder: Enum.SortOrder.LayoutOrder
     }
 
     if(hasFlexRow) {

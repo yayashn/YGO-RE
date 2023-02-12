@@ -1,6 +1,6 @@
 import classes from "../classes"
 import { BorderValueName, ClassList, ClassName, ClassType, ClassValueName, ClassValueType, RoundedValueName, Color3ValueName, UDimValueName, Vector2ValueName, ZValueName, OpacityValueName, LeadingValueName, TextValueName, FontWeightValueName, AspectValueName, ScaleValueName,
-MinHValueName, MinWValueName, MaxHValueName, MaxWValueName } from "../types"
+MinHValueName, MinWValueName, MaxHValueName, MaxWValueName, OpacityCoreValueName } from "../types"
 import values from "../values/values"
 import Object from "@rbxts/object-utils"
 import startsWith from "./startsWith"
@@ -36,8 +36,9 @@ const parseValue = (class_ : ClassName, classType: ClassType, specialClassValues
             } else if(classArbitraryValue.match("/").size() > 0) {
                 const [up, down] = classArbitraryValue.split("/") as unknown as [string, string];
                 return tonumber(up)!/tonumber(down)!
-            }
-            else {
+            } else if(valueType === "number") {
+                return tonumber(classArbitraryValue)
+            } else {
                 return classArbitraryValue
             }
         } else {
@@ -88,6 +89,9 @@ const parseValue = (class_ : ClassName, classType: ClassType, specialClassValues
             
             const isMaxW = valueType === 'max-w'
                         && Object.keys(values.maxW).some(u => u === classValueString)
+            
+            const isOpacityCore = valueType === 'opacity-core'
+                        && Object.keys(values.opacityCore).some(u => u === classValueString)
 
 
             if(hasUDim) {
@@ -122,6 +126,8 @@ const parseValue = (class_ : ClassName, classType: ClassType, specialClassValues
                 return values.maxH[classValueString as MaxHValueName]
             } else if(isMaxW) {
                 return values.maxW[classValueString as MaxWValueName]
+            } else if(isOpacityCore) {
+                return values.opacityCore[classValueString as OpacityCoreValueName]
             }
         }
     }

@@ -5,12 +5,15 @@ interface RowindProps extends Roact.PropsWithChildren<{}> {
     className?: string
     Event?: Roact.JsxInstanceEvents<TextButton> | undefined,
     Text?: string,
-    ref?: Roact.Ref<TextButton>
+    ref?: Roact.Ref<TextButton>,
+    key?: string | number
 }
 
-export default ({className = "", Event, Text = "", ref}: RowindProps) => {
+export default (props: RowindProps) => {
     return (
-        <RowindElement ref={ref} Event={Event} Text={Text}
-        tagName="button" className={className}/>
+        <RowindElement key={props.key} ref={props.ref} Event={props.Event} Text={props.Text || ""}
+        tagName="button" className={props.className || ""}>
+            {props[Roact.Children]}
+        </RowindElement>
     )
 }

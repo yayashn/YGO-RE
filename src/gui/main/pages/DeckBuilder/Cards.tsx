@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Div, Input, Text } from "gui/rowindcss";
+import { Button, Div, Img, Input, Text } from "gui/rowindcss";
 import { getCardData } from "shared/utils";
 import colours from "../../colours";
 import { useContext, useEffect, useState } from "@rbxts/roact-hooked";
@@ -69,22 +69,23 @@ export default () => {
                     const art = (cardData.FindFirstChild("art") as ImageButton).Image
 
                     return (
-                        <Div className="w-full h-[20%] flex z-50">
-                            <imagebutton 
+                        <Button 
+                        Event={{
+                            MouseButton1Click: () => {
+                                addCardToDeck.Fire(card)
+                                refreshCards()
+                            }
+                        }}
+                        className="w-full h-[20%] flex z-50 hover:bg-gray-500">
+                            <imagelabel 
                             ImageTransparency={amount === 0 ? 0.5 : 0}
-                            Event={{
-                                MouseButton1Click: () => {
-                                    addCardToDeck.Fire(card)
-                                    refreshCards()
-                                }
-                            }}
-                            Key="-1" Size={new UDim2(0.25,0,1,0)}
+                            LayoutOrder={-1} Size={new UDim2(0.25,0,1,0)}
                             ZIndex={90} Image={art}/>
                             <Div className="w-[75%] flex flex-col h-full">
                                 <Text className="text-white w-[75%] h-[25%] font-bold z-50 p-[5%]" Text={cardName}/>
                                 <Text className="text-white w-[75%] h-[25%] font-bold z-50 p-[5%]" Text={`x${amount}`}/>
                             </Div>
-                        </Div>
+                        </Button>
                     )
                 })}
             </Div>

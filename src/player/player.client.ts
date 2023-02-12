@@ -1,6 +1,3 @@
-const player = game.GetService("Players").LocalPlayer;
+import { StarterGui } from "@rbxts/services";
 
-const clickRemote = player.WaitForChild("click") as RemoteEvent;
-player.GetMouse().Button1Down.Connect(() => {
-    clickRemote.FireServer();
-})
+StarterGui.SetCoreGuiEnabled(Enum.CoreGuiType.All, false)

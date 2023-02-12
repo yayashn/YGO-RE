@@ -31,7 +31,7 @@ export default () => {
             useCards: [cards, setCards],
             refreshCards: refreshCards
         }}>
-            <Window title="Deck Builder">
+            <Window page="Deck Builder">
                 <Div className="w-full h-[88%] flex gap-[2%] z-50">
                     <Deck/>
                     <Cards/>
