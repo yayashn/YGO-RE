@@ -11,8 +11,15 @@ import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import { getCardInfo } from "server/utils";
 import { PlayerValue, CardFolder } from "server/ygo";
 import { instance } from "shared/utils";
-import useTargets from "gui/hooks/useTargets";
 import useAllCards from "gui/hooks/useAllCards";
+import setTargets from "gui/functions/setTargets";
+import getTargets from "gui/functions/getTargets";
+import isTargettableF from "gui/functions/isTargettable";
+import isTargetF from "gui/functions/isTarget";
+import useIsTarget from "gui/hooks/useIsTarget";
+import useIsTargettable from "gui/hooks/useIsTargettable";
+import removeTarget from "gui/functions/removeTarget";
+import addTarget from "gui/functions/addTarget";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -72,13 +79,15 @@ export interface DuelGui extends ScreenGui {
 
 export const CardButton = withHooks(({card}: CardButton) => {
     const duelGui = playerGui.WaitForChild("DuelGui") as DuelGui;
+    const YGOPlayer = useYGOPlayer()!;
     const cardRef = useRef<SurfaceGui>();
     const showArt = useShowArt(card);
     const [hover, setHover] = useState(false);
-    const artRef = useRef<ImageButton>();
-    const sleeveRef = useRef<ImageButton>();
+    const artRef = useRef<ImageLabel>();
+    const sleeveRef = useRef<ImageLabel>();
     const [showMenu, setShowMenu] = useState(false);
-    const { checkValidTarget, handleTarget, isTargetted } = useTargets(card);
+    const isTarget = useIsTarget(card)
+    const isTargettable = useIsTargettable(card)
 
     useMount(() => {
         const tweenInfo = new TweenInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true);
@@ -88,11 +97,12 @@ export const CardButton = withHooks(({card}: CardButton) => {
         const tweenSleeve = tweenService.Create(sleeveRef.getValue()!, tweenInfo, {
             ImageTransparency: 0.5
         } as Partial<ExtractMembers<ImageButton, Tweenable>>)
+
         const handleTween = () => {
-            if(checkValidTarget() && !isTargetted()) {
+            if(isTargettable && !isTarget) {
                 tween.Play();
                 tweenSleeve.Play();
-            } else if(isTargetted()) {
+            } else if(isTarget) {
                 tween.Pause();
                 tweenSleeve.Pause();
                 artRef.getValue()!.ImageTransparency = 0.5;
@@ -150,6 +160,20 @@ export const CardButton = withHooks(({card}: CardButton) => {
         card3DValue.Parent = cardRef.getValue();
         card.cardButton.Value = cardRef.getValue()!;
 
+        const onCardClick = instance("RemoteEvent", "onCardClick", cardRef.getValue()) as RemoteEvent;
+        onCardClick.OnServerEvent.Connect((player) => {
+            if(isTargettableF(YGOPlayer, card)) {
+                setShowMenu(false);
+                if(isTargetF(YGOPlayer, card)) {
+                    removeTarget(YGOPlayer, card)
+                } else {
+                    addTarget(YGOPlayer, card)
+                }
+            } else {
+                setShowMenu(state => !state);
+            }
+        })
+
         const isOpponent = () => card.controller.Value.Value !== player;
 
         createCard3D.FireClient(player,cardRef.getValue(), {
@@ -185,7 +209,7 @@ export const CardButton = withHooks(({card}: CardButton) => {
         <surfacegui Ref={cardRef} Key="Card">
             <CardMenu card={card} show={showMenu}/>
             <surfacegui Key="Art" Face="Bottom">
-                <imagebutton
+                <imagelabel
                 Ref={artRef} 
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
@@ -199,21 +223,13 @@ export const CardButton = withHooks(({card}: CardButton) => {
                     MouseLeave: () => {
                         setHover(false)
                     },
-                    MouseButton1Click: () => {
-                        if(checkValidTarget()) {
-                            handleTarget();
-                            setShowMenu(false);
-                        } else {
-                            setShowMenu(state => !state);
-                        }
-                    }
                 }}
                 >
-                </imagebutton>
+                </imagelabel>
             </surfacegui>
  
             <surfacegui Key="Sleeve" Face="Top">
-                <imagebutton 
+                <imagelabel 
                 Ref={sleeveRef}
                 Size={new UDim2(1,0,1,0)}
                 BackgroundTransparency={1} 
@@ -227,16 +243,9 @@ export const CardButton = withHooks(({card}: CardButton) => {
                     MouseLeave: () => {
                         setHover(false)
                     },
-                    MouseButton1Click: () => {
-                        if(checkValidTarget()) {
-                            handleTarget()
-                        } else {
-                            setShowMenu(state => !state);
-                        }
-                    }
                 }}
                 >
-                </imagebutton>
+                </imagelabel>
             </surfacegui>
         </surfacegui>
     )
@@ -252,7 +261,6 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
     const YGOPlayer = useYGOPlayer()!;
     const YGOOpponent = useYGOPlayer(true)!;
     const canNormalSummon = useCanNormalSummon(card.controller);
-    const { getTargets } = useTargets(card);
 
     if(!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>;
 
@@ -315,9 +323,9 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
                     `
                     const tributesRequired = card.level.Value <= 6 ? 1 : 2;
                     const targetsConnection = YGOPlayer.targets.Changed.Connect(() => {
-                        if(getTargets().size() === tributesRequired) {
+                        if(getTargets(YGOPlayer).size() === tributesRequired) {
                             targetsConnection.Disconnect();
-                            getTargets().forEach((target) => {
+                            getTargets(YGOPlayer).forEach((target) => {
                                 target.tribute.Fire();
                             })
                             YGOPlayer.targettableCards.Value = "{}";
@@ -340,38 +348,37 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
         "Flip": () => {
 
         },
-        "Attack": () => {
-
+        "Attack": async () => {
+            const targets = await setTargets(YGOPlayer, {
+                location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+                controller: [YGOOpponent]
+            }, 1)
+            targets.forEach((target) => {
+                card.attack.Fire(target);
+            })
+            setTargets(YGOPlayer, {}, 0)
         },
         "Activate": () => {
 
         },
-        "Tribute Summon": () => {
-            YGOPlayer.targettableCards.Value = `
-                {
-                    "location": "MZone",
-                    "controller": "${player.Name}"
-                }
-            `
+        "Tribute Summon": async () => {
             const tributesRequired = card.level.Value <= 6 ? 1 : 2;
-            const targetsConnection = YGOPlayer.targets.Changed.Connect(() => {
-                if(getTargets().size() === tributesRequired) {
-                    targetsConnection.Disconnect();
-                    getTargets().forEach((target) => {
-                        target.tribute.Fire();
-                    })
-                    YGOPlayer.targettableCards.Value = "{}";
-                    YGOPlayer.targets.Value = "[]";
-                    wait()
-                    YGOPlayer.canNormalSummon.Value = false;
-                    YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
-                    const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
-                        card.tributeSummon.Fire(zone);
-                        selectZone.Disconnect();
-                        YGOPlayer.selectedZone.Value = "";
-                        YGOPlayer.selectableZones.Value = "[]";
-                    })
-                }
+            const targets = await setTargets(YGOPlayer, {
+                location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+                controller: [YGOPlayer]
+            }, tributesRequired)
+            targets.forEach((target) => {
+                target.tribute.Fire();
+            })
+            setTargets(YGOPlayer, {}, 0)
+
+            YGOPlayer.canNormalSummon.Value = false;
+            YGOPlayer.selectableZones.Value = getEmptyFieldZones("MZone");
+            const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
+                card.tributeSummon.Fire(zone);
+                selectZone.Disconnect();
+                YGOPlayer.selectedZone.Value = "";
+                YGOPlayer.selectableZones.Value = "[]";
             })
         }
     }
@@ -419,10 +426,12 @@ const CardMenu = withHooks(({card, show}: {card: CardFolder, show: boolean}) => 
             // Battle Phase Logic
             const inMZone = card.location.Value.match("MZone").size() > 0;
             const inAttackPosition = card.position.Value === "FaceUpAttack";
+            const isController = card.controller.Value.Value === player;
             if(isMonster
                 && inMZone
                 && inAttackPosition
-                && phase === "BP") {
+                && phase === "BP"
+                && isController) {
                 addCardAction("Attack");
             } else {
                 removeCardAction("Attack");

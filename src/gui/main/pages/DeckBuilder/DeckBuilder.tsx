@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact"
 import { Div, Button, Text } from "../../../rowindcss/index"
 import colours from "../../colours"
-import { useEffect, useRef, useState } from "@rbxts/roact-hooked"
+import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked"
 import type { Card } from "server/profile/profileTemplate"
 import DeckBuilderContext from "./DeckBuilderContext"
 import Cards from "./Cards"
@@ -12,7 +12,7 @@ const player = script.FindFirstAncestorWhichIsA("Player")!
 const getDeck = player.WaitForChild("getDeck") as BindableFunction
 const getCards = player.WaitForChild("getCards") as BindableFunction
 
-export default () => {
+export default withHooks(() => {
     const [cards, setCards] = useState<Card[]>([])
     const [deck, setDeck] = useState<Card[]>([])
 
@@ -39,4 +39,4 @@ export default () => {
             </Window>
         </DeckBuilderContext.Provider>
     )
-}
+})

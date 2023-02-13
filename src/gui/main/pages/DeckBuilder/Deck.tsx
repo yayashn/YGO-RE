@@ -2,12 +2,12 @@ import Roact from "@rbxts/roact";
 import { Div, Img } from "gui/rowindcss";
 import { getCardData } from "shared/utils";
 import DeckBuilderContext from "./DeckBuilderContext";
-import { useContext } from "@rbxts/roact-hooked";
+import { useContext, withHooks } from "@rbxts/roact-hooked";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!
 const removeCardFromDeck = player.WaitForChild("removeCardFromDeck") as BindableEvent
 
-export default () => {
+export default withHooks(() => {
     const {
         useDeck: [deck],
         refreshCards
@@ -32,4 +32,4 @@ export default () => {
             </Div>
         </Div>
     )
-}
+})

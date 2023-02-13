@@ -1,14 +1,14 @@
 import Roact from "@rbxts/roact";
 import { Div, Button, Text } from "gui/rowindcss";
 import colours from "../colours";
-import { useContext } from "@rbxts/roact-hooked";
+import { useContext, withHooks } from "@rbxts/roact-hooked";
 import PageContext from "../PageContext";
 
 interface Window extends Roact.PropsWithChildren<{}> {
     page: string
 }
 
-export default (props: Window) => {
+export default withHooks((props: Window) => {
     const [page, setPage] = useContext(PageContext)
 
     return (
@@ -30,4 +30,4 @@ export default (props: Window) => {
             </Div>
         </Div>
     )
-}
+})

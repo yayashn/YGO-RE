@@ -17,7 +17,11 @@ export const getDuel = (player: Player) => {
     }
 }
 
-
+export const getCards = (duel: DuelFolder) => {
+    const cards1 = duel.player1.cards.GetChildren() as CardFolder[];
+    const cards2 = duel.player2.cards.GetChildren() as CardFolder[];
+    return [...cards1, ...cards2];
+}
 
 export const getCard = (duel: DuelFolder, uid: string) => {
     const cards1 = duel.player1.cards.GetChildren() as CardFolder[];

@@ -2,7 +2,7 @@ import Roact from "@rbxts/roact";
 import { Button, Div, Img, Input, Text } from "gui/rowindcss";
 import { getCardData } from "shared/utils";
 import colours from "../../colours";
-import { useContext, useEffect, useState } from "@rbxts/roact-hooked";
+import { useContext, useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import { ReplicatedStorage, ServerStorage } from "@rbxts/services";
 import Object from "@rbxts/object-utils";
 import { Card } from "server/profile/profileTemplate";
@@ -13,7 +13,7 @@ const cardSearchScript = ServerStorage.FindFirstChild("cardSearch") as LocalScri
 const player = script.FindFirstAncestorWhichIsA("Player")!
 const addCardToDeck = player.WaitForChild("addCardToDeck") as BindableEvent
 
-export default () => {
+export default withHooks(() => {
     const inputRef = Roact.createRef<TextBox>();
     const [input, setInput] = useState<string>("")
     const { 
@@ -91,4 +91,4 @@ export default () => {
             </Div>
         </Div>
     )
-}
+})

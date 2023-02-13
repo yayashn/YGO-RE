@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { useEffect, useRef, useState } from "@rbxts/roact-hooked";
+import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import DeckBuilder from "./pages/DeckBuilder/DeckBuilder";
 import { instance } from "shared/utils";
 import PageContext from "./PageContext";
@@ -10,7 +10,7 @@ const player = script.FindFirstAncestorWhichIsA("Player")!
 const playerGui = player.FindFirstChildWhichIsA("PlayerGui")
 const pageValue = (player.FindFirstChild("page") || instance("StringValue", "page", player)) as StringValue
 
-const Main = () => {
+const Main = withHooks(() => {
     const [page, setPage] = useState<string>("")
 
     const setPageValue = (page: string) => {
@@ -40,6 +40,6 @@ const Main = () => {
             </screengui>
         </PageContext.Provider>
     )
-}
+})
 
 Roact.mount(<Main/>, playerGui, "MainGui")

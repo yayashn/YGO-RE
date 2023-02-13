@@ -86,8 +86,6 @@ export const Duel = (p1: Player, p2: Player) => {
         const targets = instance("StringValue", "targets", player) as StringValue;
         const canNormalSummon = instance("BoolValue", "canNormalSummon", player) as BoolValue;
 
-        targettableCards.Value = `{}`
-        targets.Value = `[]`
         selectableZones.Value = `[]`
 
         canNormalSummon.Value = true;
@@ -221,6 +219,9 @@ export interface CardFolder extends Folder {
     set: BindableEvent;
     tribute: BindableEvent;
     tributeSummon: BindableEvent;
+    destroy_: BindableEvent;
+    attack: BindableEvent;
+    targettable: BoolValue;
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -239,6 +240,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const order = instance("IntValue", "order", folder) as IntValue;
     const position = instance("StringValue", "position", folder) as PositionValue;
     instance("ObjectValue", "cardButton", folder) as ObjectValue;
+    instance("BoolValue", "targettable", folder) as BoolValue;
 
     order.Value = _order;
     controller.Value = _owner;
@@ -279,8 +281,18 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     (instance("BindableEvent", "tribute", folder) as BindableEvent).Event.Connect(tribute);
 
+    const destroy = () => {
+        toGraveyard();
+    }
+    (instance("BindableEvent", "destroy_", folder) as BindableEvent).Event.Connect(destroy);
+
     const tributeSummon = (_location: MZone) => {
         NormalSummon(_location);
     }
     (instance("BindableEvent", "tributeSummon", folder) as BindableEvent).Event.Connect(tributeSummon);
+
+    const attack = (defender: CardFolder) => {
+        defender.destroy_.Fire();
+    }
+    (instance("BindableEvent", "attack", folder) as BindableEvent).Event.Connect(attack);
 }
