@@ -5,10 +5,21 @@ const duels = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("d
 const replicatedStorage = game.GetService("ReplicatedStorage")
 const cards = replicatedStorage.WaitForChild("cards") as Folder
 const httpService = game.GetService("HttpService")
+const moveCard3D = replicatedStorage.FindFirstChild("remotes")!.FindFirstChild("moveCard3D.re") as RemoteEvent
 
 export type Phase = "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
 interface PhaseValue extends StringValue {
     Value: Phase;
+}
+
+export type BattleStep = "START" | "BATTLE" | "DAMAGE" | "END";
+interface BattleStepValue extends StringValue {
+    Value: BattleStep;
+}
+
+export type DamageStep = "START" | "BEFORE" | "DURING" | "AFTER" | "END";
+interface DamageStepValue extends StringValue {
+    Value: DamageStep;
 }
 
 interface TypeValue extends StringValue {
@@ -33,6 +44,8 @@ export interface PositionValue extends StringValue {
 export interface DuelFolder extends Folder {
     turn: IntValue;
     phase: PhaseValue;
+    battleStep: BattleStepValue;
+    damageStep: DamageStepValue;
     mover: ObjectValue;
     player1: PlayerValue;
     player2: PlayerValue;
@@ -62,6 +75,8 @@ export const Duel = (p1: Player, p2: Player) => {
     const folder = instance("Folder", `${p1.Name}|${p2.Name}`, duels) as DuelFolder;
     const turn = instance("IntValue", "turn", folder) as IntValue;
     const phase = instance("StringValue", "phase", folder) as PhaseValue;
+    const battleStep = instance("StringValue", "battleStep", folder) as BattleStepValue;
+    const damageStep = instance("StringValue", "damageStep", folder) as DamageStepValue;
     const turnPlayer = instance("ObjectValue", "turnPlayer", folder) as unknown as {Value: PlayerValue};
     const mover = instance("ObjectValue", "mover", folder) as PlayerValue;
     const player1 = instance("ObjectValue", "player1", folder) as PlayerValue;
@@ -180,6 +195,14 @@ export const Duel = (p1: Player, p2: Player) => {
             phase.Value = p;
         } else if(p === "BP") {
             phase.Value = p;
+            battleStep.Value = "START"
+            wait(1)
+            handleResponseWindow(turnPlayer.Value);
+            handleResponseWindow(opponent(turnPlayer.Value));
+            battleStep.Value = "BATTLE"
+            wait(1)
+            handleResponseWindow(turnPlayer.Value);
+            handleResponseWindow(opponent(turnPlayer.Value));
         }
         else if(p === "MP2") {
             phase.Value = p;
@@ -222,6 +245,10 @@ export interface CardFolder extends Folder {
     destroy_: BindableEvent;
     attack: BindableEvent;
     targettable: BoolValue;
+    status: StringValue;
+    toGraveyard: BindableEvent;
+    flip: BindableEvent;
+    changePosition: BindableEvent;
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -229,18 +256,25 @@ export interface ControllerValue extends ObjectValue {
 }
 
 export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
+    const duel = _owner.FindFirstAncestorWhichIsA("Folder") as DuelFolder;
+    const players = [
+        _owner,
+        duel.FindFirstChild(_owner.Name === "Player1" ? "Player2" : "Player1") as PlayerValue
+    ]
+
     const cardDataFolder = cards.FindFirstChild(_name, true);
-    const folder = cardDataFolder!.Clone() as CardFolder;
-    folder.art.Image = "rbxassetid://3955072236"
-    folder.Name = _name;
-    folder.Parent = _owner.cards;
-    const uid = instance("StringValue", "uid", folder) as StringValue;
-    const controller = instance("ObjectValue", "controller", folder) as ControllerValue;
-    const location = instance("StringValue", "location", folder) as LocationValue;
-    const order = instance("IntValue", "order", folder) as IntValue;
-    const position = instance("StringValue", "position", folder) as PositionValue;
-    instance("ObjectValue", "cardButton", folder) as ObjectValue;
-    instance("BoolValue", "targettable", folder) as BoolValue;
+    const card = cardDataFolder!.Clone() as CardFolder;
+    card.art.Image = "rbxassetid://3955072236"
+    card.Name = _name;
+    card.Parent = _owner.cards;
+    const uid = instance("StringValue", "uid", card) as StringValue;
+    const controller = instance("ObjectValue", "controller", card) as ControllerValue;
+    const location = instance("StringValue", "location", card) as LocationValue;
+    const order = instance("IntValue", "order", card) as IntValue;
+    const position = instance("StringValue", "position", card) as PositionValue;
+    instance("ObjectValue", "cardButton", card) as ObjectValue;
+    instance("BoolValue", "targettable", card) as BoolValue;
+    const status = instance("StringValue", "status", card) as StringValue;
 
     order.Value = _order;
     controller.Value = _owner;
@@ -257,10 +291,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         controller.Value.canNormalSummon.Value = false;
         Summon(_location);
     }
-    (instance("BindableEvent", "normalSummon", folder) as BindableEvent).Event.Connect(NormalSummon);
+    (instance("BindableEvent", "normalSummon", card) as BindableEvent).Event.Connect(NormalSummon);
 
     const Set = (_location: SZone | MZone) => {
-        if(folder.type.Value.match("Monster").size() > 0) {
+        if(card.type.Value.match("Monster").size() > 0) {
             position.Value = "FaceDownDefense";
             controller.Value.canNormalSummon.Value = false;
         } else {
@@ -268,31 +302,123 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         }
         location.Value = _location;
     }
-    (instance("BindableEvent", "set", folder) as BindableEvent).Event.Connect(Set);
+    (instance("BindableEvent", "set", card) as BindableEvent).Event.Connect(Set);
 
     const toGraveyard = () => {
         controller.Value = _owner;
         position.Value = "FaceUp";
         location.Value = "GZone";
     }
+    (instance("BindableEvent", "toGraveyard", card) as BindableEvent).Event.Connect(toGraveyard);
 
     const tribute = () => {
         toGraveyard();
     }
-    (instance("BindableEvent", "tribute", folder) as BindableEvent).Event.Connect(tribute);
+    (instance("BindableEvent", "tribute", card) as BindableEvent).Event.Connect(tribute);
 
-    const destroy = () => {
-        toGraveyard();
+    const destroy = (cause: string) => {
+        status.Value = `destroyedBy${cause}`
+        print(card, `destroyed by ${cause}`)
     }
-    (instance("BindableEvent", "destroy_", folder) as BindableEvent).Event.Connect(destroy);
+    (instance("BindableEvent", "destroy_", card) as BindableEvent).Event.Connect(cause => destroy(cause));
 
     const tributeSummon = (_location: MZone) => {
         NormalSummon(_location);
     }
-    (instance("BindableEvent", "tributeSummon", folder) as BindableEvent).Event.Connect(tributeSummon);
+    (instance("BindableEvent", "tributeSummon", card) as BindableEvent).Event.Connect(tributeSummon);
+
+    const changePosition = (pos: Position) => {
+        position.Value = pos;
+    }
+    (instance("BindableEvent", "changePosition", card) as BindableEvent).Event.Connect(changePosition);
+
+    const flip = () => {
+        position.Value = "FaceUpDefense";
+    }
+    (instance("BindableEvent", "flip", card) as BindableEvent).Event.Connect(flip);
 
     const attack = (defender: CardFolder) => {
-        defender.destroy_.Fire();
+        const defenderPosition = defender.position.Value;
+        print(card, defender)
+
+        const startOfDamageStep = () => {
+            print("start of damage step")
+            duel.battleStep.Value = "DAMAGE"
+            duel.damageStep.Value = "START"
+            //during damage step only effects
+            //start of damage step effects
+            //ATK/DEF change effects
+            //check if players finished effects
+            beforeDamageCalculation()
+        }
+
+        const beforeDamageCalculation = () => {
+            print("before damage calculation")
+            duel.damageStep.Value = "BEFORE"
+            if(defenderPosition === "FaceDownDefense") {
+                print("flip", defender)
+                defender.flip.Fire()
+            }
+            //ATK/DEF change effects
+            //before damage calculation effects
+            //check if players finished effects
+            if(defender.location.Value.match("MZone").size() === 0) {
+                endOfDamageStep()
+            } else {
+                damageCalculation()
+            }
+        }
+
+        const damageCalculation = () => {
+            print("damage calculation")
+            duel.damageStep.Value = "DURING"
+            //during damage calculation only effects immediately
+            //during damage calculation effects
+            if(defenderPosition === "FaceUpAttack") {
+                if(card.atk.Value > defender.atk.Value) {
+                    defender.destroy_.Fire("Battle")
+                    //inflict battle damage to opponent
+                } else if(card.atk.Value < defender.atk.Value) {
+                    destroy("Battle")
+                    //inflict battle damage to player
+                } else {
+                    defender.destroy_.Fire("Battle")
+                    destroy("Battle")
+                }
+            } else {
+                if(card.atk.Value > defender.def.Value) {
+                    defender.destroy_.Fire("Battle")
+                } else if(card.atk.Value < defender.def.Value) {
+                    //inflict battle damage to player
+                }
+            }
+            afterDamageCalculation()
+        }
+
+        const afterDamageCalculation = () => {
+            print("after damage calculation")
+            duel.damageStep.Value = "AFTER"
+            //self destruction continuous effects immediately
+            //after damage calculation effects
+            //battle damage effects
+            //flip effects
+            endOfDamageStep()
+        }
+
+        const endOfDamageStep = () => {
+            print("end of damage step")
+            duel.damageStep.Value = "END"
+            if(defender.status.Value === "destroyedByBattle") {
+                defender.toGraveyard.Fire()
+                defender.status.Value = ""
+            }
+            if(status.Value === "destroyedByBattle") {
+                toGraveyard()
+                status.Value = ""
+            }
+            duel.battleStep.Value = "BATTLE"
+        }
+        startOfDamageStep()
     }
-    (instance("BindableEvent", "attack", folder) as BindableEvent).Event.Connect(attack);
+    (instance("BindableEvent", "attack", card) as BindableEvent).Event.Connect(attack);
 }

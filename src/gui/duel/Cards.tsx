@@ -20,6 +20,7 @@ import useIsTarget from "gui/hooks/useIsTarget";
 import useIsTargettable from "gui/hooks/useIsTargettable";
 import removeTarget from "gui/functions/removeTarget";
 import addTarget from "gui/functions/addTarget";
+import Object from "@rbxts/object-utils";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -47,7 +48,9 @@ export type CardButton = {
     getPosition?: RemoteFunction
     card3D?: ObjectValue
     getOrder?: RemoteFunction
-    Parent?: Instance
+    getUid?: RemoteFunction
+    positionChanged?: RemoteEvent
+    getLocation?: RemoteFunction
 }
 
 export interface DuelGuiPlayerField extends SurfaceGui {
@@ -180,18 +183,26 @@ export const CardButton = withHooks(({card}: CardButton) => {
             location: card.location.Value,
         }, isOpponent());
 
-        const cardLocationChanged = (value: string) => {
+        const cardLocationChanged = () => {
             if(!isOpponent()) {
                 cardRef.getValue()!.Parent = duelGui.Field.Player.FindFirstChild(card.location.Value, true);
             } else {
                 cardRef.getValue()!.Parent = duelGui.Field.Opponent.FindFirstChild(card.location.Value, true);
             }
-            moveCard3D.FireClient(player, cardRef.getValue(), {
-                location: value
-            }, isOpponent())
+            moveCard3D.FireClient(player, cardRef.getValue(), card.location.Value, isOpponent())
         }
         card.location.Changed.Connect(cardLocationChanged)
-        cardLocationChanged(card.location.Value)
+        cardLocationChanged()
+
+        const positionChanged = instance("RemoteEvent", "positionChanged", cardRef.getValue()) as RemoteEvent
+        card.position.Changed.Connect(() => {
+            positionChanged.FireClient(player, card.position.Value)
+        })
+
+        const getLocationFromClient = (instance("RemoteFunction", "getLocation", cardRef.getValue()) as RemoteFunction)
+        getLocationFromClient.OnServerInvoke = () => {
+            return card.location.Value
+        }
 
         const getPositionFromClient = (instance("RemoteFunction", "getPosition", cardRef.getValue()) as RemoteFunction)
         getPositionFromClient.OnServerInvoke = () => {
@@ -202,7 +213,11 @@ export const CardButton = withHooks(({card}: CardButton) => {
         getOrderFromClient.OnServerInvoke = () => {
             return card.order.Value
         }
-        
+
+        const getUidFromClient = (instance("RemoteFunction", "getUid", cardRef.getValue()) as RemoteFunction)
+        getUidFromClient.OnServerInvoke = () => {
+            return card.uid.Value
+        }
     }, [], cardRef)
 
     return (

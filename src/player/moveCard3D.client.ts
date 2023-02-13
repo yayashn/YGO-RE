@@ -2,19 +2,37 @@ import { get3DZone } from "shared/utils";
 import { Card3D } from "./createCard3D.client";
 import type { Position } from "server/ygo";
 import { CardButton } from "gui/duel/Cards";
+import { Location } from "shared/types";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");
 const moveCard3D = replicatedStorage.FindFirstChild("moveCard3D.re", true) as RemoteEvent;
 
-moveCard3D.OnClientEvent.Connect((cardButton: ImageButton, card: { location: string }, isOpponent?: boolean) => {
+moveCard3D.OnClientEvent.Connect((cardButton: CardButton & ImageButton, location: Location, isOpponent?: boolean) => {
 	const card3D = (cardButton.FindFirstChild("card3D") as ObjectValue).Value!;
-    card3D.Parent = get3DZone(card.location, isOpponent);
+    card3D.Parent = get3DZone(location, isOpponent);
 });
 
 const tweenService = game.GetService("TweenService");
 const tweenInfo = new TweenInfo(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0);
 
 const field = game.Workspace.Field3D.Field;
+
+const positionOrientation = {
+    Player: {
+        "FaceUpAttack": CFrame.Angles(0, math.rad(-90), math.rad(180)),
+        "FaceUpDefense": CFrame.Angles(0, math.rad(-180), math.rad(180)),
+        "FaceUp": CFrame.Angles(0, math.rad(-90), math.rad(180)),
+        "FaceDown": CFrame.Angles(0, math.rad(90), math.rad(0)),
+        "FaceDownDefense": CFrame.Angles(0, math.rad(180), math.rad(0)),
+    }, 
+    Opponent: {
+        "FaceUpAttack": CFrame.Angles(0, math.rad(90), math.rad(180)),
+        "FaceUpDefense": CFrame.Angles(0, math.rad(180), math.rad(180)),
+        "FaceUp": CFrame.Angles(0, math.rad(90), math.rad(180)),
+        "FaceDown": CFrame.Angles(0, math.rad(-90), math.rad(0)),
+        "FaceDownDefense": CFrame.Angles(0, math.rad(0), math.rad(0)),
+    }
+};
 
 [field.Player, field.Opponent].forEach((playerField) => {
     // Stackable zone animations
@@ -26,7 +44,9 @@ const field = game.Workspace.Field3D.Field;
             zone.GetChildren().forEach((card3D) => {
                 const cardButton = ((card3D as Card3D).WaitForChild("card2D") as ObjectValue).Value as unknown as CardButton;
                 const order = ((cardButton as unknown as Instance).WaitForChild("getOrder") as RemoteFunction).InvokeServer() as number;
-                const tweenGoal = {Position: new Vector3(position.X, position.Y + order*.5, position.Z)} as Partial<ExtractMembers<Instance, Tweenable>>;
+                const tweenGoal = {
+                    CFrame: positionOrientation[playerField.Name as "Player" | "Opponent"]["FaceUp"].add(new Vector3(position.X, position.Y + order*.5, position.Z)),
+                } as Partial<ExtractMembers<Instance, Tweenable>>;
                 tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
             })
         }
@@ -63,38 +83,33 @@ const field = game.Workspace.Field3D.Field;
     }
     playerField.Hand.ChildAdded.Connect(layoutCards)
     playerField.Hand.ChildRemoved.Connect(layoutCards)
-    
 
     // Field zone animations
+    const animateZone = (card3D: Card3D, zone: Vector3Value) => {
+        const card2D = (card3D as Card3D).card2D.Value
+        const position = card2D.getPosition!.InvokeServer() as Position
+        let tweenGoal: {CFrame: CFrame} = {CFrame: new CFrame()};
+
+        tweenGoal.CFrame = positionOrientation[playerField.Name as "Player" | "Opponent"][position].add(zone.Value);
+
+        tweenService.Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>).Play();
+    }
+
     playerField.Field.GetChildren().filter(zone => zone.IsA("Vector3Value")).forEach((zone) => {
-        zone.ChildAdded.Connect((card3D) => { 
+        const connections: Record<string, RBXScriptConnection> = {}
+        zone.ChildAdded.Connect(card3D => {
+            animateZone(card3D as Card3D, zone as Vector3Value);
+            
             const card2D = (card3D as Card3D).card2D.Value
-            const position = card2D.getPosition!.InvokeServer() as Position
-            let tweenGoal: {CFrame: CFrame} = {CFrame: new CFrame()};
-
-            if(playerField === field.Player) {
-                if(position === "FaceUpAttack" || position === "FaceUp") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(-90), math.rad(180)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceUpDefense") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(-180), math.rad(180)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceDownDefense") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(180), math.rad(0)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceDown") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(90), math.rad(0)).add((zone as Vector3Value).Value)
+            connections[card2D.getUid!.InvokeServer() as string] = card2D.positionChanged!.OnClientEvent.Connect(() => {
+                if(card2D.getLocation!.InvokeServer() === zone.Name) {
+                    animateZone(card3D as Card3D, zone as Vector3Value)
                 }
-            } else {
-                if(position === "FaceUpAttack" || position === "FaceUp") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(90), math.rad(180)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceUpDefense") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(180), math.rad(180)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceDownDefense") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(0), math.rad(0)).add((zone as Vector3Value).Value)
-                } else if(position === "FaceDown") {
-                    tweenGoal.CFrame = CFrame.Angles(0, math.rad(-90), math.rad(0)).add((zone as Vector3Value).Value)
-                }    
-            }
-
-            tweenService.Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>).Play();
+            })
+        })
+        zone.ChildRemoved.Connect(card3D => {
+            const card2D = (card3D as Card3D).card2D.Value
+            connections[card2D.getUid!.InvokeServer() as string].Disconnect()
         })
     })
 })

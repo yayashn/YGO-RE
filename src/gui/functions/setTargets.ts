@@ -12,8 +12,8 @@ interface CardFilter {
 
 export default (YGOPlayer: PlayerValue, cardFilter: CardFilter, amount: number) => {
     if(amount === 0) {
-        YGOPlayer.targettableCards.Value = "{}";
-        YGOPlayer.targets.Value = "[]";
+        YGOPlayer.targettableCards.Value = "";
+        YGOPlayer.targets.Value = "";
         return [];
     }
 
