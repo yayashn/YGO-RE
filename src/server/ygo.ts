@@ -163,11 +163,13 @@ export const Duel = (p1: Player, p2: Player) => {
                     wait(0.3)
                 }
             }
-            ;(instance('BindableEvent', 'draw', player) as BindableEvent).Event.Connect(draw);
+            ;(instance('BindableEvent', 'draw', player) as BindableEvent).Event.Connect(draw)
 
-            (instance("BindableEvent", "updateLP", player) as BindableEvent).Event.Connect((lp: number) => {
-                lifePoints.Value += lp
-            });
+            ;(instance('BindableEvent', 'updateLP', player) as BindableEvent).Event.Connect(
+                (lp: number) => {
+                    lifePoints.Value += lp
+                }
+            )
         })
     )
     thread[0]()
@@ -323,7 +325,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     order.Value = _order
     controller.Value = _owner
     location.Value = 'Deck'
-    position.Value = 'FaceUpAttack'
+    position.Value = 'FaceDown'
     uid.Value = httpService.GenerateGUID(false)
     canChangePosition.Value = true
     canAttack.Value = true
@@ -380,10 +382,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
 
     const changePosition = () => {
         canChangePosition.Value = false
-        if(position.Value === "FaceUpAttack") {
-            position.Value = "FaceUpDefense"
+        if (position.Value === 'FaceUpAttack') {
+            position.Value = 'FaceUpDefense'
         } else {
-            position.Value = "FaceUpAttack"
+            position.Value = 'FaceUpAttack'
         }
     }
     ;(instance('BindableEvent', 'changePosition', card) as BindableEvent).Event.Connect(
@@ -403,7 +405,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
 
     const attack = (defender: CardFolder & PlayerValue) => {
         const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
-        const defenderLocation = isDirectAttack ? "" : defender.location.Value
+        const defenderLocation = isDirectAttack ? '' : defender.location.Value
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
         print(card, defender)
 
@@ -426,7 +428,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             //ATK/DEF change effects
             //before damage calculation effects
             //check if players finished effects
-            if(!isDirectAttack) {
+            if (!isDirectAttack) {
                 if (defenderLocation.match('MZone').size() === 0) {
                     endOfDamageStep()
                 } else {
@@ -441,19 +443,19 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             duel.damageStep.Value = 'DURING'
             //during damage calculation only effects immediately
             //during damage calculation effects
-            if(isDirectAttack) {
+            if (isDirectAttack) {
                 defender.updateLP.Fire(-card.atk.Value)
             } else {
-                if(defender.position.Value === "FaceUpAttack") {
+                if (defender.position.Value === 'FaceUpAttack') {
                     if (card.atk.Value > defenderAtk) {
-                        defender.destroy_.Fire('Battle');
-                        const calculation = card.atk.Value - defenderAtk;
+                        defender.destroy_.Fire('Battle')
+                        const calculation = card.atk.Value - defenderAtk
                         defender.controller.Value.updateLP.Fire(-calculation)
                     } else if (card.atk.Value < defenderAtk) {
                         destroy('Battle')
                         const calculation = defenderAtk - card.atk.Value
                         controller.Value.updateLP.Fire(-calculation)
-                    } else if(card.atk.Value === defenderAtk && card.atk.Value !== 0) {
+                    } else if (card.atk.Value === defenderAtk && card.atk.Value !== 0) {
                         defender.destroy_.Fire('Battle')
                         destroy('Battle')
                     }
@@ -482,9 +484,9 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const endOfDamageStep = () => {
             print('end of damage step')
             duel.damageStep.Value = 'END'
-            if(!isDirectAttack) {
+            if (!isDirectAttack) {
                 if (defender.status.Value === 'destroyedByBattle') {
-                    defender.toGraveyard.Fire();
+                    defender.toGraveyard.Fire()
                     defender.status.Value = ''
                 }
                 if (status.Value === 'destroyedByBattle') {

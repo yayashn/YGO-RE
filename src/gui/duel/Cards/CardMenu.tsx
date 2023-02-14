@@ -194,7 +194,7 @@ export default withHooks(({ card, useShowMenu }: {
         const isTurnPlayer = duel?.turnPlayer.Value.Value === player
         const actionAlreadyOccuring = YGOPlayer.selectableZones.Value !== '[]'
 
-        if (!actionAlreadyOccuring) {
+        if (!actionAlreadyOccuring && card.controller.Value.Value === player) {
             //Hand Logic
             if (inHand && isTurnPlayer && isMainPhase) {
                 if (isMonster) {

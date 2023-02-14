@@ -39,7 +39,7 @@ export default withHooks(() => {
         Size={new UDim2(1000,0,20,0)}
         Adornee={phasesPart}>
             <Div className="flex items-center justify-center w-full h-full gap-[5px]">
-                <Text className="bg-[rgb(6,229,254)] h-[200%] w-[100px] font-bold rounded-lg text-white text-center"
+                <Text className="border-[rgb(6,229,254)] border-2 bg-gray-700 h-[200%] w-[100px] font-bold rounded-lg text-white text-center"
                     Text={`${playerLP}`}/>
                 {(["DP", "SP", "MP1", "BP", "MP2", "EP"] as Phase[]).map((phaseName, i) => {
                     return (
@@ -70,7 +70,7 @@ export default withHooks(() => {
                         Text={phaseName} />
                     )
                 })}
-                <Text className="bg-[rgb(254,17,14)] h-[200%] w-[100px] font-bold rounded-lg text-white text-center order-[90]"
+                <Text className="border-[rgb(254,17,14)] border-2 bg-gray-700 h-[200%] w-[100px] font-bold rounded-lg text-white text-center order-[90]"
                     Text={`${opponentLP}`}/>
             </Div>
         </billboardgui>
