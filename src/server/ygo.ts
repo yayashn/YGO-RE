@@ -70,6 +70,8 @@ export interface PlayerValue extends ObjectValue {
     targettableCards: StringValue
     canNormalSummon: BoolValue
     targets: StringValue
+    lifePoints: NumberValue
+    updateLP: BindableEvent
 }
 
 export const Duel = (p1: Player, p2: Player) => {
@@ -161,7 +163,11 @@ export const Duel = (p1: Player, p2: Player) => {
                     wait(0.3)
                 }
             }
-            ;(instance('BindableEvent', 'draw', player) as BindableEvent).Event.Connect(draw)
+            ;(instance('BindableEvent', 'draw', player) as BindableEvent).Event.Connect(draw);
+
+            (instance("BindableEvent", "updateLP", player) as BindableEvent).Event.Connect((lp: number) => {
+                lifePoints.Value += lp
+            });
         })
     )
     thread[0]()
@@ -372,8 +378,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         tributeSummon
     )
 
-    const changePosition = (pos: Position) => {
-        position.Value = pos
+    const changePosition = () => {
+        canChangePosition.Value = false
+        if(position.Value === "FaceUpAttack") {
+            position.Value = "FaceUpDefense"
+        } else {
+            position.Value = "FaceUpAttack"
+        }
     }
     ;(instance('BindableEvent', 'changePosition', card) as BindableEvent).Event.Connect(
         changePosition
@@ -384,18 +395,19 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     ;(instance('BindableEvent', 'flip', card) as BindableEvent).Event.Connect(flip)
 
-    const flipSummon = (_location: MZone) => {
+    const flipSummon = () => {
         canChangePosition.Value = false
         position.Value = 'FaceUpAttack'
     }
     ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
 
-    const attack = (defender: CardFolder) => {
-        const defenderPosition = defender.position.Value
+    const attack = (defender: CardFolder & PlayerValue) => {
+        const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
+        const defenderLocation = isDirectAttack ? "" : defender.location.Value
+        const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
         print(card, defender)
 
         const startOfDamageStep = () => {
-            print('start of damage step')
             canChangePosition.Value = false
             duel.battleStep.Value = 'DAMAGE'
             duel.damageStep.Value = 'START'
@@ -407,43 +419,51 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         }
 
         const beforeDamageCalculation = () => {
-            print('before damage calculation')
             duel.damageStep.Value = 'BEFORE'
-            if (defenderPosition === 'FaceDownDefense') {
-                print('flip', defender)
+            if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {
                 defender.flip.Fire()
             }
             //ATK/DEF change effects
             //before damage calculation effects
             //check if players finished effects
-            if (defender.location.Value.match('MZone').size() === 0) {
-                endOfDamageStep()
+            if(!isDirectAttack) {
+                if (defenderLocation.match('MZone').size() === 0) {
+                    endOfDamageStep()
+                } else {
+                    damageCalculation()
+                }
             } else {
                 damageCalculation()
             }
         }
 
         const damageCalculation = () => {
-            print('damage calculation')
             duel.damageStep.Value = 'DURING'
             //during damage calculation only effects immediately
             //during damage calculation effects
-            if (defenderPosition === 'FaceUpAttack') {
-                if (card.atk.Value > defender.atk.Value) {
-                    defender.destroy_.Fire('Battle')
-                    //inflict battle damage to opponent
-                } else if (card.atk.Value < defender.atk.Value) {
-                    destroy('Battle')
-                    //inflict battle damage to player
-                } else {
-                    defender.destroy_.Fire('Battle')
-                    destroy('Battle')
-                }
+            if(isDirectAttack) {
+                defender.updateLP.Fire(-card.atk.Value)
             } else {
-                if (card.atk.Value > defender.def.Value) {
-                    defender.destroy_.Fire('Battle')
-                } else if (card.atk.Value < defender.def.Value) {
-                    //inflict battle damage to player
+                if(defender.position.Value === "FaceUpAttack") {
+                    if (card.atk.Value > defenderAtk) {
+                        defender.destroy_.Fire('Battle');
+                        const calculation = card.atk.Value - defenderAtk;
+                        defender.controller.Value.updateLP.Fire(-calculation)
+                    } else if (card.atk.Value < defenderAtk) {
+                        destroy('Battle')
+                        const calculation = defenderAtk - card.atk.Value
+                        controller.Value.updateLP.Fire(-calculation)
+                    } else if(card.atk.Value === defenderAtk && card.atk.Value !== 0) {
+                        defender.destroy_.Fire('Battle')
+                        destroy('Battle')
+                    }
+                } else {
+                    if (card.atk.Value > defender.def.Value) {
+                        defender.destroy_.Fire('Battle')
+                    } else if (card.atk.Value < defender.def.Value) {
+                        const calculation = defender.def.Value - card.atk.Value
+                        controller.Value.updateLP.Fire(-calculation)
+                    }
                 }
             }
             afterDamageCalculation()
@@ -462,13 +482,15 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const endOfDamageStep = () => {
             print('end of damage step')
             duel.damageStep.Value = 'END'
-            if (defender.status.Value === 'destroyedByBattle') {
-                defender.toGraveyard.Fire()
-                defender.status.Value = ''
-            }
-            if (status.Value === 'destroyedByBattle') {
-                toGraveyard()
-                status.Value = ''
+            if(!isDirectAttack) {
+                if (defender.status.Value === 'destroyedByBattle') {
+                    defender.toGraveyard.Fire();
+                    defender.status.Value = ''
+                }
+                if (status.Value === 'destroyedByBattle') {
+                    toGraveyard()
+                    status.Value = ''
+                }
             }
             duel.battleStep.Value = 'BATTLE'
         }

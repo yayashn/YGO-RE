@@ -9,6 +9,8 @@ import usePhase from "gui/hooks/usePhase";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import { CardFolder } from "server/ygo";
 import { HttpService } from "@rbxts/services";
+import {Button, Text} from "gui/rowindcss/index";
+import { getFilteredCards } from "server/utils";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!
 
@@ -129,20 +131,30 @@ export default withHooks(({ card, useShowMenu }: {
                 YGOPlayer.selectableZones.Value = '[]'
             })
         },
-        'Flip Summon': () => {},
+        'Flip Summon': () => {
+            card.flipSummon.Fire()
+        },
         Attack: async () => {
-            const targets = await setTargets(
-                YGOPlayer,
-                {
-                    location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-                    controller: [YGOOpponent],
-                },
-                1,
-            )
-            targets.forEach((target) => {
-                card.attack.Fire(target)
+            const monstersOnOpponentField = getFilteredCards(duel!, {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                controller: [YGOOpponent],
             })
-            setTargets(YGOPlayer, {}, 0)
+            if(monstersOnOpponentField.size() > 0) {
+                const targets = await setTargets(
+                    YGOPlayer,
+                    {
+                        location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                        controller: [YGOOpponent],
+                    },
+                    1,
+                )
+                targets.forEach((target) => {
+                    card.attack.Fire(target)
+                })
+                setTargets(YGOPlayer, {}, 0)
+            } else {
+                card.attack.Fire(YGOOpponent)
+            }
         },
         Activate: () => {},
         'Tribute Summon': async () => {
@@ -169,7 +181,9 @@ export default withHooks(({ card, useShowMenu }: {
                 YGOPlayer.selectableZones.Value = '[]'
             })
         },
-        'Change Position': () => {},
+        'Change Position': () => {
+            card.changePosition.Fire()
+        },
     }
 
     useEffect(() => {
@@ -260,21 +274,21 @@ export default withHooks(({ card, useShowMenu }: {
             ExtentsOffset={new Vector3(0, 0.2, 2)}
             ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
         >
-            <uilistlayout VerticalAlignment="Center" />
+            <uilistlayout 
+            Padding={new UDim(.05, 0)} 
+            VerticalAlignment="Center" />
             {enabledActions.map((button: CardAction) => {
                 return (
-                    <textbutton
-                        Event={{
-                            MouseButton1Click: () => {
-                                setShowMenu(false)
-                                if (!isCardActionEnabled(button)) return
-                                removeCardAction()
-                                cardActions[button]()
-                            },
-                        }}
-                        Size={new UDim2(1, 0, 0, 17)}
-                        Text={button}
-                    ></textbutton>
+                    <Button className="w-full h-[17px] bg-gray-500 border-white text-white text-center rounded-md font-bold"
+                    Event={{
+                        MouseButton1Click: () => {
+                            setShowMenu(false)
+                            if (!isCardActionEnabled(button)) return
+                            removeCardAction()
+                            cardActions[button]()
+                        },
+                    }}
+                    Text={button}/>
                 )
             })}
         </billboardgui>

@@ -75,7 +75,7 @@ export default {
         valueTypes: ["special"]
     },
     "order": {
-        valueTypes: ["special"]
+        valueTypes: ["number"]
     },
     gap: {
         valueTypes: ["udim"]
