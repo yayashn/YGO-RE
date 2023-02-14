@@ -1,7 +1,7 @@
 import { get3DZone } from "shared/utils";
 import { Card3D } from "./createCard3D.client";
 import type { Position } from "server/ygo";
-import { CardButton } from "gui/duel/Cards";
+import { CardButton } from "gui/duel/Cards/Cards";
 import { Location } from "shared/types";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");

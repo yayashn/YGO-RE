@@ -1,14 +1,7 @@
 import Object from "@rbxts/object-utils";
-import { getCards } from "server/utils";
+import { CardFilter, getCards } from "server/utils";
 import { CardFolder, DuelFolder, PlayerValue } from "server/ygo";
-import { Location } from "shared/types";
-import getTargets from "./getTargets";
-
-interface CardFilter {
-    location?: Location[],
-    controller?: PlayerValue[],
-    uid?: string[]
-}
+import getTargets from "./getTargets";;
 
 export default (YGOPlayer: PlayerValue, cardFilter: CardFilter, amount: number) => {
     if(amount === 0) {

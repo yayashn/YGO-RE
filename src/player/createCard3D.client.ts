@@ -1,4 +1,4 @@
-import { CardButton } from "gui/duel/Cards";
+import { CardButton } from "gui/duel/Cards/Cards";
 import { get3DZone, instance } from "shared/utils";
 
 const replicatedStorage = game.GetService("ReplicatedStorage");

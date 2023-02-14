@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { withHooks } from "@rbxts/roact-hooked";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
-import Cards from "./Cards";
+import Cards from "./Cards/Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";

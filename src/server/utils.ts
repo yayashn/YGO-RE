@@ -1,6 +1,7 @@
 import { CardFolder, DuelFolder, PlayerValue } from "./ygo";
 import { ServerScriptService } from "@rbxts/services";
-import profileTemplate from "./profile/profileTemplate";
+import Object from "@rbxts/object-utils";
+import { Location } from "shared/types";
 
 const duels = ServerScriptService.WaitForChild("instances").WaitForChild("duels") as Folder;
 const replicatedStorage = game.GetService("ReplicatedStorage");
@@ -33,4 +34,18 @@ export const getCard = (duel: DuelFolder, uid: string) => {
 
 export const getCardInfo = (name: string) => {
     return cards.FindFirstChild(name, true) as Folder;
+}
+
+export interface CardFilter {
+    location?: Location[],
+    controller?: PlayerValue[],
+    uid?: string[],
+    canChangePosition?: boolean[]
+}
+
+export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
+    const cards = getCards(duel);
+    return cards.filter((card) => Object.entries(cardFilter).every(([key, values]) => {
+        return values.some(value => card[key].Value === value)
+    }))
 }
