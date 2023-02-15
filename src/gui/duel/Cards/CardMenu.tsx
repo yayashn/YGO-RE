@@ -10,7 +10,7 @@ import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import { CardFolder } from "server/ygo";
 import { HttpService } from "@rbxts/services";
 import {Button, Text} from "gui/rowindcss/index";
-import { getFilteredCards } from "server/utils";
+import { getEmptyFieldZones, getFilteredCards } from "server/utils";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!
 
@@ -53,40 +53,10 @@ export default withHooks(({ card, useShowMenu }: {
         return enabledActions.includes(action)
     }
 
-    const getEmptyFieldZones = (zoneType: 'MZone' | 'SZone' | 'Both') => {
-        const MZones = ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'].map((zone) => ({
-            [zone]: { opponent: false, player: true },
-        }))
-        const SZones = ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'].map((zone) => ({
-            [zone]: { opponent: false, player: true },
-        }))
-        const zones =
-            zoneType === 'MZone' ? MZones : zoneType === 'SZone' ? SZones : [...MZones, ...SZones]
-        const selectableZones = HttpService.JSONEncode(
-            zones.filter((zone) => {
-                for (const [name] of pairs(zone)) {
-                    const isZoneTaken1 = (YGOPlayer.cards.GetChildren() as CardFolder[]).every(
-                        (card) =>
-                            card.controller.Value.Value !== player || card.location.Value !== name,
-                    )
-                    const isZoneTaken2 = (YGOOpponent.cards.GetChildren() as CardFolder[]).every(
-                        (card) =>
-                            card.controller.Value.Value !== player || card.location.Value !== name,
-                    )
-                    if (isZoneTaken1 && isZoneTaken2) {
-                        return true
-                    }
-                }
-                return false
-            }),
-        )
-        return selectableZones
-    }
-
     const cardActions = {
         'Normal Summon': () => {
             YGOPlayer.canNormalSummon.Value = false
-            YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone')
+            YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, "Player")
             const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
                 card.normalSummon.Fire(zone)
                 selectZone.Disconnect()
@@ -95,34 +65,38 @@ export default withHooks(({ card, useShowMenu }: {
             })
         },
         'Special Summon': () => {},
-        Set: () => {
+        Set: async () => {
             if (card.type.Value.match('Monster').size() > 0) {
                 YGOPlayer.canNormalSummon.Value = false
                 if (card.level.Value <= 4) {
-                    YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone')
+                    YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, "Player")
                 } else {
-                    YGOPlayer.targettableCards.Value = `
-                        {
-                            "location": "MZone",
-                            "controller": "${player.Name}"
-                        }
-                    `
                     const tributesRequired = card.level.Value <= 6 ? 1 : 2
-                    const targetsConnection = YGOPlayer.targets.Changed.Connect(() => {
-                        if (getTargets(YGOPlayer).size() === tributesRequired) {
-                            targetsConnection.Disconnect()
-                            getTargets(YGOPlayer).forEach((target) => {
-                                target.tribute.Fire()
-                            })
-                            YGOPlayer.targettableCards.Value = '{}'
-                            YGOPlayer.targets.Value = '[]'
-                            wait()
-                            YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone')
-                        }
+                    const targets = await setTargets(
+                        YGOPlayer,
+                        {
+                            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                            controller: [YGOPlayer],
+                        },
+                        tributesRequired,
+                    )
+                    targets.forEach((target) => {
+                        target.tribute.Fire()
                     })
+                    setTargets(YGOPlayer, {}, 0)
+        
+                    YGOPlayer.canNormalSummon.Value = false
+                    YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, "Player")
+                    const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
+                        card.tributeSet.Fire(zone)
+                        selectZone.Disconnect()
+                        YGOPlayer.selectedZone.Value = ''
+                        YGOPlayer.selectableZones.Value = '[]'
+                    })
+                    return
                 }
             } else {
-                YGOPlayer.selectableZones.Value = getEmptyFieldZones('SZone')
+                YGOPlayer.selectableZones.Value = getEmptyFieldZones('SZone', YGOPlayer, "Player")
             }
             const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
                 card.set.Fire(zone)
@@ -156,7 +130,9 @@ export default withHooks(({ card, useShowMenu }: {
                 card.attack.Fire(YGOOpponent)
             }
         },
-        Activate: () => {},
+        Activate: () => {
+            card.activateEffect.Invoke()
+        },
         'Tribute Summon': async () => {
             const tributesRequired = card.level.Value <= 6 ? 1 : 2
             const targets = await setTargets(
@@ -173,7 +149,7 @@ export default withHooks(({ card, useShowMenu }: {
             setTargets(YGOPlayer, {}, 0)
 
             YGOPlayer.canNormalSummon.Value = false
-            YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone')
+            YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, "Player")
             const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
                 card.tributeSummon.Fire(zone)
                 selectZone.Disconnect()
@@ -258,6 +234,14 @@ export default withHooks(({ card, useShowMenu }: {
                 addCardAction('Attack')
             } else {
                 removeCardAction('Attack')
+            }
+
+            // Effect Activation Logic
+            const conditionMet = card.checkEffectConditions.Invoke()
+            if(conditionMet) {
+                addCardAction('Activate')
+            } else {
+                removeCardAction('Activate')
             }
         } else {
             removeCardAction()

@@ -1,6 +1,8 @@
 import { instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
-import { getFilteredCards } from './utils'
+import { getEmptyFieldZones, getFilteredCards } from './utils'
+import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
+import Object from '@rbxts/object-utils'
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -26,7 +28,7 @@ interface DamageStepValue extends StringValue {
 }
 
 interface TypeValue extends StringValue {
-    Value: 'Monster' | 'Spell' | 'Trap'
+    Value: 'Monster Card' | 'Spell Card' | 'Trap Card'
 }
 
 export type MZone = 'MZone1' | 'MZone2' | 'MZone3' | 'MZone4' | 'MZone5'
@@ -52,6 +54,7 @@ export interface DuelFolder extends Folder {
     player2: PlayerValue
     handlePhases: BindableEvent
     turnPlayer: ControllerValue
+    addToChain: BindableEvent
 }
 
 export interface CardInventory {
@@ -74,6 +77,12 @@ export interface PlayerValue extends ObjectValue {
     updateLP: BindableEvent
 }
 
+type ChainedEffect = {
+    effect: Callback,
+    negated: boolean,
+    card: CardFolder
+}
+
 export const Duel = (p1: Player, p2: Player) => {
     const folder = instance('Folder', `${p1.Name}|${p2.Name}`, duels) as DuelFolder
     const turn = instance('IntValue', 'turn', folder) as IntValue
@@ -94,6 +103,39 @@ export const Duel = (p1: Player, p2: Player) => {
     mover.Value = p1
     turnPlayer.Value = player1
     phase.Value = 'DP'
+
+    let chain: Record<number, ChainedEffect> = {}
+
+    const addToChain = (card: CardFolder, effect: Callback) => {
+        chain[Object.keys(chain).size()] = {
+            card,
+            effect,
+            negated: false
+        }
+        print(chain)
+        //check responses
+        //if no responses, resolve chain
+        resolveChain()
+    }
+    (instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect((card, effect) => addToChain(card as CardFolder, effect as Callback))
+
+    const resolveChain = async () => {
+        //from highest key to lowest key
+        for(let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
+            const { card, effect, negated } = chain[chainNumber]
+            if(!negated && card.effectsNegated.Value === false) {
+                effect()
+                await Promise.delay(3)
+            }
+        }
+        Object.values(chain).forEach(({card}) => {
+            if(card.location.Value.match("SZone").size() > 0) {
+                card.toGraveyard.Fire()
+            }
+        })
+        chain = {}
+        "hehe"
+    }
 
     const thread = [player1, player2].map((player) =>
         coroutine.wrap(() => {
@@ -123,7 +165,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
             let o = 0
             for (const card of (
-                player.Value.WaitForChild('getCards') as BindableFunction
+                player.Value.WaitForChild('getDeck') as BindableFunction
             ).Invoke()) {
                 Card((card as CardInventory).name, player, o)
                 o++
@@ -283,6 +325,7 @@ export interface CardFolder extends Folder {
     set: BindableEvent
     tribute: BindableEvent
     tributeSummon: BindableEvent
+    tributeSet: BindableEvent
     destroy_: BindableEvent
     attack: BindableEvent
     targettable: BoolValue
@@ -293,6 +336,9 @@ export interface CardFolder extends Folder {
     changePosition: BindableEvent
     canChangePosition: BoolValue
     canAttack: BoolValue
+    activateEffect: BindableFunction
+    checkEffectConditions: BindableFunction
+    effectsNegated: BoolValue
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -321,6 +367,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const status = instance('StringValue', 'status', card) as StringValue
     const canChangePosition = instance('BoolValue', 'canChangePosition', card) as BoolValue
     const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
+    const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
 
     order.Value = _order
     controller.Value = _owner
@@ -380,6 +427,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         tributeSummon
     )
 
+    const tributeSet = (_location: MZone) => {
+        Set(_location)
+    }
+    ;(instance('BindableEvent', 'tributeSet', card) as BindableEvent).Event.Connect(
+        tributeSet
+    )
+
     const changePosition = () => {
         canChangePosition.Value = false
         if (position.Value === 'FaceUpAttack') {
@@ -402,6 +456,41 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         position.Value = 'FaceUpAttack'
     }
     ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
+
+    const checkEffectConditions = () => {
+        if(cardEffects[card.Name] === undefined) return false
+        const effects = cardEffects[card.Name](card)
+        return effects.some(({condition}) => {
+            return condition(card) === true
+        })
+    }
+    ;(instance('BindableFunction', 'checkEffectConditions', card) as BindableFunction).OnInvoke = checkEffectConditions
+
+    const activateEffect = () => {
+        const effects = cardEffects[card.Name](card)
+        const ifMoreThanOneEffect = effects.map(({condition}) => {
+            return condition(card)
+        }).size() > 1
+
+        if(ifMoreThanOneEffect) {
+            // show effect selection menu
+        } else {
+            const { location: locationCondition, effect } = effects[0]
+            const directActivationFromHand = locationCondition.includes("Hand")
+            if(card.type.Value === "Spell Card" && location.Value === "Hand" && !directActivationFromHand) {
+                controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
+                const selectZone = controller.Value.selectedZone.Changed.Connect((zone) => {
+                    selectZone.Disconnect()
+                    location.Value = zone as Zone
+                    position.Value = 'FaceUp'
+                    controller.Value.selectedZone.Value = ''
+                    controller.Value.selectableZones.Value = '[]'
+                    duel.addToChain.Fire(card, effect)
+                })
+            }
+        }
+    }
+    ;(instance('BindableFunction', 'activateEffect', card) as BindableFunction).OnInvoke = activateEffect
 
     const attack = (defender: CardFolder & PlayerValue) => {
         const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
