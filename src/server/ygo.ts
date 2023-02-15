@@ -393,6 +393,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         if (card.type.Value.match('Monster').size() > 0) {
             position.Value = 'FaceDownDefense'
             controller.Value.canNormalSummon.Value = false
+            card.canChangePosition.Value = false
         } else {
             position.Value = 'FaceDown'
         }
@@ -477,16 +478,21 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         } else {
             const { location: locationCondition, effect } = effects[0]
             const directActivationFromHand = locationCondition.includes("Hand")
-            if(card.type.Value === "Spell Card" && location.Value === "Hand" && !directActivationFromHand) {
-                controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
-                const selectZone = controller.Value.selectedZone.Changed.Connect((zone) => {
-                    selectZone.Disconnect()
-                    location.Value = zone as Zone
+            if(card.type.Value === "Spell Card") {
+                if(location.Value === "Hand" && !directActivationFromHand) {
+                    controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
+                    const selectZone = controller.Value.selectedZone.Changed.Connect((zone) => {
+                        selectZone.Disconnect()
+                        location.Value = zone as Zone
+                        position.Value = 'FaceUp'
+                        controller.Value.selectedZone.Value = ''
+                        controller.Value.selectableZones.Value = '[]'
+                        duel.addToChain.Fire(card, effect)
+                    })
+                } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0) {
                     position.Value = 'FaceUp'
-                    controller.Value.selectedZone.Value = ''
-                    controller.Value.selectableZones.Value = '[]'
                     duel.addToChain.Fire(card, effect)
-                })
+                }
             }
         }
     }
