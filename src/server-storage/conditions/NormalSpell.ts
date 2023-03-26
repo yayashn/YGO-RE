@@ -1,4 +1,4 @@
-import { CardFolder, DuelFolder } from 'server/ygo'
+import type { CardFolder, DuelFolder } from 'server/types'
 import { getFilteredCards } from 'server/utils'
 
 export default (card: CardFolder) => {
@@ -13,6 +13,7 @@ export default (card: CardFolder) => {
     }).size() < 5
     const inHand = card.location.Value === 'Hand'
     const inBottomRow = ["SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].includes(card.location.Value)
+    const activated = card.activated.Value
 
-    return isControllersTurn && isMainPhase && ((inHand && oneBottomZoneAvailable) || inBottomRow)
+    return isControllersTurn && isMainPhase && ((inHand && oneBottomZoneAvailable) || inBottomRow) && duel.gameState.Value === "OPEN" && !activated
 }

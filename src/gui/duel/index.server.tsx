@@ -5,8 +5,9 @@ import Cards from "./Cards/Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";
-import { PlayerValue } from "server/ygo";
+import type { PlayerValue } from "server/types";
 import Phases from "./Phases";
+import Prompt from "./Prompt";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -18,11 +19,14 @@ export const App = withHooks(() => {
 
 	if(YGOPlayer && YGOOpponent) {
 		return (
-			<surfacegui Key="Field">
-				<Player playerValue={YGOOpponent}/>
-				<Phases/>
-				<Player playerValue={YGOPlayer}/>
-			</surfacegui>
+			<Roact.Fragment>
+				<surfacegui Key="Field">
+					<Player playerValue={YGOOpponent}/>
+					<Phases/>
+					<Player playerValue={YGOPlayer}/>
+				</surfacegui>
+				<Prompt/>
+			</Roact.Fragment>
 		)
 	} else {
 		return (

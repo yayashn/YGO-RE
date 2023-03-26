@@ -9,7 +9,6 @@ const parseValue = (class_ : ClassName, classType: ClassType, specialClassValues
     if(classType === (class_ as unknown) || (valueType === "special" && (specialClassValues.some(s => s === class_)))) {
         return class_
     } else if(startsWith(class_, `${classType}-`)) {
-        if(class_.match("order").size() > 0) print(class_);
         let classValueString = class_.split(`${classType}-`)[1] as ClassValueName
         const isUDim = valueType === "udim"
         const isColor3 = valueType === "color3"

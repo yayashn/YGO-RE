@@ -1,4 +1,4 @@
-import { CardFolder, PlayerValue } from "server/ygo";
+import type { CardFolder, PlayerValue } from "server/types";
 import formatTargets from "./formatTargets";
 
 export default (YGOPlayer: PlayerValue, card: CardFolder) => {

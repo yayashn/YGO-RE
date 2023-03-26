@@ -1,4 +1,4 @@
-import { CardFolder, DuelFolder, PlayerValue, SZone, Zone } from './ygo'
+import type { CardFolder, DuelFolder, PlayerValue, SZone, Zone } from './types'
 import { ServerScriptService } from '@rbxts/services'
 import Object from '@rbxts/object-utils'
 import { Location, MZone } from 'shared/types'

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { CardFolder } from "server/ygo";
+import type { CardFolder } from "server/types";
 import useCards from "./useCards";
 import { getDuel } from "server/utils";
 

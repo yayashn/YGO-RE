@@ -1,5 +1,5 @@
 import { getCard } from "server/utils";
-import { DuelFolder, PlayerValue } from "server/ygo";
+import type { DuelFolder, PlayerValue } from "server/types";
 
 export default (YGOPlayer: PlayerValue) => {
     const duel = YGOPlayer.FindFirstAncestorWhichIsA("Folder") as DuelFolder;

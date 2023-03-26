@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { Zone } from "server/ygo";
+import type { Zone } from "server/types";
 import useYGOPlayer from "./useYGOPlayer";
 
 const httpService = game.GetService("HttpService");

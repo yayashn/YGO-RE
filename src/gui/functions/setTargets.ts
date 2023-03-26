@@ -1,6 +1,6 @@
 import Object from "@rbxts/object-utils";
 import { CardFilter, getCards } from "server/utils";
-import { CardFolder, DuelFolder, PlayerValue } from "server/ygo";
+import type { CardFolder, DuelFolder, PlayerValue } from "server/types";
 import getTargets from "./getTargets";;
 
 export default (YGOPlayer: PlayerValue, cardFilter: CardFilter, amount: number) => {

@@ -1,5 +1,5 @@
 import { getOpponent } from "server/utils";
-import { CardFolder } from "server/ygo";
+import type { CardFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
 

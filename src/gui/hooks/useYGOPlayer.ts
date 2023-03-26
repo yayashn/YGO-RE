@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { PlayerValue } from "server/ygo";
+import type { PlayerValue } from "server/types";
 import useDuel from "./useDuel";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;

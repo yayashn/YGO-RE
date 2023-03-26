@@ -7,10 +7,12 @@ import useCanNormalSummon from "gui/hooks/useCanNormalSummon";
 import useDuel from "gui/hooks/useDuel";
 import usePhase from "gui/hooks/usePhase";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
-import { CardFolder } from "server/ygo";
+import type { CardFolder } from "server/types";
 import { HttpService } from "@rbxts/services";
 import {Button, Text} from "gui/rowindcss/index";
 import { getEmptyFieldZones, getFilteredCards } from "server/utils";
+import useGameState from "gui/hooks/useGameState";
+import useChainResolving from "gui/hooks/useChainResolving";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!
 
@@ -36,6 +38,8 @@ export default withHooks(({ card, useShowMenu }: {
     const YGOOpponent = useYGOPlayer(true)!
     const canNormalSummon = useCanNormalSummon(card.controller)
     const [showMenu, setShowMenu] = useShowMenu
+    const gameState = useGameState()
+    const chainResolving = useChainResolving()
 
     if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -63,6 +67,7 @@ export default withHooks(({ card, useShowMenu }: {
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
             })
+            card.controller.Value.action.Fire()
         },
         'Special Summon': () => {},
         Set: async () => {
@@ -93,6 +98,7 @@ export default withHooks(({ card, useShowMenu }: {
                         YGOPlayer.selectedZone.Value = ''
                         YGOPlayer.selectableZones.Value = '[]'
                     })
+                    card.controller.Value.action.Fire()
                     return
                 }
             } else {
@@ -104,9 +110,11 @@ export default withHooks(({ card, useShowMenu }: {
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
             })
+            card.controller.Value.action.Fire()
         },
         'Flip Summon': () => {
             card.flipSummon.Fire()
+            card.controller.Value.action.Fire()
         },
         Attack: async () => {
             const monstersOnOpponentField = getFilteredCards(duel!, {
@@ -132,6 +140,7 @@ export default withHooks(({ card, useShowMenu }: {
         },
         Activate: () => {
             card.activateEffect.Invoke()
+            card.controller.Value.action.Fire()
         },
         'Tribute Summon': async () => {
             const tributesRequired = card.level.Value <= 6 ? 1 : 2
@@ -156,23 +165,30 @@ export default withHooks(({ card, useShowMenu }: {
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
             })
+            card.controller.Value.action.Fire()
         },
         'Change Position': () => {
             card.changePosition.Fire()
+            card.controller.Value.action.Fire()
         },
     }
 
     useEffect(() => {
+        card.controller.Value.handleCardResponse.Fire(card)
+
         const isMonster = card.type.Value.match('Monster').size() > 0
         const isSpellTrap = !isMonster
         const inHand = card.location.Value === 'Hand'
         const isMainPhase = phase === 'MP1' || phase === 'MP2'
         const isTurnPlayer = duel?.turnPlayer.Value.Value === player
-        const actionAlreadyOccuring = YGOPlayer.selectableZones.Value !== '[]'
+        const isSelecting = YGOPlayer.selectableZones.Value !== '[]' || YGOPlayer.targettableCards.Value !== ''
+        const conditionMet = card.checkEffectConditions.Invoke()
 
-        if (!actionAlreadyOccuring && card.controller.Value.Value === player) {
+        if (!chainResolving &&
+            !isSelecting && 
+            card.controller.Value.Value === player) {
             //Hand Logic
-            if (inHand && isTurnPlayer && isMainPhase) {
+            if (inHand && isTurnPlayer && isMainPhase && gameState === "OPEN") {
                 if (isMonster) {
                     if (canNormalSummon) {
                         if (card.level.Value <= 4) {
@@ -206,7 +222,7 @@ export default withHooks(({ card, useShowMenu }: {
             const canChangePosition = card.canChangePosition.Value === true
             const isFacedownDefense = card.position.Value === 'FaceDownDefense'
             // Monster Zone Logic
-            if (inMZone && isTurnPlayer && isMainPhase) {
+            if (inMZone && isTurnPlayer && isMainPhase && gameState === "OPEN") {
                 if (isFacedownDefense && canChangePosition) {
                     addCardAction('Flip Summon')
                 } else {
@@ -229,7 +245,8 @@ export default withHooks(({ card, useShowMenu }: {
                 inAttackPosition &&
                 phase === 'BP' &&
                 isTurnPlayer &&
-                card.canAttack.Value === true
+                card.canAttack.Value === true &&
+                gameState === "OPEN"
             ) {
                 addCardAction('Attack')
             } else {
@@ -237,7 +254,6 @@ export default withHooks(({ card, useShowMenu }: {
             }
 
             // Effect Activation Logic
-            const conditionMet = card.checkEffectConditions.Invoke()
             if(conditionMet) {
                 addCardAction('Activate')
             } else {
@@ -246,7 +262,7 @@ export default withHooks(({ card, useShowMenu }: {
         } else {
             removeCardAction()
         }
-    }, [canNormalSummon, phase, card.location.Value, YGOPlayer.selectableZones.Value])
+    }, [canNormalSummon, phase, card.location.Value, YGOPlayer.selectableZones.Value, YGOPlayer.targettableCards.Value, chainResolving, gameState])
 
     return (
         <billboardgui

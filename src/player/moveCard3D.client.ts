@@ -1,6 +1,6 @@
 import { get3DZone } from 'shared/utils'
 import { Card3D } from './createCard3D.client'
-import type { Position } from 'server/ygo'
+import type { Position } from 'server/types'
 import { CardButton } from 'gui/duel/Cards/Cards'
 import { Location } from 'shared/types'
 

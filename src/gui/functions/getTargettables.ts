@@ -1,4 +1,4 @@
-import { DuelFolder, PlayerValue } from "server/ygo";
+import type { DuelFolder, PlayerValue } from "server/types";
 import { getCard } from "server/utils";
 
 export default (YGOPlayer: PlayerValue) => {

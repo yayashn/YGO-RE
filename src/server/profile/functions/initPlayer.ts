@@ -9,5 +9,7 @@ export default (player: Player) => {
 	const sleeve = instance("StringValue", "sleeve", player) as StringValue
 	sleeve.Value = "rbxassetid://3955072236";
 
+	print("initPlayer");
     instance("RemoteEvent", "showField.re", player) as RemoteEvent;
+	print("initPlayer2");
 }

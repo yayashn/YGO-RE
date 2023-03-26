@@ -1,5 +1,5 @@
 import { useState, useEffect } from "@rbxts/roact-hooked";
-import { DuelFolder } from "server/ygo";
+import type { DuelFolder } from "server/types";
 import { ServerScriptService } from "@rbxts/services";
 
 

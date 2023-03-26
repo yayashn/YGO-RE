@@ -3,7 +3,7 @@ import { useRef, useState, withHooks, useEffect } from "@rbxts/roact-hooked";
 import useMount from "gui/hooks/useMount";
 import useSelectableZones from "gui/hooks/useSelectableZones";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
-import { Zone } from "server/ygo";
+import type { Zone } from "server/types";
 import { fieldZones } from "shared/defs";
 
 const tweenService = game.GetService("TweenService");

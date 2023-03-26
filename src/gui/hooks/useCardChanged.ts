@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { CardFolder } from "server/ygo";
+import type { CardFolder } from "server/types";
 
 export default (card: CardFolder) => {
     const [changed, setChanged] = useState<unknown>()

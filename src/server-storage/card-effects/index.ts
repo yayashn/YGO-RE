@@ -1,4 +1,4 @@
-import { CardFolder } from "server/ygo";
+import type { CardFolder } from "server/types";
 import Sparks from "./Sparks";
 import { Location } from "shared/types";
 

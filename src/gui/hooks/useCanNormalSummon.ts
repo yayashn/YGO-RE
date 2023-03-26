@@ -1,5 +1,5 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { ControllerValue } from "server/ygo";
+import type { ControllerValue } from "server/types";
 
 export default (controllerValue: ControllerValue) => {
     const [canNormalSummon, setCanNormalSummon] = useState(controllerValue.Value.canNormalSummon.Value);

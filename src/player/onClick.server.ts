@@ -1,4 +1,4 @@
-import { Duel } from "server/ygo";
+import { Duel } from "server/ygo/Duel";
 import { ServerScriptService } from "@rbxts/services";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;

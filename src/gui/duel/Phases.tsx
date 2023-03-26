@@ -3,7 +3,7 @@ import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import usePhase from "gui/hooks/usePhase";
 import { Text, Div, Button } from "gui/rowindcss/index";
 import { getDuel } from "server/utils";
-import { Phase } from "server/ygo";
+import type { Phase } from "server/types";
 
 const phasesPart = game.Workspace.Field3D.Phases;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -50,6 +50,7 @@ export default withHooks(() => {
                         Event={{
                             MouseButton1Click: () => {
                                 if(duel!.turnPlayer.Value !== YGOPlayer) return;
+                                if(duel.gameState.Value !== "OPEN") return;
                                 if(phase === "MP1") {
                                     if(phaseName === "BP") {
                                         duel!.handlePhases.Fire("BP")
