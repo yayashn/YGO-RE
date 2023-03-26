@@ -91,31 +91,40 @@ export const Duel = (p1: Player, p2: Player) => {
     }
 
     const handleResponses = async (p: PlayerValue) => {
-        let passes = 0
-        actor.Value = p
-        while(passes !== 2) {
+        let passes = 0;
+        actor.Value = p;
+    
+        while (passes !== 2) {
             const numberOfResponses = responses[actor.Value.Name].size();
             const lastCardInChain = chain[Object.keys(chain).size() - 1];
             const chainStartMessage = `You have ${numberOfResponses} card/effect${numberOfResponses > 1 ? "s" : ""} that can be activated. Activate?`;
             const chainResponseMessage = `"${lastCardInChain.card.Name}" is activated. Chain another card or effect?`;
-
+    
             if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses > 1 ? chainStartMessage : chainResponseMessage)
-                endPrompt()
+                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses > 1 ? chainStartMessage : chainResponseMessage);
+                endPrompt();
+    
                 if (response === "YES") {
                     passes = 0;
-                    actor.Value.action.Event.Wait()
+                    actor.Value.action.Event.Wait();
                 } else if (response === "NO") {
                     passes++;
                 }
             } else {
                 passes++;
             }
-            actor.Value = opponent(actor.Value)
+    
+            // Check if the next player has a response before switching the actor
+            const nextPlayer = opponent(actor.Value);
+            const nextPlayerResponses = responses[nextPlayer.Name].size();
+            if (nextPlayerResponses > 0 || passes < 2) {
+                actor.Value = nextPlayer;
+            }
         }
-
-        resolveChain()
+    
+        resolveChain();
     };
+    
     
 
 
