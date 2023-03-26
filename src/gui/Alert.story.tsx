@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useRef, withHooks } from "@rbxts/roact-hooked";
-import { Div, Text, Button } from "./rowindcss";
+import { Div, Text, Button } from "../shared/rowindcss";
 import { useGlobalState, createGlobalState } from "shared/useGlobalState";
 
 const countAtom = createGlobalState(0)

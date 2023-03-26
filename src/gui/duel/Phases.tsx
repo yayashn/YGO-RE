@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import usePhase from "gui/hooks/usePhase";
-import { Text, Div, Button } from "gui/rowindcss/index";
+import { Text, Div, Button } from "shared/rowindcss/index";
 import { getDuel } from "server/utils";
 import type { Phase } from "server/types";
 

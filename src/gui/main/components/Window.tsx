@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Div, Button, Text } from "gui/rowindcss";
+import { Div, Button, Text } from "shared/rowindcss";
 import colours from "../colours";
 import { useContext, withHooks } from "@rbxts/roact-hooked";
 import PageContext from "../PageContext";

@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact"
-import { Div, Button, Text } from "../../../rowindcss/index"
+import { Div, Button, Text } from "../../../../shared/rowindcss/index"
 import colours from "../../colours"
 import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked"
 import type { Card } from "server/profile/profileTemplate"

@@ -83,7 +83,7 @@ export const Duel = (p1: Player, p2: Player) => {
         }>((resolve) => {
             p.promptResponse.Changed.Wait()
             resolve({
-                endPrompt: () => p.promptMessage.Value = "",
+                endPrompt: () => p.promptResponse.Value = "",
                 response: p.promptResponse.Value as "YES" | "NO"
             })
         })
@@ -94,7 +94,7 @@ export const Duel = (p1: Player, p2: Player) => {
         let passes = 0;
         actor.Value = p;
     
-        while (passes !== 2) {
+        while (passes < 2) {
             const numberOfResponses = responses[actor.Value.Name].size();
             const lastCardInChain = chain[Object.keys(chain).size() - 1];
             const chainStartMessage = `You have ${numberOfResponses} card/effect${numberOfResponses > 1 ? "s" : ""} that can be activated. Activate?`;
@@ -113,19 +113,12 @@ export const Duel = (p1: Player, p2: Player) => {
             } else {
                 passes++;
             }
-    
-            const nextPlayer = opponent(actor.Value);
-            const nextPlayerResponses = responses[nextPlayer.Name].size();
-            if (nextPlayerResponses > 0 || passes < 2) {
-                actor.Value = nextPlayer;
-            }
+
+            actor.Value = opponent(actor.Value);
         }
     
         resolveChain();
     };
-    
-    
-
 
     const thread = [player1, player2].map((player) =>
         coroutine.wrap(() => {

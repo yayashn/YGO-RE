@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Div, Img } from "gui/rowindcss";
+import { Div, Img } from "shared/rowindcss";
 import { getCardData } from "shared/utils";
 import DeckBuilderContext from "./DeckBuilderContext";
 import { useContext, withHooks } from "@rbxts/roact-hooked";

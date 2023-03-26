@@ -2,7 +2,7 @@ import Roact from "@rbxts/roact"
 import { withHooks } from "@rbxts/roact-hooked";
 import usePrompt from "gui/hooks/usePrompt";
 import useYGOPlayer from "gui/hooks/useYGOPlayer"
-import { Div, Text, Button } from "gui/rowindcss";
+import { Div, Text, Button } from "shared/rowindcss";
 
 export default withHooks(() => {
     const YGOPlayer = useYGOPlayer()

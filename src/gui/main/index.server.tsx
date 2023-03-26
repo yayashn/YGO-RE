@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import DeckBuilder from "./pages/DeckBuilder/DeckBuilder";
 import { instance } from "shared/utils";
 import PageContext from "./PageContext";
-import { Button, Div, Text, Img } from "gui/rowindcss";
+import { Button, Div, Text, Img } from "shared/rowindcss";
 import colours from "./colours";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!

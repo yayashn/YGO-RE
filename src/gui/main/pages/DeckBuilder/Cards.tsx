@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Button, Div, Img, Input, Text } from "gui/rowindcss";
+import { Button, Div, Img, Input, Text } from "shared/rowindcss";
 import { getCardData } from "shared/utils";
 import colours from "../../colours";
 import { useContext, useEffect, useState, withHooks } from "@rbxts/roact-hooked";
