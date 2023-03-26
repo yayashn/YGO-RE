@@ -114,7 +114,6 @@ export const Duel = (p1: Player, p2: Player) => {
                 passes++;
             }
     
-            // Check if the next player has a response before switching the actor
             const nextPlayer = opponent(actor.Value);
             const nextPlayerResponses = responses[nextPlayer.Name].size();
             if (nextPlayerResponses > 0 || passes < 2) {

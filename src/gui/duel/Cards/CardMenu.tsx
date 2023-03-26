@@ -21,6 +21,7 @@ import { getEmptyFieldZones, getFilteredCards } from 'server/utils'
 import useGameState from 'gui/hooks/useGameState'
 import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
+import usePrompt from 'gui/hooks/usePrompt'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -54,6 +55,7 @@ export default withHooks(
         const chainResolving = useChainResolving()
         const actor = useActor()
         const addToChain = duel?.addToChain
+        const prompt = usePrompt()
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -204,12 +206,14 @@ export default withHooks(
             const isSelecting =
                 YGOPlayer.selectableZones.Value !== '[]' || YGOPlayer.targettableCards.Value !== ''
             const conditionMet = card.checkEffectConditions.Invoke()
+            const promptHidden = prompt === ""
 
             if (
                 !chainResolving &&
                 !isSelecting &&
                 actor === YGOPlayer &&
-                card.controller.Value.Value === player
+                card.controller.Value.Value === player &&
+                promptHidden
             ) {
                 //Hand Logic
                 if (inHand && isTurnPlayer && isMainPhase && gameState === 'OPEN') {
@@ -303,7 +307,8 @@ export default withHooks(
             YGOPlayer.targettableCards.Value,
             chainResolving,
             gameState,
-            actor
+            actor,
+            prompt
         ])
 
         return (
