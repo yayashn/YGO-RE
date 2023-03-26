@@ -18,6 +18,14 @@ export const instance = (t: keyof CreatableInstances, name: string, parent?: Ins
     return instance
 }
 
+export function createInstance<T extends Instance>(className: keyof CreatableInstances, name: string, parent: Instance): T {
+    const instance = new Instance(className);
+    instance.Name = name;
+    instance.Parent = parent;
+    return instance as unknown as T;
+}
+  
+
 export const bindableEvent = (name: string, parent: Instance) => {
     return instance("BindableEvent", name, parent) as BindableEvent;
 }

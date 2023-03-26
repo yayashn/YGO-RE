@@ -1,6 +1,7 @@
 import { getOpponent } from "server/utils";
 import type { CardFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
+import QuickSpell from "server-storage/conditions/QuickSpell";
 import { CardEffect } from ".";
 
 /*
@@ -12,7 +13,7 @@ export default (card: CardFolder) => {
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalSpell(card),
+            condition: () => QuickSpell(card),
             effect: () => opponent.updateLP.Fire(-200),
             location: ['SZone']
         }

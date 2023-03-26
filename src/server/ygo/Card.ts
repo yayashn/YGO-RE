@@ -157,7 +157,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             }
         }
         activated.Value = true
-        card.controller.Value.action.Fire()
     }
     ;(instance('BindableFunction', 'activateEffect', card) as BindableFunction).OnInvoke = activateEffect
 

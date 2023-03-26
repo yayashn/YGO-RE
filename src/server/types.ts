@@ -50,7 +50,7 @@ export interface DuelFolder extends Folder {
     addToChain: BindableEvent
     gameState: GameStateValue
     chainResolving: BoolValue
-    actor: PlayerValue
+    actor: ControllerValue
 }
 
 export interface CardInventory {
