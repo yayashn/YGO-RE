@@ -98,10 +98,10 @@ export const Duel = (p1: Player, p2: Player) => {
             const numberOfResponses = responses[actor.Value.Name].size();
             const lastCardInChain = chain[Object.keys(chain).size() - 1];
             const chainStartMessage = `You have ${numberOfResponses} card/effect${numberOfResponses > 1 ? "s" : ""} that can be activated. Activate?`;
-            const chainResponseMessage = `"${lastCardInChain.card.Name}" is activated. Chain another card or effect?`;
+            const chainResponseMessage = `"${lastCardInChain ? lastCardInChain.card.Name : "?"}" is activated. Chain another card or effect?`;
     
             if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses > 1 ? chainStartMessage : chainResponseMessage);
+                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses > 1 ? chainStartMessage : chainResponseMessage || chainStartMessage);
                 endPrompt();
     
                 if (response === "YES") {
@@ -119,6 +119,7 @@ export const Duel = (p1: Player, p2: Player) => {
     
         resolveChain();
     };
+    createInstance<BindableFunction>('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
 
     const thread = [player1, player2].map((player) =>
         coroutine.wrap(() => {
@@ -164,6 +165,7 @@ export const Duel = (p1: Player, p2: Player) => {
                 }
             }
             handleCardResponse.Event.Connect(handleCardResponseF)
+            action.Event.Connect((actionName, card: CardFolder) => handleResponses(opponent(card.controller.Value)))
 
             let o = 0
             for (const card of (

@@ -82,6 +82,7 @@ export default withHooks(
                 card.normalSummon.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
+                duel!.handleResponses.Invoke(YGOOpponent)
             },
             'Special Summon': () => {},
             Set: async () => {
@@ -119,7 +120,7 @@ export default withHooks(
 
                         YGOPlayer.selectedZone.Value = ''
                         YGOPlayer.selectableZones.Value = '[]'
-
+                        duel!.handleResponses.Invoke(YGOOpponent)
                         return
                     }
                 } else {
@@ -133,9 +134,11 @@ export default withHooks(
                 card.set.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
+                duel!.handleResponses.Invoke(YGOOpponent)
             },
             'Flip Summon': () => {
                 card.flipSummon.Fire()
+                duel!.handleResponses.Invoke(YGOOpponent)
             },
             Attack: async () => {
                 const monstersOnOpponentField = getFilteredCards(duel!, {
@@ -184,9 +187,11 @@ export default withHooks(
                 card.tributeSummon.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
+                duel!.handleResponses.Invoke(YGOOpponent)
             },
             'Change Position': () => {
                 card.changePosition.Fire(card)
+                duel!.handleResponses.Invoke(YGOOpponent)
             }
         }
 
@@ -286,12 +291,22 @@ export default withHooks(
                 removeCardAction()
             }
 
-            const connection = addToChain?.Event.Connect(() => {
-                card.controller.Value.handleCardResponse.Fire(card)
-            })
+            const connections: RBXScriptConnection[] = [
+                addToChain?.Event.Connect(() => {
+                    card.controller.Value.handleCardResponse.Fire(card)
+                }),
+                YGOPlayer.action.Event.Connect(() => {
+                    card.controller.Value.handleCardResponse.Fire(card)
+                }),
+                YGOOpponent.action.Event.Connect(() => {
+                    card.controller.Value.handleCardResponse.Fire(card)
+                })
+            ] as RBXScriptConnection[]
 
             return () => {
-                connection?.Disconnect()
+                connections.forEach((connection) => {
+                    connection.Disconnect()
+                })
             }
         }, [
             canNormalSummon,
@@ -321,7 +336,7 @@ export default withHooks(
                         <Button
                             className="w-full h-[17px] bg-gray-500 border-white text-white text-center rounded-md font-bold"
                             Event={{
-                                MouseButton1Click: () => {
+                                MouseButton1Click: async () => {
                                     setShowMenu(false)
                                     if (!isCardActionEnabled(button)) return
                                     removeCardAction()
