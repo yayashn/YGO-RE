@@ -22,6 +22,7 @@ import useGameState from 'gui/hooks/useGameState'
 import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
 import usePrompt from 'gui/hooks/usePrompt'
+import changedOnce from 'shared/lib/changedOnce'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -74,15 +75,13 @@ export default withHooks(
         }
 
         const cardActions = {
-            'Normal Summon': () => {
+            'Normal Summon': async () => {
                 YGOPlayer.canNormalSummon.Value = false
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
-                const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
-                    card.normalSummon.Fire(zone)
-                    selectZone.Disconnect()
-                    YGOPlayer.selectedZone.Value = ''
-                    YGOPlayer.selectableZones.Value = '[]'
-                })
+                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
+                card.normalSummon.Fire(zone)
+                YGOPlayer.selectedZone.Value = ''
+                YGOPlayer.selectableZones.Value = '[]'
             },
             'Special Summon': () => {},
             Set: async () => {
@@ -115,13 +114,12 @@ export default withHooks(
                             YGOPlayer,
                             'Player'
                         )
-                        const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
-                            card.tributeSet.Fire(zone)
-                            selectZone.Disconnect()
-                            YGOPlayer.selectedZone.Value = ''
-                            YGOPlayer.selectableZones.Value = '[]'
-                        })
-    
+                        const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
+                        card.tributeSet.Fire(zone)
+
+                        YGOPlayer.selectedZone.Value = ''
+                        YGOPlayer.selectableZones.Value = '[]'
+
                         return
                     }
                 } else {
@@ -131,12 +129,10 @@ export default withHooks(
                         'Player'
                     )
                 }
-                const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
-                    card.set.Fire(zone)
-                    selectZone.Disconnect()
-                    YGOPlayer.selectedZone.Value = ''
-                    YGOPlayer.selectableZones.Value = '[]'
-                })
+                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
+                card.set.Fire(zone)
+                YGOPlayer.selectedZone.Value = ''
+                YGOPlayer.selectableZones.Value = '[]'
             },
             'Flip Summon': () => {
                 card.flipSummon.Fire()
@@ -183,12 +179,11 @@ export default withHooks(
 
                 YGOPlayer.canNormalSummon.Value = false
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
-                const selectZone = YGOPlayer.selectedZone.Changed.Connect((zone) => {
-                    card.tributeSummon.Fire(zone)
-                    selectZone.Disconnect()
-                    YGOPlayer.selectedZone.Value = ''
-                    YGOPlayer.selectableZones.Value = '[]'
-                })
+
+                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
+                card.tributeSummon.Fire(zone)
+                YGOPlayer.selectedZone.Value = ''
+                YGOPlayer.selectableZones.Value = '[]'
             },
             'Change Position': () => {
                 card.changePosition.Fire(card)
@@ -206,7 +201,7 @@ export default withHooks(
             const isSelecting =
                 YGOPlayer.selectableZones.Value !== '[]' || YGOPlayer.targettableCards.Value !== ''
             const conditionMet = card.checkEffectConditions.Invoke()
-            const promptHidden = prompt === ""
+            const promptHidden = prompt === ''
 
             if (
                 !chainResolving &&
@@ -298,7 +293,6 @@ export default withHooks(
             return () => {
                 connection?.Disconnect()
             }
-            
         }, [
             canNormalSummon,
             phase,
