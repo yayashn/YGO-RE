@@ -101,7 +101,7 @@ export const Duel = (p1: Player, p2: Player) => {
             const chainResponseMessage = `"${lastCardInChain ? lastCardInChain.card.Name : "?"}" is activated. Chain another card or effect?`;
     
             if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses > 1 ? chainStartMessage : chainResponseMessage || chainStartMessage);
+                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses >= 1 ? chainStartMessage : chainResponseMessage || chainStartMessage);
                 endPrompt();
     
                 if (response === "YES") {
