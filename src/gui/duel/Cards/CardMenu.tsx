@@ -23,6 +23,7 @@ import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
 import usePrompt from 'gui/hooks/usePrompt'
 import changedOnce from 'shared/lib/changedOnce'
+import useCanAttack from 'gui/hooks/useCanAttack'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -57,6 +58,7 @@ export default withHooks(
         const actor = useActor()
         const addToChain = duel?.addToChain
         const prompt = usePrompt()
+        const canAttack = useCanAttack()
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -269,6 +271,7 @@ export default withHooks(
                 // Battle Phase Logic
                 const inAttackPosition = card.position.Value === 'FaceUpAttack'
                 if (
+                    canAttack &&
                     inMZone &&
                     inAttackPosition &&
                     phase === 'BP' &&
@@ -317,7 +320,8 @@ export default withHooks(
             chainResolving,
             gameState,
             actor,
-            prompt
+            prompt,
+            canAttack
         ])
 
         return (

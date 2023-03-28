@@ -151,6 +151,8 @@ export const Duel = (p1: Player, p2: Player) => {
 
             lifePoints.Value = 8000
 
+            canAttack.Value = false
+
             const handleCardResponseF = (card: CardFolder) => {
                 const isInResponses = responses[player.Name].find((c) => c === card as CardFolder)
                 const conditionMet = (card as CardFolder).checkEffectConditions.Invoke()
@@ -223,6 +225,9 @@ export const Duel = (p1: Player, p2: Player) => {
 
     const handlePhases = async (p: Phase) => {
         gameState.Value = "OPEN"
+        if(turn.Value > 1) {
+            turnPlayer.Value.canAttack.Value = true
+        }
         if (p === 'DP') {
             const cardsWithLockedPosition = getFilteredCards(folder, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
