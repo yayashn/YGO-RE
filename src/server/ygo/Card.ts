@@ -2,7 +2,8 @@ import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone } from "server/types"
 import { getEmptyFieldZones } from "server/utils"
-import { instance } from "shared/utils"
+import changedOnce from "shared/lib/changedOnce"
+import { createInstance, instance } from "shared/utils"
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -29,6 +30,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
     const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
     const activated = instance('BoolValue', 'activated', card) as BoolValue
+    const canActivate = createInstance('BoolValue', 'canActivate', card)
 
     order.Value = _order
     controller.Value = _owner
@@ -37,12 +39,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     uid.Value = httpService.GenerateGUID(false)
     canChangePosition.Value = true
     canAttack.Value = true
+    canActivate.Value = true
 
     const Summon = (_location: MZone) => {
         location.Value = _location
     }
 
     const NormalSummon = (_location: MZone) => {
+        controller.Value.action.Fire("Normal Summon", card)
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
         card.canChangePosition.Value = false
@@ -57,6 +61,9 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             card.canChangePosition.Value = false
         } else {
             position.Value = 'FaceDown'
+            if(card["type"].Value.match("Trap").size() > 0 || card["type"].Value.match("Quick").size() > 0) {
+                canActivate.Value = false;
+            }
         }
         location.Value = _location
     }
@@ -128,7 +135,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     ;(instance('BindableFunction', 'checkEffectConditions', card) as BindableFunction).OnInvoke = checkEffectConditions
 
-    const activateEffect = () => {
+    const activateEffect = async () => {
         const effects = cardEffects[card.Name](card)
         const ifMoreThanOneEffect = effects.map(({condition}) => {
             return condition(card)
@@ -142,18 +149,16 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             if(card.type.Value === "Spell Card") {
                 if(location.Value === "Hand" && !directActivationFromHand) {
                     controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
-                    const selectZone = controller.Value.selectedZone.Changed.Connect((zone) => {
-                        selectZone.Disconnect()
-                        location.Value = zone as Zone
-                        position.Value = 'FaceUp'
-                        controller.Value.selectedZone.Value = ''
-                        controller.Value.selectableZones.Value = '[]'
-                        duel.addToChain.Fire(card, effect)
-                    })
+                    const zone = await changedOnce(controller.Value.selectedZone.Changed)
+                    location.Value = zone as Zone
+                    position.Value = 'FaceUp'
+                    controller.Value.selectedZone.Value = ''
+                    controller.Value.selectableZones.Value = '[]'
                 } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0) {
                     position.Value = 'FaceUp'
-                    duel.addToChain.Fire(card, effect)
                 }
+                card.controller.Value.action.Fire("Activate Effect", card)
+                duel.addToChain.Fire(card, effect)
             }
         }
         activated.Value = true

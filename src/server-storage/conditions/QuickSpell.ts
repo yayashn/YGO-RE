@@ -1,6 +1,9 @@
-import type { CardFolder } from 'server/types'
+import type { CardFolder, DuelFolder } from 'server/types'
 import Spell from './Spell'
 
 export default (card: CardFolder) => {
-    return Spell(card)
+    const controller = card.controller.Value
+    const duel = controller.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+    const isSpeedSpell2 = duel.speedSpell.Value <= 2;
+    return Spell(card) && isSpeedSpell2
 }

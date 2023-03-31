@@ -3,25 +3,57 @@ import { ServerScriptService } from '@rbxts/services'
 import { getEmptyFieldZones, getFilteredCards, getOpponent } from '../utils'
 import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
 import Object from '@rbxts/object-utils'
-import { DuelFolder, PlayerValue, GameStateValue, ActorValue, CardFolder, ChainedEffect, ResponseValue, CardInventory, Phase, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, BattleStepValue, PhaseValue, DamageStepValue } from '../types'
+import {
+    DuelFolder,
+    PlayerValue,
+    GameStateValue,
+    ActorValue,
+    CardFolder,
+    ChainedEffect,
+    ResponseValue,
+    CardInventory,
+    Phase,
+    ControllerValue,
+    LocationValue,
+    PositionValue,
+    MZone,
+    SZone,
+    Zone,
+    BattleStepValue,
+    PhaseValue,
+    DamageStepValue
+} from '../types'
 import { Card } from './Card'
+import changedOnce from 'shared/lib/changedOnce'
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
 
 export const Duel = (p1: Player, p2: Player) => {
-    const folder = createInstance<DuelFolder>('Folder', `${p1.Name}|${p2.Name}`, duels);
-    const turn = createInstance<IntValue>('IntValue', 'turn', folder);
-    const phase = createInstance<PhaseValue>('StringValue', 'phase', folder);
-    const battleStep = createInstance<BattleStepValue>('StringValue', 'battleStep', folder);
-    const damageStep = createInstance<DamageStepValue>('StringValue', 'damageStep', folder);
-    const turnPlayer = createInstance<ControllerValue>('ObjectValue', 'turnPlayer', folder);
-    const player1 = createInstance<PlayerValue>('ObjectValue', 'player1', folder);
-    const player2 = createInstance<PlayerValue>('ObjectValue', 'player2', folder);
-    const opponent = (player: PlayerValue) => (player.Value === p1 ? player2 : player1);
-    const gameState = createInstance<GameStateValue>('StringValue', 'gameState', folder);
-    const chainResolving = createInstance<BoolValue>('BoolValue', 'chainResolving', folder);
-    const actor = createInstance<ControllerValue>('ObjectValue', 'actor', folder);
+    const folder = createInstance('Folder', `${p1.Name}|${p2.Name}`, duels) as DuelFolder
+    const turn = createInstance('IntValue', 'turn', folder)
+    const phase = createInstance('StringValue', 'phase', folder) as PhaseValue
+    const battleStep = createInstance('StringValue', 'battleStep', folder) as BattleStepValue
+    const damageStep = createInstance('StringValue', 'damageStep', folder) as DamageStepValue
+    const turnPlayer = createInstance('ObjectValue', 'turnPlayer', folder) as ControllerValue
+    const player1 = createInstance('ObjectValue', 'player1', folder) as PlayerValue
+    const player2 = createInstance('ObjectValue', 'player2', folder) as PlayerValue
+    const opponent = (player: PlayerValue) => (player.Value === p1 ? player2 : player1)
+    const gameState = createInstance('StringValue', 'gameState', folder) as GameStateValue
+    const chainResolving = createInstance('BoolValue', 'chainResolving', folder)
+    const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
+    const speedSpell = createInstance('IntValue', 'speedSpell', folder)
+    speedSpell.Value = 1
+    
+    phase.Changed.Connect((newPhase) => {
+        if(newPhase !== "MP1" && newPhase !== "MP2") {
+            if(speedSpell.Value === 1) {
+                speedSpell.Value = 2
+            }
+        } else {
+            speedSpell.Value = 1
+        }
+    })
 
     player1.Value = p1
     player2.Value = p2
@@ -29,17 +61,17 @@ export const Duel = (p1: Player, p2: Player) => {
     turnPlayer.Value = player1
     actor.Value = player1
     phase.Value = 'DP'
-    gameState.Value = "OPEN"
+    gameState.Value = 'OPEN'
 
     let chain: Record<number, ChainedEffect> = {}
 
-    const responses: Record<"player1" | "player2", CardFolder[]> = {
-        "player1": [],
-        "player2": []
+    const responses: Record<'player1' | 'player2', CardFolder[]> = {
+        player1: [],
+        player2: []
     }
 
     const addToChain = (card: CardFolder, effect: Callback) => {
-        gameState.Value = "CLOSED"
+        gameState.Value = 'CLOSED'
         card.activated.Value = true
         chain[Object.keys(chain).size()] = {
             card,
@@ -48,29 +80,31 @@ export const Duel = (p1: Player, p2: Player) => {
         }
         handleResponses(opponent(card.controller.Value))
     }
-    (instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect((card, effect) => addToChain(card as CardFolder, effect as Callback))
+    ;(instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect(
+        (card, effect) => addToChain(card as CardFolder, effect as Callback)
+    )
 
     const resolveChain = async () => {
-        if(chainResolving.Value === true) return
+        if (chainResolving.Value === true) return
         chainResolving.Value = true
         //from highest key to lowest key
-        for(let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
+        for (let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
             const { card, effect, negated } = chain[chainNumber]
-            if(!negated && card.effectsNegated.Value === false) {
+            if (!negated && card.effectsNegated.Value === false) {
                 effect()
                 await Promise.delay(3)
             }
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
-        Object.values(chain).forEach(({card}) => {
-            if(card.location.Value.match("SZone").size() > 0) {
+        Object.values(chain).forEach(({ card }) => {
+            if (card.location.Value.match('SZone').size() > 0) {
                 card.toGraveyard.Fire()
             }
             card.activated.Value = false
         })
         chain = {}
-        gameState.Value = "OPEN"
+        gameState.Value = 'OPEN'
         chainResolving.Value = false
         actor.Value = turnPlayer.Value
     }
@@ -79,47 +113,64 @@ export const Duel = (p1: Player, p2: Player) => {
         p.promptMessage.Value = msg
         const res = new Promise<{
             endPrompt: () => void
-            response: "YES" | "NO"
+            response: 'YES' | 'NO'
         }>((resolve) => {
             p.promptResponse.Changed.Wait()
             resolve({
-                endPrompt: () => p.promptResponse.Value = "",
-                response: p.promptResponse.Value as "YES" | "NO"
+                endPrompt: () => (p.promptResponse.Value = ''),
+                response: p.promptResponse.Value as 'YES' | 'NO'
             })
         })
         return res
     }
 
+    let handlingResponses = false
     const handleResponses = async (p: PlayerValue) => {
-        let passes = 0;
-        actor.Value = p;
-    
+        if(handlingResponses) return
+        handlingResponses = true
+        let passes = 0
+        actor.Value = p
+
         while (passes < 2) {
-            const numberOfResponses = responses[actor.Value.Name].size();
-            const lastCardInChain = chain[Object.keys(chain).size() - 1];
-            const chainStartMessage = `You have ${numberOfResponses} card/effect${numberOfResponses > 1 ? "s" : ""} that can be activated. Activate?`;
-            const chainResponseMessage = `"${lastCardInChain ? lastCardInChain.card.Name : "?"}" is activated. Chain another card or effect?`;
-    
+            const numberOfResponses = responses[actor.Value.Name].size()
+            const lastCardInChain = chain[Object.keys(chain).size() - 1]
+            const chainStartMessage = `You have ${numberOfResponses} card/effect${
+                numberOfResponses > 1 ? 's' : ''
+            } that can be activated. Activate?`
+            const chainResponseMessage = `"${
+                lastCardInChain ? lastCardInChain.card.Name : '?'
+            }" is activated. Chain another card or effect?`
+
             if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(actor.Value, numberOfResponses >= 1 ? chainStartMessage : chainResponseMessage || chainStartMessage);
-                endPrompt();
-    
-                if (response === "YES") {
-                    passes = 0;
-                    actor.Value.action.Event.Wait();
-                } else if (response === "NO") {
-                    passes++;
+                const { endPrompt, response } = await prompt(
+                    actor.Value,
+                    numberOfResponses >= 1
+                        ? chainStartMessage
+                        : chainResponseMessage || chainStartMessage
+                )
+                endPrompt()
+
+                if (response === 'YES') {
+                    passes = 0
+                    print(1)
+                    await changedOnce(actor.Value.action.Event)
+                    await Promise.delay(.25)
+                } else if (response === 'NO') {
+                    passes++
+                    print(`passes: ${passes}`)
                 }
             } else {
-                passes++;
+                passes++
             }
 
-            actor.Value = opponent(actor.Value);
+            if(passes < 2) {
+                actor.Value = opponent(actor.Value)
+            }
         }
-    
-        resolveChain();
-    };
-    createInstance<BindableFunction>('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
+        handlingResponses = false
+        await resolveChain()
+    }
+    createInstance('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
 
     const thread = [player1, player2].map((player) =>
         coroutine.wrap(() => {
@@ -140,10 +191,18 @@ export const Duel = (p1: Player, p2: Player) => {
             ) as StringValue
             const targets = instance('StringValue', 'targets', player) as StringValue
             const canNormalSummon = instance('BoolValue', 'canNormalSummon', player) as BoolValue
-            const handleCardResponse = instance('BindableEvent', 'handleCardResponse', player) as BindableEvent
+            const handleCardResponse = instance(
+                'BindableEvent',
+                'handleCardResponse',
+                player
+            ) as BindableEvent
             const promptMessage = instance('StringValue', 'promptMessage', player) as StringValue
-            const promptResponse = instance('StringValue', 'promptResponse', player) as ResponseValue
-            const action = instance('BindableEvent', 'action', player) as BindableEvent
+            const promptResponse = instance(
+                'StringValue',
+                'promptResponse',
+                player
+            ) as ResponseValue
+            const action = instance('BindableEvent', 'action', player) as BindableEvent<(actionName: string, card: CardFolder) => void>
 
             selectableZones.Value = `[]`
 
@@ -154,20 +213,25 @@ export const Duel = (p1: Player, p2: Player) => {
             canAttack.Value = false
 
             const handleCardResponseF = (card: CardFolder) => {
-                const isInResponses = responses[player.Name].find((c) => c === card as CardFolder)
+                const isInResponses = responses[player.Name].find((c) => c === (card as CardFolder))
                 const conditionMet = (card as CardFolder).checkEffectConditions.Invoke()
-                if(conditionMet) {
-                    if(!isInResponses) {
-                        responses[player.Name].push(card as CardFolder)  
+                if (conditionMet) {
+                    if (!isInResponses) {
+                        responses[player.Name].push(card as CardFolder)
                     }
                 } else {
-                    if(isInResponses) {
-                        responses[player.Name] = responses[player.Name].filter((c) => c.uid !== card.uid)
+                    if (isInResponses) {
+                        responses[player.Name] = responses[player.Name].filter(
+                            (c) => c.uid !== card.uid
+                        )
                     }
                 }
             }
             handleCardResponse.Event.Connect(handleCardResponseF)
-            action.Event.Connect((actionName, card: CardFolder) => handleResponses(opponent(card.controller.Value)))
+            action.Event.Connect((actionName, card) => {
+                handleResponses(turnPlayer.Value)
+            });
+            
 
             let o = 0
             for (const card of (
@@ -211,29 +275,40 @@ export const Duel = (p1: Player, p2: Player) => {
                     wait(0.3)
                 }
             }
-            ;(instance('BindableEvent', 'draw', player) as BindableEvent).Event.Connect(draw)
-
-            ;(instance('BindableEvent', 'updateLP', player) as BindableEvent).Event.Connect(
-                (lp: number) => {
-                    lifePoints.Value += lp
-                }
-            )
+            createInstance('BindableFunction', 'draw', player).OnInvoke = draw
+            createInstance('BindableEvent', 'updateLP', player).Event.Connect((lp: number) => {
+                lifePoints.Value += lp
+            })
         })
     )
     thread[0]()
     thread[1]()
 
     const handlePhases = async (p: Phase) => {
-        gameState.Value = "OPEN"
-        if(turn.Value > 1) {
+        await Promise.delay(0.15)
+        gameState.Value = 'OPEN'
+        if (turn.Value > 1) {
             turnPlayer.Value.canAttack.Value = true
         }
         if (p === 'DP') {
+            const cardsInSZone = getFilteredCards(folder, {
+                location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+            })
+            cardsInSZone.forEach((card) => {
+                card.canActivate.Value = true
+            })
+            
+            const cardsInHand = getFilteredCards(folder, {
+                location: ['Hand'],
+            })
+            cardsInHand.forEach((card) => {
+                card.canActivate.Value = true
+            })
+
             const cardsWithLockedPosition = getFilteredCards(folder, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                 canChangePosition: [false]
             })
-
             for (const card of cardsWithLockedPosition) {
                 card.canChangePosition.Value = true
                 card.canAttack.Value = true
@@ -250,48 +325,50 @@ export const Duel = (p1: Player, p2: Player) => {
             if (turn.Value === 1) {
                 const thread = [player1, player2].map((player) =>
                     coroutine.wrap(() => {
-                        player.shuffle.Fire(5)
+                        player.shuffle.Fire()
                         wait(player.cards.GetChildren().size() * 0.03)
-                        player.draw.Fire(5)
+                        player.draw.Invoke(5)
                     })
                 )
                 thread[0]()
                 thread[1]()
-            }
-            wait(1)
-            turnPlayer.Value.draw.Fire(1)
-            //await handleResponses(turnPlayer.Value)
-            handlePhases('SP')
+                await Promise.delay(.25*5)
+                print('drew 5')
+            } 
+            turnPlayer.Value.draw.Invoke(1)
+            await handleResponses(turnPlayer.Value)
+            await handlePhases('SP')
         } else if (p === 'SP') {
             phase.Value = p
-            wait(1)
-            //await handleResponses(turnPlayer.Value)
-            handlePhases('MP1')
+            await handleResponses(turnPlayer.Value)
+            await handlePhases('MP1')
         } else if (p === 'MP1') {
             phase.Value = p
         } else if (p === 'BP') {
             phase.Value = p
+            await handleResponses(turnPlayer.Value)
             battleStep.Value = 'START'
-            wait(1)
-            //await handleResponses(turnPlayer.Value)
+            await handleResponses(turnPlayer.Value)
             battleStep.Value = 'BATTLE'
-            wait(1)
-            //handleResponses(turnPlayer.Value)
         } else if (p === 'MP2') {
             phase.Value = p
+            await handleResponses(turnPlayer.Value)
         } else if (p === 'EP') {
             if (phase.Value === 'MP1' || phase.Value === 'MP2') {
                 phase.Value = p
-                wait(1)
-                //await handleResponses(turnPlayer.Value)
-
-                handlePhases('DP')
+                await handleResponses(turnPlayer.Value)
+                await handlePhases('DP')
             } else if (phase.Value === 'BP') {
-                handlePhases('MP2')
+                await handleResponses(turnPlayer.Value)
+                await handlePhases('MP2')
             }
         }
+        // End of turn check responses
+        await handleResponses(turnPlayer.Value)
     }
-    handlePhases('DP')
+    ;(async () => {
+        await handlePhases('DP')
+    })()
     ;(instance('BindableEvent', 'handlePhases', folder) as BindableEvent).Event.Connect(
         handlePhases
     )

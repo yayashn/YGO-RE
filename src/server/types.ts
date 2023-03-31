@@ -47,11 +47,12 @@ export interface DuelFolder extends Folder {
     player2: PlayerValue
     handlePhases: BindableEvent
     turnPlayer: ControllerValue
-    addToChain: BindableEvent
+    addToChain: BindableEvent<(card: CardFolder, effect: Callback) => void>
     gameState: GameStateValue
     chainResolving: BoolValue
     actor: ControllerValue
-    handleResponses: BindableFunction
+    handleResponses: BindableFunction<(p: PlayerValue) => Promise<void>>
+    speedSpell: IntValue
 }
 
 export interface CardInventory {
@@ -66,8 +67,8 @@ export interface PlayerValue extends ObjectValue {
     Name: 'player1' | 'player2'
     cards: Folder
     Value: Player
-    draw: BindableEvent
-    shuffle: BindableEvent
+    draw: BindableFunction<(n: number) => void>
+    shuffle: BindableEvent<() => void>
     canAttack: BoolValue
     responseWindow: BoolValue
     selectableZones: StringValue
@@ -81,7 +82,7 @@ export interface PlayerValue extends ObjectValue {
     prompt: BindableFunction
     promptMessage: StringValue
     promptResponse: ResponseValue
-    action: BindableEvent
+    action: BindableEvent<(actionName: string, card: CardFolder) => void>
 }
 
 export interface ControllerValue extends ObjectValue {
@@ -123,6 +124,7 @@ export interface CardFolder extends Folder {
     checkEffectConditions: BindableFunction
     effectsNegated: BoolValue
     activated: BoolValue
+    canActivate: BoolValue
 }
 
 

@@ -45,12 +45,16 @@ export interface CardFilter {
     controller?: PlayerValue[]
     uid?: string[]
     canChangePosition?: boolean[]
+    type?: string[]
 }
 
 export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
     const cards = getCards(duel)
     return cards.filter((card) =>
         Object.entries(cardFilter).every(([key, values]) => {
+            if(key === "type") {
+                return values.some((value) => card.type.Value.match(value as string).size() > 0)
+            }
             return values.some((value) => card[key].Value === value)
         })
     )

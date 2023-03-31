@@ -53,6 +53,9 @@ export default withHooks(() => {
                                 if(duel.gameState.Value !== "OPEN") return;
                                 if(phase === "MP1") {
                                     if(phaseName === "BP") {
+                                        if(duel!.turn.Value <= 1) {
+                                            return
+                                        }
                                         duel!.handlePhases.Fire("BP")
                                     } else if(phaseName === "EP") {
                                         duel!.handlePhases.Fire("EP")

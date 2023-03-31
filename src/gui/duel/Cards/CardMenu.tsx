@@ -24,6 +24,7 @@ import useActor from 'gui/hooks/useActor'
 import usePrompt from 'gui/hooks/usePrompt'
 import changedOnce from 'shared/lib/changedOnce'
 import useCanAttack from 'gui/hooks/useCanAttack'
+import useCanCardActivate from 'gui/hooks/useCanCardActivate'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -59,6 +60,7 @@ export default withHooks(
         const addToChain = duel?.addToChain
         const prompt = usePrompt()
         const canAttack = useCanAttack()
+        const canCardActivate = useCanCardActivate(card)
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -84,7 +86,6 @@ export default withHooks(
                 card.normalSummon.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
-                duel!.handleResponses.Invoke(YGOOpponent)
             },
             'Special Summon': () => {},
             Set: async () => {
@@ -122,7 +123,7 @@ export default withHooks(
 
                         YGOPlayer.selectedZone.Value = ''
                         YGOPlayer.selectableZones.Value = '[]'
-                        duel!.handleResponses.Invoke(YGOOpponent)
+    
                         return
                     }
                 } else {
@@ -136,11 +137,10 @@ export default withHooks(
                 card.set.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
-                duel!.handleResponses.Invoke(YGOOpponent)
+                
             },
             'Flip Summon': () => {
                 card.flipSummon.Fire()
-                duel!.handleResponses.Invoke(YGOOpponent)
             },
             Attack: async () => {
                 const monstersOnOpponentField = getFilteredCards(duel!, {
@@ -189,11 +189,10 @@ export default withHooks(
                 card.tributeSummon.Fire(zone)
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
-                duel!.handleResponses.Invoke(YGOOpponent)
+                
             },
             'Change Position': () => {
                 card.changePosition.Fire(card)
-                duel!.handleResponses.Invoke(YGOOpponent)
             }
         }
 
@@ -321,7 +320,8 @@ export default withHooks(
             gameState,
             actor,
             prompt,
-            canAttack
+            canAttack,
+            canCardActivate
         ])
 
         return (

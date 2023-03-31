@@ -7,6 +7,7 @@ export default (card: CardFolder) => {
 
     const isControllersTurn = duel.turnPlayer.Value === controller
     const isMainPhase = duel.phase.Value === 'MP1' || duel.phase.Value === 'MP2';
+    const isSpeedSpell1 = duel.speedSpell.Value === 1;
 
-    return Spell(card) && isControllersTurn && isMainPhase && duel.gameState.Value === "OPEN"
+    return Spell(card) && isControllersTurn && isMainPhase && duel.gameState.Value === "OPEN" && isSpeedSpell1
 }
