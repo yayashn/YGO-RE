@@ -38,6 +38,10 @@ export interface ActorValue extends ObjectValue {
     Value: PlayerValue
 }
 
+export interface CardValue extends ObjectValue {
+    Value: CardFolder | undefined
+}
+
 export interface DuelFolder extends Folder {
     turn: IntValue
     phase: PhaseValue
@@ -53,6 +57,8 @@ export interface DuelFolder extends Folder {
     actor: ControllerValue
     handleResponses: BindableFunction<(p: PlayerValue) => Promise<void>>
     speedSpell: IntValue
+    attackingCard: CardValue
+    defendingCard: CardValue
 }
 
 export interface CardInventory {
@@ -111,7 +117,7 @@ export interface CardFolder extends Folder {
     tributeSummon: BindableEvent
     tributeSet: BindableEvent
     destroy_: BindableEvent
-    attack: BindableEvent
+    attack: BindableEvent<(card: CardFolder | PlayerValue) => void>
     targettable: BoolValue
     status: StringValue
     toGraveyard: BindableEvent
@@ -125,6 +131,7 @@ export interface CardFolder extends Folder {
     effectsNegated: BoolValue
     activated: BoolValue
     canActivate: BoolValue
+    attackNegated: BoolValue
 }
 
 

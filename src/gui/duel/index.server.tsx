@@ -8,6 +8,7 @@ import { Zone } from "./Zone";
 import type { PlayerValue } from "server/types";
 import Phases from "./Phases";
 import Prompt from "./Prompt";
+import CardInfo from "./CardInfo";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -26,6 +27,7 @@ export const App = withHooks(() => {
 					<Player playerValue={YGOPlayer}/>
 				</surfacegui>
 				<Prompt/>
+				<CardInfo/>
 			</Roact.Fragment>
 		)
 	} else {
@@ -55,7 +57,7 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 })
 
 Roact.mount(
-	<screengui>
+	<screengui IgnoreGuiInset={true}>
 		<App/>
 	</screengui>,
 	playerGui,

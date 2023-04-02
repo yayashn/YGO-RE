@@ -39,14 +39,26 @@ export default withHooks(() => {
         Size={new UDim2(1000,0,20,0)}
         Adornee={phasesPart}>
             <Div className="flex items-center justify-center w-full h-full gap-[5px]">
-                <Text className="border-[rgb(6,229,254)] border-2 bg-gray-700 h-[200%] w-[100px] font-bold rounded-lg text-white text-center"
-                    Text={`${playerLP}`}/>
+                <textlabel 
+                BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
+                TextColor3={Color3.fromRGB(0, 128, 255)}
+                Size={new UDim2(0, 100, 2, 0)}
+                BorderColor3={new Color3(26 / 255, 101 / 255, 110 / 255)}
+                Text={`${playerLP}`}
+                Font={Enum.Font.ArialBold}
+                BorderSizePixel={1}
+                TextYAlignment={Enum.TextYAlignment.Center}
+                LineHeight={0.84}
+                TextSize={27}
+                />
                 {(["DP", "SP", "MP1", "BP", "MP2", "EP"] as Phase[]).map((phaseName, i) => {
                     return (
                         <textbutton 
-                        BackgroundColor3={phase === phaseName ? Color3.fromRGB(0, 255, 0) : Color3.fromRGB(255, 0, 0)}
+                        BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
+                        TextColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.Value ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : Color3.fromRGB(255,255,255)}
                         Size={new UDim2(0, 50, 1, 0)}
                         LayoutOrder={i}
+                        BorderColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.Value ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
                         Event={{
                             MouseButton1Click: () => {
                                 if(duel!.turnPlayer.Value !== YGOPlayer) return;
@@ -74,8 +86,19 @@ export default withHooks(() => {
                         Text={phaseName} />
                     )
                 })}
-                <Text className="border-[rgb(254,17,14)] border-2 bg-gray-700 h-[200%] w-[100px] font-bold rounded-lg text-white text-center order-[90]"
-                    Text={`${opponentLP}`}/>
+                <textlabel 
+                BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
+                TextColor3={Color3.fromRGB(254,17,14)}
+                Size={new UDim2(0, 100, 2, 0)}
+                BorderColor3={new Color3(26 / 255, 101 / 255, 110 / 255)}
+                Text={`${opponentLP}`}
+                Font={Enum.Font.ArialBold}
+                BorderSizePixel={1}
+                LayoutOrder={100}
+                TextYAlignment={Enum.TextYAlignment.Center}
+                LineHeight={0.84}
+                TextSize={27}
+                />
             </Div>
         </billboardgui>
     )

@@ -1,43 +1,22 @@
 import Roact from '@rbxts/roact'
-import { useEffect, useRef, withHooks } from '@rbxts/roact-hooked'
-import { Div, Text, Button } from '../shared/rowindcss'
-import { useGlobalState, createGlobalState } from 'shared/useGlobalState'
-import colours from './main/colours'
+import { useState, withHooks } from '@rbxts/roact-hooked'
 import { CardFolder } from 'server/types'
-import { ReplicatedStorage } from '@rbxts/services'
+import { getCardInfo } from 'server/utils'
+import { createGlobalState, useGlobalState } from 'shared/useGlobalState'
 import { includes } from 'shared/utils'
 
-const countAtom = createGlobalState(0)
+export const cardInfoStore = createGlobalState<CardFolder | undefined>(undefined)
 
-export = (target: Instance) => {
-    let tree = Roact.mount(
-        <Roact.Fragment>
-            <CardInfo />
-        </Roact.Fragment>,
-        target,
-        'UI'
-    )
-
-    return () => {
-        Roact.unmount(tree)
-    }
-}
-
-interface PromptProps {
-    message: string
-    options?: string[]
-}
-
-const cardInfoStore = createGlobalState<CardFolder | undefined>(undefined)
-
-const CardInfo = withHooks(() => {
+export default withHooks(() => {
     const [currentCard, setCurrentCard] = useGlobalState(cardInfoStore)
-    const cardInfo = ReplicatedStorage.FindFirstChild('Blue-Eyes White Dragon', true) as CardFolder
-    const cardColour = includes(cardInfo.type.Value, 'Monster')
+    const cardInfo = getCardInfo(currentCard?.Name ?? '')
+
+    const cardColour = cardInfo ? includes(cardInfo.type.Value, 'Monster')
         ? Color3.fromRGB(255, 124, 16)
         : includes(cardInfo.type.Value, 'Spell')
         ? Color3.fromRGB(3, 255, 180)
         : Color3.fromRGB(166, 12, 255)
+        : Color3.fromRGB(255, 255, 255)
 
     return (
         <frame

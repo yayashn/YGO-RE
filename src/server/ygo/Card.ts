@@ -31,6 +31,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
     const activated = instance('BoolValue', 'activated', card) as BoolValue
     const canActivate = createInstance('BoolValue', 'canActivate', card)
+    const attackNegated = createInstance('BoolValue', 'attackNegated', card)
 
     order.Value = _order
     controller.Value = _owner
@@ -170,6 +171,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const defenderLocation = isDirectAttack ? '' : defender.location.Value
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
 
+        
+
         const startOfDamageStep = () => {
             canChangePosition.Value = false
             duel.battleStep.Value = 'DAMAGE'
@@ -180,7 +183,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             //check if players finished effects
             beforeDamageCalculation()
         }
-
+        
         const beforeDamageCalculation = () => {
             duel.damageStep.Value = 'BEFORE'
             if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {

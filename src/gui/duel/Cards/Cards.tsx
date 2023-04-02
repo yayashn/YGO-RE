@@ -14,6 +14,8 @@ import useIsTargettable from 'gui/hooks/useIsTargettable'
 import removeTarget from 'gui/functions/removeTarget'
 import addTarget from 'gui/functions/addTarget'
 import CardMenu from './CardMenu'
+import { cardInfoStore } from 'gui/duel/CardInfo'
+import { useGlobalState } from 'shared/useGlobalState'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -95,6 +97,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const [showMenu, setShowMenu] = useShowMenu!
     const isTarget = useIsTarget(card)
     const isTargettable = useIsTargettable(card)
+    const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
 
     useMount(
         () => {
@@ -299,6 +302,9 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     Event={{
                         MouseEnter: () => {
                             setHover(true)
+                            if(showArt) {
+                                setCurrentCardInfo(card)
+                            }
                         },
                         MouseLeave: () => {
                             setHover(false)
@@ -320,6 +326,9 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     Event={{
                         MouseEnter: () => {
                             setHover(true)
+                            if(showArt) {
+                                setCurrentCardInfo(card)
+                            }
                         },
                         MouseLeave: () => {
                             setHover(false)

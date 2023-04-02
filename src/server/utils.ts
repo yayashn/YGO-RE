@@ -37,7 +37,7 @@ export const getCard = (duel: DuelFolder, uid: string) => {
 }
 
 export const getCardInfo = (name: string) => {
-    return cards.FindFirstChild(name, true) as Folder
+    return cards.FindFirstChild(name, true) as CardFolder
 }
 
 export interface CardFilter {

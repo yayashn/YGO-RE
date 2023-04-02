@@ -30,6 +30,8 @@ createCard3D.OnClientEvent.Connect((cardButton: SurfaceGui, card: { location: st
     sleeve.Adornee = card3D;
     const cardMenu = cardButton.WaitForChild("CardMenu") as BillboardGui;
     cardMenu.Adornee = card3D;
+    const status = cardButton.WaitForChild("Status") as BillboardGui;
+    status.Adornee = card3D;
 
     const cardClickDetector = card3D.WaitForChild("Menu") as ClickDetector;
     cardClickDetector.MouseClick.Connect(() => {

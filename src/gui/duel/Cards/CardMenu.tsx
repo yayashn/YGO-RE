@@ -26,6 +26,10 @@ import changedOnce from 'shared/lib/changedOnce'
 import useCanAttack from 'gui/hooks/useCanAttack'
 import useCanCardActivate from 'gui/hooks/useCanCardActivate'
 import useBattleStep from 'gui/hooks/useBattleStep'
+import useCardStats from 'gui/hooks/useCardStats'
+import useLocation from 'gui/hooks/useLocation'
+import { includes } from 'shared/utils'
+import usePosition from 'gui/hooks/usePosition'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -59,10 +63,13 @@ export default withHooks(
         const chainResolving = useChainResolving()
         const actor = useActor()
         const addToChain = duel?.addToChain
-        const prompt = usePrompt()
+        const prompt = usePrompt(YGOPlayer)
         const canAttack = useCanAttack()
         const canCardActivate = useCanCardActivate(card)
         const battleStep = useBattleStep()
+        const { atk, def } = useCardStats(card)
+        const location = useLocation(card)
+        const position = usePosition(card)
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -161,12 +168,15 @@ export default withHooks(
                         },
                         1
                     )
-                    targets.forEach((target) => {
-                        card.attack.Fire(target)
-                    })
+                    
+                    duel!.attackingCard.Value = card
+                    duel!.defendingCard.Value = targets[0]
+                    
+                    duel!.handleResponses.Invoke(YGOPlayer)
                     setTargets(YGOPlayer, {}, 0)
                 } else {
-                    card.attack.Fire(YGOOpponent)
+                    duel!.attackingCard.Value = card
+                    duel!.handleResponses.Invoke(YGOPlayer)
                 }
             },
             'Tribute Summon': async () => {
@@ -315,7 +325,7 @@ export default withHooks(
         }, [
             canNormalSummon,
             phase,
-            card.location.Value,
+            location,
             YGOPlayer.selectableZones.Value,
             YGOPlayer.targettableCards.Value,
             chainResolving,
@@ -325,37 +335,69 @@ export default withHooks(
             canAttack,
             canCardActivate,
             battleStep,
+            position,
             showMenu
         ])
 
         return (
-            <billboardgui
-                Enabled={showMenu}
-                Active={true}
-                Key="CardMenu"
-                AlwaysOnTop={true}
-                Size={new UDim2(70, 0, 100, 0)}
-                ExtentsOffset={new Vector3(0, 0.2, 2)}
-                ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
-            >
-                <uilistlayout Padding={new UDim(0.05, 0)} VerticalAlignment="Center" />
-                {enabledActions.map((button: CardAction) => {
-                    return (
-                        <Button
-                            className="w-full h-[17px] bg-gray-500 border-white text-white text-center rounded-md font-bold"
-                            Event={{
-                                MouseButton1Click: async () => {
-                                    setShowMenu(false)
-                                    if (!isCardActionEnabled(button)) return
-                                    removeCardAction()
-                                    cardActions[button]()
-                                }
-                            }}
-                            Text={button}
-                        />
-                    )
-                })}
-            </billboardgui>
+            <Roact.Fragment>
+                <billboardgui
+                    Enabled={showMenu}
+                    Active={true}
+                    Key="CardMenu"
+                    AlwaysOnTop={true}
+                    Size={new UDim2(70, 0, 100, 0)}
+                    ExtentsOffset={new Vector3(0, 0.2, 2)}
+                    ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
+                >
+                    <uilistlayout Padding={new UDim(0.05, 0)} VerticalAlignment="Center" />
+                    {enabledActions.map((button: CardAction) => {
+                        return (
+                            <textbutton
+                                Size={new UDim2(1, 0, 0, 17)}
+                                Text={button}
+                                TextColor3={Color3.fromRGB(255, 255, 255)}
+                                TextScaled={true}
+                                TextStrokeColor3={Color3.fromRGB(0, 0, 0)}
+                                TextStrokeTransparency={0}
+                                TextXAlignment={Enum.TextXAlignment.Center}
+                                TextYAlignment={Enum.TextYAlignment.Center}
+                                Font={Enum.Font.ArialBold}
+                                BorderSizePixel={1}
+                                BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
+                                BorderColor3={new Color3(26 / 255, 101 / 255, 110 / 255)}
+                                Event={{
+                                    MouseButton1Click: async () => {
+                                        setShowMenu(false)
+                                        if (!isCardActionEnabled(button)) return
+                                        removeCardAction()
+                                        cardActions[button]()
+                                    }
+                                }}
+                            />
+                        )
+                    })}
+                </billboardgui>
+                <billboardgui
+                    Key="Status"
+                    AlwaysOnTop={true}
+                    Size={new UDim2(70, 0, 100, 0)}
+                    ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
+                    Active={true}
+                >
+                    {position === "FaceUpAttack" && includes(location || "", "MZone") && atk !== undefined && <textlabel 
+                    BackgroundTransparency={1}
+                    TextColor3={Color3.fromRGB(255,255,255)}
+                    Size={new UDim2(1,0,0,17)}
+                    Position={card.controller.Value === YGOPlayer ? new UDim2(0,0,1,0) : new UDim2(0,0,0,0)}
+                    AnchorPoint={card.controller.Value === YGOPlayer ? new Vector2(0,1) : new Vector2(0,0)}
+                    Text={`${atk || 0}/${def || 0}`}
+                    TextStrokeColor3={Color3.fromRGB(0,0,0)}
+                    TextStrokeTransparency={0}
+                    TextSize={20}
+                    Font={Enum.Font.ArialBold}/>}
+                </billboardgui>
+            </Roact.Fragment>
         )
     }
 )

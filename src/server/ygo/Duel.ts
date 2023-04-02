@@ -21,7 +21,8 @@ import {
     Zone,
     BattleStepValue,
     PhaseValue,
-    DamageStepValue
+    DamageStepValue,
+    CardValue
 } from '../types'
 import { Card } from './Card'
 import changedOnce from 'shared/lib/changedOnce'
@@ -42,6 +43,8 @@ export const Duel = (p1: Player, p2: Player) => {
     const gameState = createInstance('StringValue', 'gameState', folder) as GameStateValue
     const chainResolving = createInstance('BoolValue', 'chainResolving', folder)
     const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
+    const attackingCard = createInstance('ObjectValue', 'attackingCard', folder) as CardValue
+    const defendingCard = createInstance('ObjectValue', 'defendingCard', folder) as CardValue
     const speedSpell = createInstance('IntValue', 'speedSpell', folder)
     speedSpell.Value = 1
 
@@ -100,6 +103,19 @@ export const Duel = (p1: Player, p2: Player) => {
         chainResolving.Value = false
         actor.Value = turnPlayer.Value
         speedSpell.Value = 1
+        
+        if(battleStep.Value === "BATTLE" && attackingCard.Value) {
+            if(attackingCard.Value.attackNegated.Value === false) {
+                attackingCard.Value.attack.Fire(defendingCard.Value || opponent(turnPlayer.Value))
+            }
+        }
+        try {
+            attackingCard.Value!.canAttack.Value = false
+        } catch {
+            print("No attacking card")
+        }
+        attackingCard.Value = undefined
+        defendingCard.Value = undefined
     }
 
     const prompt = async (p: PlayerValue, msg: string) => {
@@ -147,12 +163,10 @@ export const Duel = (p1: Player, p2: Player) => {
 
                 if (response === 'YES') {
                     passes = 0
-                    print(1)
                     await changedOnce(actor.Value.action.Event)
                     await Promise.delay(.25)
                 } else if (response === 'NO') {
                     passes++
-                    print(`passes: ${passes}`)
                 }
             } else {
                 passes++
@@ -224,12 +238,10 @@ export const Duel = (p1: Player, p2: Player) => {
             }
             handleCardResponse.Event.Connect(handleCardResponseF)
             action.Event.Connect((actionName, card) => {
-                print(actionName)
                 if(includes(actionName, "Activate")) return;
                 handleResponses(turnPlayer.Value)
             });
             
-
             let o = 0
             for (const card of (
                 player.Value.WaitForChild('getDeck') as BindableFunction
@@ -302,11 +314,11 @@ export const Duel = (p1: Player, p2: Player) => {
                 card.canActivate.Value = true
             })
 
-            const cardsWithLockedPosition = getFilteredCards(folder, {
+            const cardsInMZone = getFilteredCards(folder, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                 canChangePosition: [false]
             })
-            for (const card of cardsWithLockedPosition) {
+            for (const card of cardsInMZone) {
                 card.canChangePosition.Value = true
                 card.canAttack.Value = true
             }
