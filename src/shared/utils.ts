@@ -25,6 +25,10 @@ export function createInstance<T extends keyof CreatableInstances>(className: T,
 	return i;
 }
 
+export const includes = (str: string, substr: string) => {
+    return str.match(substr).size() > 0
+}
+
 export const bindableEvent = (name: string, parent: Instance) => {
     return instance("BindableEvent", name, parent) as BindableEvent;
 }

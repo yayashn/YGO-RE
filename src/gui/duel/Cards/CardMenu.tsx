@@ -25,6 +25,7 @@ import usePrompt from 'gui/hooks/usePrompt'
 import changedOnce from 'shared/lib/changedOnce'
 import useCanAttack from 'gui/hooks/useCanAttack'
 import useCanCardActivate from 'gui/hooks/useCanCardActivate'
+import useBattleStep from 'gui/hooks/useBattleStep'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -61,6 +62,7 @@ export default withHooks(
         const prompt = usePrompt()
         const canAttack = useCanAttack()
         const canCardActivate = useCanCardActivate(card)
+        const battleStep = useBattleStep()
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -79,6 +81,9 @@ export default withHooks(
         }
 
         const cardActions = {
+            Activate: () => {
+                card.activateEffect.Invoke()
+            },
             'Normal Summon': async () => {
                 YGOPlayer.canNormalSummon.Value = false
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
@@ -163,9 +168,6 @@ export default withHooks(
                 } else {
                     card.attack.Fire(YGOOpponent)
                 }
-            },
-            Activate: () => {
-                card.activateEffect.Invoke()
             },
             'Tribute Summon': async () => {
                 const tributesRequired = card.level.Value <= 6 ? 1 : 2
@@ -321,7 +323,9 @@ export default withHooks(
             actor,
             prompt,
             canAttack,
-            canCardActivate
+            canCardActivate,
+            battleStep,
+            showMenu
         ])
 
         return (

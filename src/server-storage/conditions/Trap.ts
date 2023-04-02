@@ -9,6 +9,7 @@ export default (card: CardFolder) => {
     const activated = card.activated.Value
     const isActor = duel.actor.Value === controller
     const canActivate = card.canActivate.Value
+    const isDamageStep = duel.battleStep.Value === 'DAMAGE'
 
-    return isActor && inBottomRow && !activated && canActivate
+    return isActor && inBottomRow && !activated && canActivate && !isDamageStep
 }

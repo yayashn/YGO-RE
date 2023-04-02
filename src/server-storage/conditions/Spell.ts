@@ -15,5 +15,7 @@ export default (card: CardFolder) => {
     const isActor = duel.actor.Value === controller
     const canActivate = card.canActivate.Value
 
+   // print(`isActor: ${isActor}`, `inHand: ${inHand}`, `oneBottomZoneAvailable: ${oneBottomZoneAvailable}`, `inBottomRow: ${inBottomRow}`, `activated: ${activated}`, `canActivate: ${canActivate}`)
+
     return isActor && ((inHand && oneBottomZoneAvailable) || inBottomRow) && !activated && canActivate
 }

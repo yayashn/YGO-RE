@@ -1,8 +1,8 @@
 import { getOpponent } from "server/utils";
 import type { CardFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
-import QuickSpell from "server-storage/conditions/QuickSpell";
 import { CardEffect } from ".";
+import QuickSpell from "server-storage/conditions/QuickSpell";
 
 /*
     Inflict 200 points of damage to your opponent's Life Points.

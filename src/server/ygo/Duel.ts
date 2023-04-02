@@ -1,4 +1,4 @@
-import { createInstance, instance } from 'shared/utils'
+import { createInstance, includes, instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
 import { getEmptyFieldZones, getFilteredCards, getOpponent } from '../utils'
 import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
@@ -44,16 +44,6 @@ export const Duel = (p1: Player, p2: Player) => {
     const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
     const speedSpell = createInstance('IntValue', 'speedSpell', folder)
     speedSpell.Value = 1
-    
-    phase.Changed.Connect((newPhase) => {
-        if(newPhase !== "MP1" && newPhase !== "MP2") {
-            if(speedSpell.Value === 1) {
-                speedSpell.Value = 2
-            }
-        } else {
-            speedSpell.Value = 1
-        }
-    })
 
     player1.Value = p1
     player2.Value = p2
@@ -81,7 +71,9 @@ export const Duel = (p1: Player, p2: Player) => {
         handleResponses(opponent(card.controller.Value))
     }
     ;(instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect(
-        (card, effect) => addToChain(card as CardFolder, effect as Callback)
+        (card, effect) => {
+            addToChain(card as CardFolder, effect as Callback)
+        }
     )
 
     const resolveChain = async () => {
@@ -107,6 +99,7 @@ export const Duel = (p1: Player, p2: Player) => {
         gameState.Value = 'OPEN'
         chainResolving.Value = false
         actor.Value = turnPlayer.Value
+        speedSpell.Value = 1
     }
 
     const prompt = async (p: PlayerValue, msg: string) => {
@@ -127,7 +120,9 @@ export const Duel = (p1: Player, p2: Player) => {
     let handlingResponses = false
     const handleResponses = async (p: PlayerValue) => {
         if(handlingResponses) return
+        speedSpell.Value = 2
         handlingResponses = true
+        gameState.Value = 'CLOSED'
         let passes = 0
         actor.Value = p
 
@@ -229,6 +224,8 @@ export const Duel = (p1: Player, p2: Player) => {
             }
             handleCardResponse.Event.Connect(handleCardResponseF)
             action.Event.Connect((actionName, card) => {
+                print(actionName)
+                if(includes(actionName, "Activate")) return;
                 handleResponses(turnPlayer.Value)
             });
             
@@ -352,7 +349,6 @@ export const Duel = (p1: Player, p2: Player) => {
             battleStep.Value = 'BATTLE'
         } else if (p === 'MP2') {
             phase.Value = p
-            await handleResponses(turnPlayer.Value)
         } else if (p === 'EP') {
             if (phase.Value === 'MP1' || phase.Value === 'MP2') {
                 phase.Value = p
@@ -363,8 +359,6 @@ export const Duel = (p1: Player, p2: Player) => {
                 await handlePhases('MP2')
             }
         }
-        // End of turn check responses
-        await handleResponses(turnPlayer.Value)
     }
     ;(async () => {
         await handlePhases('DP')
