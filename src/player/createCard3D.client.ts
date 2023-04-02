@@ -38,4 +38,8 @@ createCard3D.OnClientEvent.Connect((cardButton: SurfaceGui, card: { location: st
         const onCardClick = cardButton.FindFirstChild("onCardClick") as RemoteEvent;
         onCardClick.FireServer();
     })
+
+    cardButton.Destroying.Connect(() => {
+        card3D.Destroy();
+    })
 });

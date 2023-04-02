@@ -13,7 +13,7 @@ export default (card: CardFolder) => {
 
     const effects: CardEffect[] = [
         {
-            condition: () => QuickSpell(card),
+            condition: () => NormalSpell(card),
             effect: () => opponent.updateLP.Fire(-200),
             location: ['SZone']
         }

@@ -15,6 +15,8 @@ clickDetector.MouseClick.Connect((opponent) => {
             return
         }
     }
+    (player.WaitForChild("mount") as BindableEvent).Fire();
+    (opponent.WaitForChild("mount") as BindableEvent).Fire();
     Duel(player, opponent);
     showFieldRe.FireClient(player, true);
     const showFieldReOpponent = opponent.WaitForChild("showField.re") as RemoteEvent;

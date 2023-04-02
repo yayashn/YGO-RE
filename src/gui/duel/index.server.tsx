@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { withHooks } from "@rbxts/roact-hooked";
+import { useEffect, withHooks } from "@rbxts/roact-hooked";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
 import Cards from "./Cards/Cards";
 import { Field } from "./Field";
@@ -9,14 +9,29 @@ import type { PlayerValue } from "server/types";
 import Phases from "./Phases";
 import Prompt from "./Prompt";
 import CardInfo from "./CardInfo";
+import useDuel from "gui/hooks/useDuel";
+import { createInstance } from "shared/utils";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 const field = game.Workspace.Field3D.Field;
 
-export const App = withHooks(() => {
+const App = withHooks(() => {
+	const duel = useDuel();
 	const YGOPlayer = useYGOPlayer();
 	const YGOOpponent = useYGOPlayer(true);
+
+	useEffect(() => {
+		if(!duel) return;
+		const connection = duel.Destroying.Connect(() => {
+			Roact.unmount(mounted);
+			connection.Disconnect();
+		})
+
+		return () => {
+			connection.Disconnect();
+		}
+	}, [duel])
 
 	if(YGOPlayer && YGOOpponent) {
 		return (
@@ -39,7 +54,7 @@ export const App = withHooks(() => {
 	}
 })
 
-export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
+const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 	const YGOPlayer = useYGOPlayer();
 	const playerType = playerValue === YGOPlayer ? "Player" : "Opponent";
 
@@ -56,10 +71,14 @@ export const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 	)
 })
 
-Roact.mount(
-	<screengui IgnoreGuiInset={true}>
-		<App/>
-	</screengui>,
-	playerGui,
-	"DuelGui",
-);
+let mounted: Roact.Tree;
+const mount = createInstance("BindableEvent", "mount", player)
+mount.Event.Connect(() => {
+	mounted = Roact.mount(
+		<screengui IgnoreGuiInset={true}>
+			<App/>
+		</screengui>,
+		playerGui,
+		"DuelGui",
+	);
+})

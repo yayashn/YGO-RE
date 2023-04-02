@@ -58,6 +58,12 @@ export const Duel = (p1: Player, p2: Player) => {
 
     let chain: Record<number, ChainedEffect> = {}
 
+    const endDuel = () => {
+        (player1.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player1.Value, false);
+        (player2.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player2.Value, false);
+        folder.Destroy()
+    }
+    
     const responses: Record<'player1' | 'player2', CardFolder[]> = {
         player1: [],
         player2: []
@@ -270,7 +276,11 @@ export const Duel = (p1: Player, p2: Player) => {
                     let deck = (cards.GetChildren() as CardFolder[]).filter(
                         (card) => card.location.Value === 'Deck'
                     )
-                    const topCard = deck.find((card) => card.order.Value === 0)!
+                    const topCard = deck.find((card) => card.order.Value === 0)
+                    if (!topCard) {
+                        endDuel()
+                        return;
+                    }
                     topCard.location.Value = 'Hand'
                     if (!topCard.cardButton.Value) {
                         while (!topCard.cardButton.Value) wait()
