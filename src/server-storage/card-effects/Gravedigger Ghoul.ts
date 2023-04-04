@@ -23,9 +23,7 @@ export default (card: CardFolder) => {
             location: ['GZone'],
             type: ['Monster'],
         })
-        controller.targettableCards.Value = stringifyCards(targettableCards);
-        card.targets.Value = pickTargets(controller, 2)
-        controller.targettableCards.Value = ""
+        card.targets.Value = pickTargets(controller, 2, stringifyCards(targettableCards))
     }
 
     const effect = () => {

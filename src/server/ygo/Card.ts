@@ -84,7 +84,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const toGraveyard = () => {
         controller.Value = _owner
         position.Value = 'FaceUp'
-        wait()
         location.Value = 'GZone'
     }
     ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
@@ -205,6 +204,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
                 } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0) {
                     position.Value = 'FaceUp'
                 }
+                card.controller.Value.action.Fire("Activate Effect", card)
+                duel.addToChain.Fire(card, effect)
+            } else if(card.type.Value === "Trap Card") {
+                position.Value = 'FaceUp'
                 card.controller.Value.action.Fire("Activate Effect", card)
                 duel.addToChain.Fire(card, effect)
             }

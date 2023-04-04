@@ -14,6 +14,7 @@ import PotOfGreed from "./Pot of Greed";
 import FinalFlame from "./Final Flame";
 import SwordsOfRevealingLight from "./Swords of Revealing Light";
 import MonsterReborn from "./Monster Reborn";
+import TwoProngedAttack from "./Two-Pronged Attack";
 
 export type CardEffect = {
     condition: () => boolean,
@@ -24,7 +25,7 @@ export type CardEffect = {
 }
 
 export default {
-    "Sparks": MonsterReborn,
+    "Sparks": TwoProngedAttack,
     "Hinotama": Hinotama,
     "Remove Trap": RemoveTrap,
     "Red Medicine": RedMedicine,
@@ -37,7 +38,8 @@ export default {
     "Pot of Greed": PotOfGreed,
     "Final Flame": FinalFlame,
     "Swords of Revealing Light": SwordsOfRevealingLight,
-    "Monster Reborn": MonsterReborn
+    "Monster Reborn": MonsterReborn,
+    "Two-Pronged Attack": TwoProngedAttack,
 } as {
     [key: string]: (card: CardFolder) => CardEffect[]
 }

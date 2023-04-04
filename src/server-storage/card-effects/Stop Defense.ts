@@ -25,9 +25,7 @@ export default (card: CardFolder) => {
             type: ['Monster'],
             position: ['FaceUpDefense', 'FaceDownDefense']
         })
-        controller.targettableCards.Value = stringifyCards(targettableCards);
-        card.targets.Value = pickTargets(controller, 1)
-        controller.targettableCards.Value = ""
+        card.targets.Value = pickTargets(controller, 1, stringifyCards(targettableCards))
     }
 
     const effect = () => {

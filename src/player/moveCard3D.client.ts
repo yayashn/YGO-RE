@@ -78,8 +78,8 @@ const zoneOrientation = {
                 ).InvokeServer() as Location
                 const tweenGoal = {
                     Position: new Vector3(position.X, position.Y + order * 0.5, position.Z),
-                    Orientation: zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
                 } as Partial<ExtractMembers<Instance, Tweenable>>
+                (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
                 const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
                 Promise.defer(() => {
                     if (location === zoneName) {
