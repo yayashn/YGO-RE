@@ -317,10 +317,10 @@ export default withHooks(
                 addToChain?.Event.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
                 }),
-                YGOPlayer.action.Event.Connect(() => {
+                YGOPlayer.action.Changed.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
                 }),
-                YGOOpponent.action.Event.Connect(() => {
+                YGOOpponent.action.Changed.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
                 })
             ] as RBXScriptConnection[]

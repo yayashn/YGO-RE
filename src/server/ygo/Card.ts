@@ -1,7 +1,7 @@
 import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
-import { getEmptyFieldZones } from "server/utils"
+import { getEmptyFieldZones, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
 import { createInstance, includes, instance } from "shared/utils"
 
@@ -50,7 +50,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
 
     const NormalSummon = (_location: MZone) => {
-        controller.Value.action.Fire("Normal Summon", card)
+        setAction(controller.Value, {
+            action: "Normal Summon",
+            summonedCards: [card]
+        })
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
         card.canChangePosition.Value = false
@@ -113,7 +116,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     )
 
     const tributeSummon = (_location: MZone) => {
-        NormalSummon(_location)
+        setAction(controller.Value, {
+            action: "Tribute Summon",
+            summonedCards: [card]
+        })
+        position.Value = 'FaceUpAttack'
+        controller.Value.canNormalSummon.Value = false
+        card.canChangePosition.Value = false
+        Summon(_location)
     }
     ;(instance('BindableEvent', 'tributeSummon', card) as BindableEvent).Event.Connect(
         tributeSummon
@@ -148,6 +158,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     ;(instance('BindableEvent', 'flip', card) as BindableEvent).Event.Connect(flip)
 
     const flipSummon = () => {
+        setAction(controller.Value, {
+            action: "Flip Summon",
+            summonedCards: [card]
+        })
         canChangePosition.Value = false
         position.Value = 'FaceUpAttack'
     }
@@ -204,11 +218,17 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
                 } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0) {
                     position.Value = 'FaceUp'
                 }
-                card.controller.Value.action.Fire("Activate Effect", card)
+                setAction(card.controller.Value, {
+                    action: "Activate Effect Spell",
+                    summonedCards: [card]
+                })
                 duel.addToChain.Fire(card, effect)
             } else if(card.type.Value === "Trap Card") {
                 position.Value = 'FaceUp'
-                card.controller.Value.action.Fire("Activate Effect", card)
+                setAction(card.controller.Value, {
+                    action: "Activate Effect Trap",
+                    summonedCards: [card]
+                })
                 duel.addToChain.Fire(card, effect)
             }
         }

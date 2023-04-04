@@ -62,6 +62,45 @@ export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
     )
 }
 
+type Action = {
+    action: string
+    summonedCards?: CardFolder[]
+    acivatedCards?: CardFolder[]
+}
+
+type EncodedAction = {
+    action: string
+    summonedCards?: string
+    acivatedCard?: string
+}
+
+export const clearAction = (player: PlayerValue) => {
+    setAction(player, { action: "None" })
+}
+
+export const setAction = (player: PlayerValue, action: Action) => {
+    const encodedAction = action as EncodedAction
+    if(encodedAction.summonedCards) {
+        encodedAction.summonedCards = stringifyCards(action.summonedCards!)
+    }
+    if(encodedAction.acivatedCard) {
+        encodedAction.acivatedCard = stringifyCards(action.acivatedCards!)
+    }
+    player.action.Value = JSON.stringify(encodedAction)
+}
+
+export const getAction = (player: PlayerValue, forceAction?: string) => {
+    const encodedAction = JSON.parse(forceAction ?? player.action.Value) as EncodedAction
+    const action = encodedAction as Action
+    if(action.summonedCards) {
+        action.summonedCards = parseCards(player.Parent as DuelFolder, encodedAction.summonedCards!)
+    }
+    if(action.acivatedCards) {
+        action.acivatedCards = parseCards(player.Parent as DuelFolder, encodedAction.acivatedCard!)
+    }
+    return action as Action
+}
+
 export const pickZone = async (player: PlayerValue) => {
     player.selectableZones.Value = getEmptyFieldZones('MZone', player, 'Player')
     const zone = await changedOnce(player.selectedZone.Changed)
@@ -138,6 +177,11 @@ export const setTargets = (player: PlayerValue, targets: CardFolder[]) => {
 
 export const stringifyCards = (cards: CardFolder[]) => {
     return cards.map(c => c.uid.Value).join(',')
+}
+
+export const parseCards = (duel: DuelFolder, cardsString: string) => {
+    const cardUidArray = cardsString.split(",").filter(c => c !== "")
+    return cardUidArray.map(uid => getCard(duel, uid)!)
 }
 
 export const getOpponent = (player: PlayerValue) => {

@@ -94,7 +94,13 @@ export interface PlayerValue extends ObjectValue {
     prompt: BindableFunction
     promptMessage: StringValue
     promptResponse: ResponseValue
-    action: BindableEvent<(actionName: string, card: CardFolder) => void>
+    action: StringValue
+    floodgates: StringValue
+}
+
+const t = {
+    action: "Normal Summon",
+    card: "uid"
 }
 
 export interface ControllerValue extends ObjectValue {

@@ -1,0 +1,58 @@
+import { addAttackFloodgate, getFilteredCards, getOpponent, removeAttackFloodgate } from "server/utils";
+import type { CardFolder, DuelFolder } from "server/types";
+import NormalSpell from "server-storage/conditions/NormalSpell";
+import { CardEffect } from ".";
+
+/*
+    Change all face-up Dragon-Type monsters on the field to Defense Position, 
+    also they cannot change their battle positions.
+*/
+export default (card: CardFolder) => {
+    const controller = card.controller.Value
+    const duel = controller.Parent as DuelFolder
+    const opponent = getOpponent(controller)
+
+    const effect = () => {
+        addAttackFloodgate(opponent, card.uid.Value)
+
+        let opponentTurn = 0;
+        const onPhaseChange = duel.phase.Changed.Connect((newPhase) => {
+            if(duel.turnPlayer.Value === controller) return;
+            if (newPhase === "EP") {
+                opponentTurn += 1;
+                if (opponentTurn === 3) {
+                    card.destroy_.Fire("Effect")
+                }
+            }
+        })
+
+        const connections: RBXScriptConnection[] = []
+
+        const onCardRemoved = () => {
+            card.continuous.Value = false
+            removeAttackFloodgate(opponent, card.uid.Value)
+            onPhaseChange.Disconnect()
+            connections.forEach(connection => connection.Disconnect())
+        }
+
+        connections.push(card.position.Changed.Connect(onCardRemoved))
+        connections.push(card.location.Changed.Connect(onCardRemoved))
+
+        const faceDownMonsters = getFilteredCards(duel, {
+            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+            position: ['FaceDownDefense'],
+            controller: [opponent]
+        })
+        faceDownMonsters.forEach(monster => monster.changePosition.Fire("FaceUpDefense"))
+    }
+
+    const effects: CardEffect[] = [
+        {
+            condition: () => NormalSpell(card),
+            effect: () => effect(),
+            location: ['SZone']
+        }
+    ]
+
+    return effects
+}

@@ -1,6 +1,6 @@
 import { createInstance, includes, instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
-import { addAttackFloodgate, getEmptyFieldZones, getFilteredCards, getOpponent, removeAttackFloodgate } from '../utils'
+import { addAttackFloodgate, clearAction, getAction, getEmptyFieldZones, getFilteredCards, getOpponent, removeAttackFloodgate } from '../utils'
 import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
 import Object from '@rbxts/object-utils'
 import {
@@ -174,7 +174,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
                 if (response === 'YES') {
                     passes = 0
-                    await changedOnce(actor.Value.action.Event)
+                    await changedOnce(actor.Value.action.Changed)
                     await Promise.delay(.25)
                 } else if (response === 'NO') {
                     passes++
@@ -183,6 +183,7 @@ export const Duel = (p1: Player, p2: Player) => {
                 passes++
             }
 
+            clearAction(opponent(actor.Value))
             if(passes < 2) {
                 actor.Value = opponent(actor.Value)
             }
@@ -225,8 +226,9 @@ export const Duel = (p1: Player, p2: Player) => {
                 'promptResponse',
                 player
             ) as ResponseValue
-            const action = instance('BindableEvent', 'action', player) as BindableEvent<(actionName: string, card: CardFolder) => void>
-
+            const action = createInstance('StringValue', 'action', player)
+            const summonedCards = createInstance('StringValue', 'summonedCards', player)
+            
             selectableZones.Value = `[]`
 
             canNormalSummon.Value = true
@@ -250,8 +252,9 @@ export const Duel = (p1: Player, p2: Player) => {
                 }
             }
             handleCardResponse.Event.Connect(handleCardResponseF)
-            action.Event.Connect((actionName, card) => {
-                if(includes(actionName, "Activate")) return;
+            action.Changed.Connect((encodedAction) => {
+                const decodedAction = getAction(player, encodedAction)
+                if(includes(decodedAction.action, "Activate")) return;
                 handleResponses(turnPlayer.Value)
             });
             

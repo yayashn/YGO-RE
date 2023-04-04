@@ -7,7 +7,7 @@ export default (card: CardFolder) => {
     const controller = useController(card)
 
     useEffect(() => {
-        const connection = controller.Value.action.Event.Connect(() => {
+        const connection = controller.Value.action.Changed.Connect(() => {
             setActionCounter(state => state + 1);
         });
 

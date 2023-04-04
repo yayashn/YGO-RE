@@ -15,6 +15,7 @@ import FinalFlame from "./Final Flame";
 import SwordsOfRevealingLight from "./Swords of Revealing Light";
 import MonsterReborn from "./Monster Reborn";
 import TwoProngedAttack from "./Two-Pronged Attack";
+import TrapHole from "./Trap Hole";
 
 export type CardEffect = {
     condition: () => boolean,
@@ -25,7 +26,7 @@ export type CardEffect = {
 }
 
 export default {
-    "Sparks": TwoProngedAttack,
+    "Sparks": TrapHole,
     "Hinotama": Hinotama,
     "Remove Trap": RemoveTrap,
     "Red Medicine": RedMedicine,
@@ -40,6 +41,7 @@ export default {
     "Swords of Revealing Light": SwordsOfRevealingLight,
     "Monster Reborn": MonsterReborn,
     "Two-Pronged Attack": TwoProngedAttack,
+    "Trap Hole": TrapHole,
 } as {
     [key: string]: (card: CardFolder) => CardEffect[]
 }
