@@ -10,7 +10,10 @@ import Phases from "./Phases";
 import Prompt from "./Prompt";
 import CardInfo from "./CardInfo";
 import useDuel from "gui/hooks/useDuel";
-import { createInstance } from "shared/utils";
+import { createInstance, includes } from "shared/utils";
+import CardPopup from "./CardPopup";
+import useTargettables from "gui/hooks/useTargettables";
+import PositionPopup from "./PositionPopup";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -20,6 +23,11 @@ const App = withHooks(() => {
 	const duel = useDuel();
 	const YGOPlayer = useYGOPlayer();
 	const YGOOpponent = useYGOPlayer(true);
+	const targettables = useTargettables();
+	const showCardPopup = targettables.size() > 0 && !targettables.every((card) => {
+		const location = card.location.Value;
+		return ["FZone", "MZone", "SZone", "Hand"].some((zone) => includes(location, zone));
+	})
 
 	useEffect(() => {
 		if(!duel) return;
@@ -43,6 +51,8 @@ const App = withHooks(() => {
 				</surfacegui>
 				<Prompt/>
 				<CardInfo/>
+				{showCardPopup && <CardPopup/>}
+				<PositionPopup/>
 			</Roact.Fragment>
 		)
 	} else {

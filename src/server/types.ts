@@ -1,3 +1,6 @@
+import { CardButton } from "gui/duel/Cards/Cards"
+import { Location } from "shared/types"
+
 export type Phase = 'DP' | 'SP' | 'MP1' | 'BP' | 'MP2' | 'EP'
 export interface PhaseValue extends StringValue {
     Value: Phase
@@ -49,7 +52,7 @@ export interface DuelFolder extends Folder {
     damageStep: DamageStepValue
     player1: PlayerValue
     player2: PlayerValue
-    handlePhases: BindableEvent
+    handlePhases: BindableEvent<(phase: Phase) => void>
     turnPlayer: ControllerValue
     addToChain: BindableEvent<(card: CardFolder, effect: Callback) => void>
     gameState: GameStateValue
@@ -75,10 +78,13 @@ export interface PlayerValue extends ObjectValue {
     Value: Player
     draw: BindableFunction<(n: number) => void>
     shuffle: BindableEvent<() => void>
-    canAttack: BoolValue
+    canAttack: StringValue
     responseWindow: BoolValue
     selectableZones: StringValue
     selectedZone: StringValue
+    selectablePositions: StringValue
+    selectedPosition: StringValue
+    selectPositionCard: StringValue
     targettableCards: StringValue
     canNormalSummon: BoolValue
     targets: StringValue
@@ -95,6 +101,10 @@ export interface ControllerValue extends ObjectValue {
     Value: PlayerValue
 }
 
+export interface CardButtonValue {
+    Value: SurfaceGui | CardButton
+}
+
 export interface CardFolder extends Folder {
     uid: StringValue
     art: ImageButton
@@ -106,7 +116,7 @@ export interface CardFolder extends Folder {
     def: NumberValue
     order: IntValue
     position: PositionValue
-    cardButton: ObjectValue
+    cardButton: CardButtonValue
     attribute: StringValue
     desc: StringValue
     level: IntValue
@@ -116,7 +126,7 @@ export interface CardFolder extends Folder {
     tribute: BindableEvent
     tributeSummon: BindableEvent
     tributeSet: BindableEvent
-    destroy_: BindableEvent
+    destroy_: BindableEvent<(cause: "Effect" | "Battle") => void>
     attack: BindableEvent<(card: CardFolder | PlayerValue) => void>
     targettable: BoolValue
     status: StringValue
@@ -125,6 +135,7 @@ export interface CardFolder extends Folder {
     flipSummon: BindableEvent
     changePosition: BindableEvent
     canChangePosition: BoolValue
+    banish: BindableEvent<(position: "FaceUp" | "FaceDown") => void>
     canAttack: BoolValue
     activateEffect: BindableFunction
     checkEffectConditions: BindableFunction
@@ -132,6 +143,12 @@ export interface CardFolder extends Folder {
     activated: BoolValue
     canActivate: BoolValue
     attackNegated: BoolValue
+    getCost: BindableFunction<() => false | (() => void) | undefined>
+    getTarget: BindableFunction<() => false | (() => void) | undefined>
+    targets: StringValue
+    preventDestruction: BoolValue
+    continuous: BoolValue
+    specialSummon: BindableEvent<(location: Location, position: Position) => void>
 }
 
 

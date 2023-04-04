@@ -89,6 +89,14 @@ export default withHooks(
 
         const cardActions = {
             Activate: () => {
+                const cost = card.getCost.Invoke()
+                const target_ = card.getTarget.Invoke()
+                if(cost) {
+                   cost()
+                }
+                if(target_) {
+                    target_()
+                }
                 card.activateEffect.Invoke()
             },
             'Normal Summon': async () => {
@@ -204,7 +212,7 @@ export default withHooks(
                 
             },
             'Change Position': () => {
-                card.changePosition.Fire(card)
+                card.changePosition.Fire()
             }
         }
 
@@ -385,7 +393,7 @@ export default withHooks(
                     ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
                     Active={true}
                 >
-                    {position === "FaceUpAttack" && includes(location || "", "MZone") && atk !== undefined && <textlabel 
+                    {(position === "FaceUpAttack" || position === "FaceUpDefense") && includes(location || "", "MZone") && atk !== undefined && <textlabel 
                     BackgroundTransparency={1}
                     TextColor3={Color3.fromRGB(255,255,255)}
                     Size={new UDim2(1,0,0,17)}

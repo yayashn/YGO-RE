@@ -1,6 +1,6 @@
 import { createInstance, includes, instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
-import { getEmptyFieldZones, getFilteredCards, getOpponent } from '../utils'
+import { addAttackFloodgate, getEmptyFieldZones, getFilteredCards, getOpponent, removeAttackFloodgate } from '../utils'
 import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
 import Object from '@rbxts/object-utils'
 import {
@@ -77,6 +77,7 @@ export const Duel = (p1: Player, p2: Player) => {
             effect,
             negated: false
         }
+        opponent(card.controller.Value).targets.Value = ''
         handleResponses(opponent(card.controller.Value))
     }
     ;(instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect(
@@ -95,10 +96,12 @@ export const Duel = (p1: Player, p2: Player) => {
                 effect()
                 await Promise.delay(3)
             }
+            card.targets.Value = ''
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
         Object.values(chain).forEach(({ card }) => {
+            if(card.continuous.Value === true) return;
             if (card.location.Value.match('SZone').size() > 0) {
                 card.toGraveyard.Fire()
             }
@@ -109,6 +112,8 @@ export const Duel = (p1: Player, p2: Player) => {
         chainResolving.Value = false
         actor.Value = turnPlayer.Value
         speedSpell.Value = 1
+        player1.targets.Value = ''
+        player2.targets.Value = ''
         
         if(battleStep.Value === "BATTLE" && attackingCard.Value) {
             if(attackingCard.Value.attackNegated.Value === false) {
@@ -192,13 +197,16 @@ export const Duel = (p1: Player, p2: Player) => {
             const lifePoints = instance('NumberValue', 'lifePoints', player) as NumberValue
             const cards = instance('Folder', 'cards', player) as Folder
             const responseWindow = instance('BoolValue', 'responseWindow', player) as BoolValue
-            const canAttack = instance('BoolValue', 'canAttack', player) as BoolValue
+            const canAttack = createInstance('StringValue', 'canAttack', player)
             const selectableZones = instance(
                 'StringValue',
                 'selectableZones',
                 player
             ) as StringValue
             const selectedZone = instance('StringValue', 'selectedZone', player) as StringValue
+            const selectablePositions = createInstance('StringValue', 'selectablePositions', player)
+            const selectedPosition = createInstance("StringValue", "selectedPosition", player)
+            const selectPositionCard = createInstance("StringValue", "selectPositionCard", player)
             const targettableCards = instance(
                 'StringValue',
                 'targettableCards',
@@ -225,7 +233,6 @@ export const Duel = (p1: Player, p2: Player) => {
 
             lifePoints.Value = 8000
 
-            canAttack.Value = false
 
             const handleCardResponseF = (card: CardFolder) => {
                 const isInResponses = responses[player.Name].find((c) => c === (card as CardFolder))
@@ -306,10 +313,13 @@ export const Duel = (p1: Player, p2: Player) => {
     const handlePhases = async (p: Phase) => {
         await Promise.delay(0.15)
         gameState.Value = 'OPEN'
-        if (turn.Value > 1) {
-            turnPlayer.Value.canAttack.Value = true
-        }
         if (p === 'DP') {
+            turn.Value++
+            if(turn.Value === 1) {
+                addAttackFloodgate(turnPlayer.Value, "firstturn");
+            } else {
+                removeAttackFloodgate(turnPlayer.Value, "firstturn")
+            }
             const cardsInSZone = getFilteredCards(folder, {
                 location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             })
@@ -332,12 +342,9 @@ export const Duel = (p1: Player, p2: Player) => {
                 card.canChangePosition.Value = true
                 card.canAttack.Value = true
             }
-
-            turn.Value++
             if (turn.Value >= 2) {
                 turnPlayer.Value = opponent(turnPlayer.Value)
                 actor.Value = turnPlayer.Value
-                turnPlayer.Value.canAttack.Value = true
             }
             phase.Value = p
             turnPlayer.Value.canNormalSummon.Value = true

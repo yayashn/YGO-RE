@@ -1,5 +1,4 @@
 import { useEffect, useState } from "@rbxts/roact-hooked"
-import useDuel from "./useDuel"
 import useYGOPlayer from "./useYGOPlayer"
 
 export default () => {
@@ -10,8 +9,11 @@ export default () => {
     useEffect(() => {
         if (duel) {
             const connection = YGOPlayer.canAttack.Changed.Connect((value) => {
-                setCanAttack(value)
+                setCanAttack(value === "")
             })
+
+            setCanAttack(YGOPlayer.canAttack.Value === "")
+
             return () => {
                 connection.Disconnect()
             }

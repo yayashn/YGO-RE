@@ -1,8 +1,9 @@
-import type { CardFolder, DuelFolder, PlayerValue, SZone, Zone } from './types'
+import type { CardFolder, DuelFolder, PlayerValue, Position, SZone, Zone } from './types'
 import { ServerScriptService } from '@rbxts/services'
 import Object from '@rbxts/object-utils'
 import { Location, MZone } from 'shared/types'
 import { JSON } from 'shared/utils'
+import changedOnce from 'shared/lib/changedOnce'
 
 const duels = ServerScriptService.WaitForChild('instances').WaitForChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -46,6 +47,7 @@ export interface CardFilter {
     uid?: string[]
     canChangePosition?: boolean[]
     type?: string[]
+    position?: Position[]
 }
 
 export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
@@ -60,12 +62,95 @@ export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
     )
 }
 
+export const pickZone = async (player: PlayerValue) => {
+    player.selectableZones.Value = getEmptyFieldZones('MZone', player, 'Player')
+    const zone = await changedOnce(player.selectedZone.Changed)
+    player.selectableZones.Value = "[]"
+    player.selectedZone.Value = ""
+    return zone as Zone;
+}
+
+export const pickPosition = async (player: PlayerValue, card: CardFolder) => {
+    player.selectPositionCard.Value = card.uid.Value
+    const position = await changedOnce(player.selectedPosition.Changed)
+    player.selectedPosition.Value = ""
+    player.selectPositionCard.Value = ""
+    return position as Position;
+}
+
+export const pickTargets = (player: PlayerValue, n: number) => {
+    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder;
+    let pickedTargets: string = "";
+    const connection = player.targets.Changed.Connect((newTargets) => {
+        const targets = newTargets.split(",").map(target => getCard(duel, target)!);
+        if (targets.size() === n) {
+            pickedTargets = newTargets
+            connection.Disconnect()
+        }
+    })
+    while (connection.Connected) {
+        wait()
+    }
+    return pickedTargets
+}
+
+export const getTargettables = (player: PlayerValue, targettablesString?: string) => {
+    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+    if(targettablesString) {
+        const targettables = targettablesString.split(",").map(target => getCard(duel, target)!);
+        return targettables
+    }
+    const targettables = player.targettableCards.Value.split(",").map(target => getCard(duel, target)!);
+    return targettables
+}
+
+export const getTargets = (player: PlayerValue, targetsString?: string) => {
+    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+    if(targetsString) {
+        const targets = targetsString.split(",").map(target => getCard(duel, target)!);
+        return targets
+    }
+    const targets = player.targets.Value.split(",").map(target => getCard(duel, target)!);
+    return targets
+}
+
+export const addTarget = (player: PlayerValue, target: CardFolder) => {
+    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+    const targets = getTargets(player)
+    targets.push(target)
+    setTargets(player, targets)
+}
+
+export const removeTarget = (player: PlayerValue, target: CardFolder) => {
+    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+    const targets = getTargets(player).filter(t => t !== target)
+    setTargets(player, targets)
+}
+
+export const setTargets = (player: PlayerValue, targets: CardFolder[]) => {
+    player.targets.Value = stringifyCards(targets)
+}
+
+export const stringifyCards = (cards: CardFolder[]) => {
+    return cards.map(c => c.uid.Value).join(',')
+}
+
 export const getOpponent = (player: PlayerValue) => {
     const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
     const opponent = duel.FindFirstChild(
         player.Name === 'player1' ? 'player2' : 'player1'
     ) as PlayerValue
     return opponent
+}
+
+export const addAttackFloodgate = (player: PlayerValue, cause: string) => {
+    const floodgates = player.canAttack.Value ? player.canAttack.Value.split(",") : [];
+    floodgates.push(cause);
+    player.canAttack.Value = floodgates.join(",");
+}
+
+export const removeAttackFloodgate = (player: PlayerValue, cause: string) => {
+    player.canAttack.Value = player.canAttack.Value.split(",").filter(f => f !== cause).join(",");
 }
 
 export type SelectableZone = {

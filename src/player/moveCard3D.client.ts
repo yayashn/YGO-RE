@@ -42,14 +42,14 @@ const zoneOrientation = {
         FaceDown: new Vector3(0, -90, 0),
         FaceUpAttack: new Vector3(0, -90, -180),
         FaceUpDefense: new Vector3(0, -90, -180),
-        FaceDownDefense: new Vector3(0, -90, 0),
+        FaceDownDefense: new Vector3(0, -90, 0)
     },
     Opponent: {
         FaceUp: new Vector3(0, 90, -180),
         FaceDown: new Vector3(0, 90, 0),
         FaceUpAttack: new Vector3(0, 90, -180),
         FaceUpDefense: new Vector3(0, 90, -180),
-        FaceDownDefense: new Vector3(0, 90, 0),
+        FaceDownDefense: new Vector3(0, 90, 0)
     }
 }
 
@@ -77,11 +77,12 @@ const zoneOrientation = {
                     ) as RemoteFunction
                 ).InvokeServer() as Location
                 const tweenGoal = {
-                    Position: new Vector3(position.X, position.Y + order * 0.5, position.Z)
+                    Position: new Vector3(position.X, position.Y + order * 0.5, position.Z),
+                    Orientation: zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
                 } as Partial<ExtractMembers<Instance, Tweenable>>
                 const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
                 Promise.defer(() => {
-                    if(location === zoneName) {
+                    if (location === zoneName) {
                         tween.Play()
                     }
                 })

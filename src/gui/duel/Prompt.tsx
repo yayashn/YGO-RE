@@ -2,7 +2,7 @@ import Roact from '@rbxts/roact'
 import { withHooks } from '@rbxts/roact-hooked'
 import usePrompt from 'gui/hooks/usePrompt'
 import useYGOPlayer from 'gui/hooks/useYGOPlayer'
-import Dialog from 'gui/main/components/Dialog'
+import Dialog from 'server/gui/Dialog'
 
 export default withHooks(() => {
     const YGOPlayer = useYGOPlayer()

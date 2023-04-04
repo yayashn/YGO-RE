@@ -57,6 +57,7 @@ export type CardButton = {
     positionChanged?: RemoteEvent
     getLocation?: RemoteFunction,
     useShowMenu?: [string | false, Dispatch<SetStateAction<string | false>>]
+    onCardClick?: RemoteEvent
 }
 
 export interface DuelGuiPlayerField extends SurfaceGui {
@@ -194,7 +195,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 'onCardClick',
                 cardRef.getValue(),
             ) as RemoteEvent
-            onCardClick.OnServerEvent.Connect((player) => {
+            const clicked = (player: Player) => {
                 if (isTargettableF(YGOPlayer, card)) {
                     setShowMenu(false)
                     if (isTargetF(YGOPlayer, card)) {
@@ -205,7 +206,8 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 } else {
                     setShowMenu((state) => state !== card.uid.Value ? card.uid.Value : false)
                 }
-            })
+            }
+            onCardClick.OnServerEvent.Connect(clicked)
 
             const isOpponent = () => card.controller.Value.Value !== player
 

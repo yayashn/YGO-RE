@@ -1,9 +1,9 @@
 import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
-import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone } from "server/types"
+import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
 import { getEmptyFieldZones } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
-import { createInstance, instance } from "shared/utils"
+import { createInstance, includes, instance } from "shared/utils"
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -32,6 +32,9 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const activated = instance('BoolValue', 'activated', card) as BoolValue
     const canActivate = createInstance('BoolValue', 'canActivate', card)
     const attackNegated = createInstance('BoolValue', 'attackNegated', card)
+    const targets = createInstance('StringValue', 'targets', card)
+    const preventDestruction = createInstance('BoolValue', 'preventDestruction', card)
+    const continuous = createInstance('BoolValue', 'continuous', card)
 
     order.Value = _order
     controller.Value = _owner
@@ -55,6 +58,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     ;(instance('BindableEvent', 'normalSummon', card) as BindableEvent).Event.Connect(NormalSummon)
 
+    const SpecialSummon = (_location: MZone, newPosition: Position) => {
+        position.Value = newPosition
+        controller.Value.canNormalSummon.Value = false
+        card.canChangePosition.Value = false
+        Summon(_location)
+    }
+    createInstance('BindableEvent', 'specialSummon', card).Event.Connect(SpecialSummon)
+
     const Set = (_location: SZone | MZone) => {
         if (card.type.Value.match('Monster').size() > 0) {
             position.Value = 'FaceDownDefense'
@@ -73,9 +84,17 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const toGraveyard = () => {
         controller.Value = _owner
         position.Value = 'FaceUp'
+        wait()
         location.Value = 'GZone'
     }
     ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
+
+    const banish = (newPosition: Position) => {
+        controller.Value = _owner
+        position.Value = newPosition
+        location.Value = 'BZone'
+    }
+    createInstance('BindableEvent', 'banish', card).Event.Connect(banish)
 
     const tribute = () => {
         toGraveyard()
@@ -83,7 +102,11 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     ;(instance('BindableEvent', 'tribute', card) as BindableEvent).Event.Connect(tribute)
 
     const destroy = (cause: string) => {
+        if(preventDestruction.Value === true) return;
         status.Value = `destroyedBy${cause}`
+        if(includes(cause, "Effect")) {
+            toGraveyard()
+        }
         print(card, `destroyed by ${cause}`)
     }
     ;(instance('BindableEvent', 'destroy_', card) as BindableEvent).Event.Connect((cause) =>
@@ -104,7 +127,11 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         tributeSet
     )
 
-    const changePosition = () => {
+    const changePosition = (forcePosition?: Position) => {
+        if(forcePosition) {
+            position.Value = forcePosition
+            return;
+        }
         canChangePosition.Value = false
         if (position.Value === 'FaceUpAttack') {
             position.Value = 'FaceUpDefense'
@@ -127,11 +154,31 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
 
+    const getCost = () => {
+        if(cardEffects[card.Name] === undefined) return false
+        const effects = cardEffects[card.Name](card)
+        if(effects.size() === 1) {
+            return effects[0].cost
+        }
+        return false;
+    }
+    createInstance('BindableFunction', 'getCost', card).OnInvoke = getCost
+    
+    const getTarget = () => {
+        if(cardEffects[card.Name] === undefined) return false
+        const effects = cardEffects[card.Name](card)
+        if(effects.size() === 1) {
+            return effects[0].target
+        }
+        return false;
+    }
+    createInstance('BindableFunction', 'getTarget', card).OnInvoke = getTarget
+
     const checkEffectConditions = () => {
         if(cardEffects[card.Name] === undefined) return false
         const effects = cardEffects[card.Name](card)
         return effects.some(({condition}) => {
-            return condition(card) === true
+            return condition() === true
         })
     }
     ;(instance('BindableFunction', 'checkEffectConditions', card) as BindableFunction).OnInvoke = checkEffectConditions
@@ -139,7 +186,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const activateEffect = async () => {
         const effects = cardEffects[card.Name](card)
         const ifMoreThanOneEffect = effects.map(({condition}) => {
-            return condition(card)
+            return condition()
         }).size() > 1
 
         if(ifMoreThanOneEffect) {
@@ -171,8 +218,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const defenderLocation = isDirectAttack ? '' : defender.location.Value
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
 
-        
-
         const startOfDamageStep = () => {
             canChangePosition.Value = false
             duel.battleStep.Value = 'DAMAGE'
@@ -188,6 +233,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             duel.damageStep.Value = 'BEFORE'
             if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {
                 defender.flip.Fire()
+                wait(1)
             }
             //ATK/DEF change effects
             //before damage calculation effects

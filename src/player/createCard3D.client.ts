@@ -34,12 +34,13 @@ createCard3D.OnClientEvent.Connect((cardButton: SurfaceGui, card: { location: st
     status.Adornee = card3D;
 
     const cardClickDetector = card3D.WaitForChild("Menu") as ClickDetector;
-    cardClickDetector.MouseClick.Connect(() => {
+    const connection = cardClickDetector.MouseClick.Connect(() => {
         const onCardClick = cardButton.FindFirstChild("onCardClick") as RemoteEvent;
         onCardClick.FireServer();
     })
 
     cardButton.Destroying.Connect(() => {
+        connection.Disconnect();
         card3D.Destroy();
     })
 });

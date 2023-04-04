@@ -1,12 +1,12 @@
 import Roact from '@rbxts/roact'
 import { withHooks } from '@rbxts/roact-hooked'
 
-interface DialogOption {
+export interface DialogOption {
     text: string
     MouseButton1Click: () => void
 }
 
-interface DialogProps {
+export interface DialogProps {
     message: string
     options?: DialogOption[]
 }

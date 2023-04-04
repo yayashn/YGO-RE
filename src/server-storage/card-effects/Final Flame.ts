@@ -4,7 +4,7 @@ import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
 
 /*
-    Inflict 200 points of damage to your opponent's Life Points.
+    Inflict 600 damage to your opponent.
 */
 export default (card: CardFolder) => {
     const controller = card.controller.Value
@@ -13,7 +13,7 @@ export default (card: CardFolder) => {
     const effects: CardEffect[] = [
         {
             condition: () => NormalSpell(card),
-            effect: () => opponent.updateLP.Fire(-200),
+            effect: () => opponent.updateLP.Fire(-600),
             location: ['SZone']
         }
     ]

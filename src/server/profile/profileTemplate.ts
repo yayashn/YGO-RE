@@ -2,6 +2,10 @@ export type Card = {
     name: string
 }
 
+const defaultCardsDev = [
+    { name: "Gravedigger Ghoul"},
+]
+
 const defaultCards = [
     { name: "Skull Servant" },
     { name: "Skull Servant" },
