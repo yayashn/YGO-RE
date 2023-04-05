@@ -32,6 +32,7 @@ import usePosition from 'gui/hooks/usePosition'
 import { hasCardFloodgate, hasFloodgate } from 'server/functions/floodgates'
 import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
+import useRace from 'gui/hooks/useRace'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -73,6 +74,7 @@ export default withHooks(
         const position = usePosition(card)
         const floodgates = useFloodgates()
         const cardFloodgates = useCardFloodgates(card)
+        const race = useRace(card)
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -316,15 +318,30 @@ export default withHooks(
                 removeCardAction()
             }
 
+            const continuousEffects = () => {
+                forceFaceUpDefensePosition()
+            }
+
+            const forceFaceUpDefensePosition = () => {
+                if(hasCardFloodgate(card, "forceFaceUpDefensePosition")) {
+                    card.position.Value = 'FaceUpDefense'
+                }
+            }
+
+            continuousEffects()
+
             const connections: RBXScriptConnection[] = [
                 addToChain?.Event.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
+                    continuousEffects()
                 }),
                 YGOPlayer.action.Changed.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
+                    continuousEffects()
                 }),
                 YGOOpponent.action.Changed.Connect(() => {
                     card.controller.Value.handleCardResponse.Fire(card)
+                    continuousEffects()
                 })
             ] as RBXScriptConnection[]
 
@@ -348,7 +365,8 @@ export default withHooks(
             position,
             showMenu,
             floodgates,
-            cardFloodgates
+            cardFloodgates,
+            race
         ])
 
         return (

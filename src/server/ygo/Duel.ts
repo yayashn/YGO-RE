@@ -102,7 +102,7 @@ export const Duel = (p1: Player, p2: Player) => {
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
         Object.values(chain).forEach(({ card }) => {
-            if(card.continuous.Value === true) return;
+            if(card.continuous.Value === true || includes(card.race.Value, "Continuous")) return;
             if (card.location.Value.match('SZone').size() > 0) {
                 card.toGraveyard.Fire()
             }
