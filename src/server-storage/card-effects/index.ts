@@ -26,7 +26,7 @@ export type CardEffect = {
 }
 
 export default {
-    "Sparks": TrapHole,
+    "Sparks": SwordsOfRevealingLight,
     "Hinotama": Hinotama,
     "Remove Trap": RemoveTrap,
     "Red Medicine": RedMedicine,

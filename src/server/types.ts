@@ -62,6 +62,7 @@ export interface DuelFolder extends Folder {
     speedSpell: IntValue
     attackingCard: CardValue
     defendingCard: CardValue
+    floodgates: StringValue
 }
 
 export interface CardInventory {
@@ -78,7 +79,6 @@ export interface PlayerValue extends ObjectValue {
     Value: Player
     draw: BindableFunction<(n: number) => void>
     shuffle: BindableEvent<() => void>
-    canAttack: StringValue
     responseWindow: BoolValue
     selectableZones: StringValue
     selectedZone: StringValue
@@ -142,7 +142,7 @@ export interface CardFolder extends Folder {
     changePosition: BindableEvent
     canChangePosition: BoolValue
     banish: BindableEvent<(position: "FaceUp" | "FaceDown") => void>
-    canAttack: BoolValue
+    //canAttack: BoolValue
     activateEffect: BindableFunction
     checkEffectConditions: BindableFunction
     effectsNegated: BoolValue

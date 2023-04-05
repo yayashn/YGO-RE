@@ -1,7 +1,9 @@
-import { addAttackFloodgate, getFilteredCards, getOpponent, removeAttackFloodgate } from "server/utils";
+import { getFilteredCards, getOpponent } from "server/utils";
 import type { CardFolder, DuelFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
+import { addFloodgate } from "server/functions/floodgates";
+import { HttpService } from "@rbxts/services";
 
 /*
     Change all face-up Dragon-Type monsters on the field to Defense Position, 
@@ -13,25 +15,22 @@ export default (card: CardFolder) => {
     const opponent = getOpponent(controller)
 
     const effect = () => {
-        addAttackFloodgate(opponent, card.uid.Value)
-
-        let opponentTurn = 0;
-        const onPhaseChange = duel.phase.Changed.Connect((newPhase) => {
-            if(duel.turnPlayer.Value === controller) return;
-            if (newPhase === "EP") {
-                opponentTurn += 1;
-                if (opponentTurn === 3) {
-                    card.destroy_.Fire("Effect")
-                }
-            }
+        const removeDisableChangePositionFloodgate = addFloodgate(opponent, {
+            floodgateUid: `DCJ-${HttpService.GenerateGUID(false)}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Effect"
         })
-
+        const removeForceDefenseFloodgate = addFloodgate(opponent, {
+            floodgateUid: `DCJ-${HttpService.GenerateGUID(false)}`,
+            floodgateName: "forceDefense",
+            floodgateCause: "Effect"
+        })
+        
         const connections: RBXScriptConnection[] = []
 
         const onCardRemoved = () => {
-            card.continuous.Value = false
-            removeAttackFloodgate(opponent, card.uid.Value)
-            onPhaseChange.Disconnect()
+            removeDisableChangePositionFloodgate()
+            removeForceDefenseFloodgate()
             connections.forEach(connection => connection.Disconnect())
         }
 

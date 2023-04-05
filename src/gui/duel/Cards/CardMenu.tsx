@@ -23,13 +23,15 @@ import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
 import usePrompt from 'gui/hooks/usePrompt'
 import changedOnce from 'shared/lib/changedOnce'
-import useCanAttack from 'gui/hooks/useCanAttack'
 import useCanCardActivate from 'gui/hooks/useCanCardActivate'
 import useBattleStep from 'gui/hooks/useBattleStep'
 import useCardStats from 'gui/hooks/useCardStats'
 import useLocation from 'gui/hooks/useLocation'
 import { includes } from 'shared/utils'
 import usePosition from 'gui/hooks/usePosition'
+import { hasCardFloodgate, hasFloodgate } from 'server/functions/floodgates'
+import useFloodgates from 'gui/hooks/useFloodgates'
+import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -64,12 +66,13 @@ export default withHooks(
         const actor = useActor()
         const addToChain = duel?.addToChain
         const prompt = usePrompt(YGOPlayer)
-        const canAttack = useCanAttack()
         const canCardActivate = useCanCardActivate(card)
         const battleStep = useBattleStep()
         const { atk, def } = useCardStats(card)
         const location = useLocation(card)
         const position = usePosition(card)
+        const floodgates = useFloodgates()
+        const cardFloodgates = useCardFloodgates(card)
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -290,12 +293,12 @@ export default withHooks(
                 // Battle Phase Logic
                 const inAttackPosition = card.position.Value === 'FaceUpAttack'
                 if (
-                    canAttack &&
+                    !hasFloodgate(YGOPlayer, "disableAttack") &&
                     inMZone &&
                     inAttackPosition &&
                     phase === 'BP' &&
                     isTurnPlayer &&
-                    card.canAttack.Value === true &&
+                    !hasCardFloodgate(card, "disableAttack") &&
                     gameState === 'OPEN'
                 ) {
                     addCardAction('Attack')
@@ -340,11 +343,12 @@ export default withHooks(
             gameState,
             actor,
             prompt,
-            canAttack,
             canCardActivate,
             battleStep,
             position,
-            showMenu
+            showMenu,
+            floodgates,
+            cardFloodgates
         ])
 
         return (

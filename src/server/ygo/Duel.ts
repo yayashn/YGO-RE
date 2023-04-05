@@ -1,7 +1,6 @@
 import { createInstance, includes, instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
-import { addAttackFloodgate, clearAction, getAction, getEmptyFieldZones, getFilteredCards, getOpponent, removeAttackFloodgate } from '../utils'
-import cardEffects, { CardEffect } from 'server-storage/card-effects/index'
+import { clearAction, getAction, getFilteredCards } from '../utils'
 import Object from '@rbxts/object-utils'
 import {
     DuelFolder,
@@ -26,6 +25,7 @@ import {
 } from '../types'
 import { Card } from './Card'
 import changedOnce from 'shared/lib/changedOnce'
+import { addCardFloodgate, addFloodgate, hasCardFloodgate, removeCardFloodgate, removeFloodgate } from 'server/functions/floodgates'
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -45,6 +45,7 @@ export const Duel = (p1: Player, p2: Player) => {
     const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
     const attackingCard = createInstance('ObjectValue', 'attackingCard', folder) as CardValue
     const defendingCard = createInstance('ObjectValue', 'defendingCard', folder) as CardValue
+    createInstance('StringValue', 'floodgates', folder).Value = '[]'
     const speedSpell = createInstance('IntValue', 'speedSpell', folder)
     speedSpell.Value = 1
 
@@ -121,7 +122,16 @@ export const Duel = (p1: Player, p2: Player) => {
             }
         }
         try {
-            attackingCard.Value!.canAttack.Value = false
+            //attackingCard.Value!.canAttack.Value = false
+            addCardFloodgate(attackingCard.Value!, {
+                floodgateName: 'disableAttack',
+                floodgateUid: 'disableAttackAfterAttack',
+                floodgateCause: "Mechanic",
+                floodgateFilter: {
+                    uid: [attackingCard.Value!.uid.Value]
+                }
+            })
+
         } catch {
             print("No attacking card")
         }
@@ -198,7 +208,7 @@ export const Duel = (p1: Player, p2: Player) => {
             const lifePoints = instance('NumberValue', 'lifePoints', player) as NumberValue
             const cards = instance('Folder', 'cards', player) as Folder
             const responseWindow = instance('BoolValue', 'responseWindow', player) as BoolValue
-            const canAttack = createInstance('StringValue', 'canAttack', player)
+            //const canAttack = createInstance('StringValue', 'canAttack', player)
             const selectableZones = instance(
                 'StringValue',
                 'selectableZones',
@@ -228,6 +238,9 @@ export const Duel = (p1: Player, p2: Player) => {
             ) as ResponseValue
             const action = createInstance('StringValue', 'action', player)
             const summonedCards = createInstance('StringValue', 'summonedCards', player)
+            const floodgates = createInstance('StringValue', 'floodgates', player)
+            
+            floodgates.Value = `[]`
             
             selectableZones.Value = `[]`
 
@@ -318,11 +331,6 @@ export const Duel = (p1: Player, p2: Player) => {
         gameState.Value = 'OPEN'
         if (p === 'DP') {
             turn.Value++
-            if(turn.Value === 1) {
-                addAttackFloodgate(turnPlayer.Value, "firstturn");
-            } else {
-                removeAttackFloodgate(turnPlayer.Value, "firstturn")
-            }
             const cardsInSZone = getFilteredCards(folder, {
                 location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             })
@@ -343,7 +351,8 @@ export const Duel = (p1: Player, p2: Player) => {
             })
             for (const card of cardsInMZone) {
                 card.canChangePosition.Value = true
-                card.canAttack.Value = true
+                //card.canAttack.Value = true
+                removeCardFloodgate(card, 'disableAttackAfterAttack')
             }
             if (turn.Value >= 2) {
                 turnPlayer.Value = opponent(turnPlayer.Value)

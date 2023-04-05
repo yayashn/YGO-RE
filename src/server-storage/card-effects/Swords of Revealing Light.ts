@@ -1,7 +1,9 @@
-import { addAttackFloodgate, getFilteredCards, getOpponent, removeAttackFloodgate } from "server/utils";
+import { getFilteredCards, getOpponent } from "server/utils";
 import type { CardFolder, DuelFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
+import { addFloodgate } from "server/functions/floodgates";
+import { HttpService } from "@rbxts/services";
 
 /*
     After this card's activation, it remains on the field, 
@@ -17,7 +19,11 @@ export default (card: CardFolder) => {
 
     const effect = () => {
         card.continuous.Value = true
-        addAttackFloodgate(opponent, card.uid.Value)
+        const removeFloodgate = addFloodgate(opponent, {
+            floodgateUid: `SORL-${HttpService.GenerateGUID(false)}`,
+            floodgateName: "disableAttack",
+            floodgateCause: "Effect"
+        })
 
         let opponentTurn = 0;
         const onPhaseChange = duel.phase.Changed.Connect((newPhase) => {
@@ -34,7 +40,7 @@ export default (card: CardFolder) => {
 
         const onCardRemoved = () => {
             card.continuous.Value = false
-            removeAttackFloodgate(opponent, card.uid.Value)
+            removeFloodgate()
             onPhaseChange.Disconnect()
             connections.forEach(connection => connection.Disconnect())
         }

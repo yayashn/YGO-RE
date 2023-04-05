@@ -192,15 +192,15 @@ export const getOpponent = (player: PlayerValue) => {
     return opponent
 }
 
-export const addAttackFloodgate = (player: PlayerValue, cause: string) => {
-    const floodgates = player.canAttack.Value ? player.canAttack.Value.split(",") : [];
-    floodgates.push(cause);
-    player.canAttack.Value = floodgates.join(",");
-}
-
-export const removeAttackFloodgate = (player: PlayerValue, cause: string) => {
-    player.canAttack.Value = player.canAttack.Value.split(",").filter(f => f !== cause).join(",");
-}
+//export const addAttackFloodgate = (player: PlayerValue, cause: string) => {
+//    const floodgates = player.canAttack.Value ? player.canAttack.Value.split(",") : [];
+//    floodgates.push(cause);
+//    player.canAttack.Value = floodgates.join(",");
+//}
+//
+//export const removeAttackFloodgate = (player: PlayerValue, cause: string) => {
+//    player.canAttack.Value = player.canAttack.Value.split(",").filter(f => f !== cause).join(",");
+//}
 
 export type SelectableZone = {
     [key in MZone | SZone]: {

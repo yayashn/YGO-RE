@@ -27,7 +27,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     instance('BoolValue', 'targettable', card) as BoolValue
     const status = instance('StringValue', 'status', card) as StringValue
     const canChangePosition = instance('BoolValue', 'canChangePosition', card) as BoolValue
-    const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
+    //const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
     const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
     const activated = instance('BoolValue', 'activated', card) as BoolValue
     const canActivate = createInstance('BoolValue', 'canActivate', card)
@@ -42,7 +42,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     position.Value = 'FaceDown'
     uid.Value = httpService.GenerateGUID(false)
     canChangePosition.Value = true
-    canAttack.Value = true
+    //canAttack.Value = true
     canActivate.Value = true
 
     const Summon = (_location: MZone) => {
