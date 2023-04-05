@@ -29,7 +29,7 @@ import useCardStats from 'gui/hooks/useCardStats'
 import useLocation from 'gui/hooks/useLocation'
 import { includes } from 'shared/utils'
 import usePosition from 'gui/hooks/usePosition'
-import { hasCardFloodgate, hasFloodgate } from 'server/functions/floodgates'
+import { hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'server/functions/floodgates'
 import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 import useRace from 'gui/hooks/useRace'
@@ -158,10 +158,14 @@ export default withHooks(
                         'Player'
                     )
                 }
-                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
-                card.set.Fire(zone)
-                YGOPlayer.selectedZone.Value = ''
-                YGOPlayer.selectableZones.Value = '[]'
+                if(includes(card.race.Value, "Field")) {
+                    card.set.Fire("FZone")
+                } else {
+                    const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
+                    card.set.Fire(zone)
+                    YGOPlayer.selectedZone.Value = ''
+                    YGOPlayer.selectableZones.Value = '[]'
+                }
                 
             },
             'Flip Summon': () => {

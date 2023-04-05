@@ -72,6 +72,7 @@ const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 		<surfacegui Key={playerType}>
 			<Field playerType={playerType}/>
 			<Hand />
+			<Zone zone={field[playerType].FZone}/>
 			<Zone zone={field[playerType].BZone}/>
 			<Zone zone={field[playerType].GZone}/>
 			<Zone zone={field[playerType].EZone}/>

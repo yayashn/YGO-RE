@@ -4,6 +4,7 @@ import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
 import { addCardFloodgate } from "server/functions/floodgates";
 import { HttpService } from "@rbxts/services";
+import { includes } from "shared/utils";
 
 /*
     Change all face-up Dragon-Type monsters on the field to Defense Position, 
@@ -44,7 +45,11 @@ export default (card: CardFolder) => {
         }
 
         connections.push(card.position.Changed.Connect(onCardRemoved))
-        connections.push(card.location.Changed.Connect(onCardRemoved))
+        connections.push(card.location.Changed.Connect(location => {
+            if(!includes(location, "SZone")) {
+                onCardRemoved()
+            }
+        }))
 
         const faceDownMonsters = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],

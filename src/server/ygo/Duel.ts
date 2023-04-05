@@ -97,12 +97,14 @@ export const Duel = (p1: Player, p2: Player) => {
                 effect()
                 await Promise.delay(3)
             }
-            card.targets.Value = ''
+            if(!includes(card.race.Value, "Equip")) {
+                card.targets.Value = ''
+            }
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
         Object.values(chain).forEach(({ card }) => {
-            if(card.continuous.Value === true || includes(card.race.Value, "Continuous")) return;
+            if(card.continuous.Value === true || includes(card.race.Value, "Continuous") || includes(card.race.Value, "Equip") || includes(card.race.Value, "Field")) return;
             if (card.location.Value.match('SZone').size() > 0) {
                 card.toGraveyard.Fire()
             }

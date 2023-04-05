@@ -79,6 +79,7 @@ export interface DuelGuiPlayer extends SurfaceGui {
     Deck: SurfaceGui
     Field: DuelGuiPlayerField
     Hand: SurfaceGui
+    FZone: SurfaceGui
 }
 export interface DuelGui extends ScreenGui {
     Field: {

@@ -132,7 +132,7 @@ export interface CardFolder extends Folder {
     tribute: BindableEvent
     tributeSummon: BindableEvent
     tributeSet: BindableEvent
-    destroy_: BindableEvent<(cause: "Effect" | "Battle") => void>
+    destroy_: BindableEvent<(cause: "Effect" | "Battle" | "Mechanic") => void>
     attack: BindableEvent<(card: CardFolder | PlayerValue) => void>
     targettable: BoolValue
     status: StringValue

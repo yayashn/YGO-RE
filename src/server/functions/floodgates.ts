@@ -1,12 +1,13 @@
 import Object from "@rbxts/object-utils"
 import { CardFolder, DuelFolder, PlayerValue, Position } from "server/types"
 import { Location } from "shared/types"
-import { JSON } from "shared/utils"
+import { JSON, includes } from "shared/utils"
 
 export type FloodgateName =
-      "disableAttack" 
+      "disableAttack"
     | "forceFaceUpDefensePosition"
     | "disableChangePosition"
+    | string
 
 export type FloodgatePlayer = {
     floodgateUid: string
@@ -98,4 +99,41 @@ export const hasCardFloodgate = (card: CardFolder, floodgateName: FloodgateName)
             return filter.some((value) => value === card[key].Value)
         })
     })
+};
+
+export const hasCardStatChangeFloodgate = (card: CardFolder) => {
+    const floodgatesCard = getCardFloodgates(card);
+    
+    const statChange = {
+        ATK: 0,
+        DEF: 0,
+    }
+
+    let hasFloodgate = false;
+    floodgatesCard.forEach(floodgate => {
+        if(!includes(floodgate.floodgateName, '+') && !includes(floodgate.floodgateName, '-')) return false;
+        let [ATK, DEF]: (string | number)[] = floodgate.floodgateName.split('/');
+        if(ATK.sub(1,1) === '+') {
+            ATK = tonumber(ATK.sub(2,ATK.size()))!;
+        } else {
+            ATK = -tonumber(ATK.sub(2,ATK.size()))!;
+        }
+        if(DEF.sub(1,1) === '+') {
+            DEF = tonumber(DEF.sub(2,DEF.size()))!;
+        } else {
+            DEF = -tonumber(DEF.sub(2,DEF.size()))!;
+        }
+        if(Object.entries(floodgate.floodgateFilter).every(([key, filter]) => {
+            return filter.some((value) => value === card[key].Value)
+        })) {
+            hasFloodgate = true;
+            statChange.ATK += ATK;
+            statChange.DEF += DEF;
+        }
+    })
+
+    if(hasFloodgate) {
+        return statChange;
+    } 
+    return undefined
 };

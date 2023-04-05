@@ -17,6 +17,26 @@ import MonsterReborn from "./Monster Reborn";
 import TwoProngedAttack from "./Two-Pronged Attack";
 import TrapHole from "./Trap Hole";
 import DragonCaptureJar from "./Dragon Capture Jar";
+import VioletCrystal from "./Violet Crystal";
+import BeastFangs from "./Beast Fangs";
+import BookOfSecretArts from "./Book of Secret Arts";
+import PowerOfKaishin from "./Power of Kaishin";
+import DarkEnergy from "./Dark Energy";
+import LaserCannonArmor from "./Laser Cannon Armor";
+import VileGerms from "./Vile Germs";
+import SilverBowAndArrow from "./Silver Bow and Arrow";
+import DragonTreasure from "./Dragon Treasure";
+import ElectroWhip from "./Electro-Whip";
+import MysticalMoon from "./Mystical Moon";
+import MachineConversionFactory from "./Machine Conversion Factory";
+import RaiseBodyHeat from "./Raise Body Heat";
+import FollowWind from "./Follow Wind";
+import Wasteland from "./Wasteland";
+import Yami from "./Yami";
+import Forest from "./Forest";
+import Mountain from "./Mountain";
+import Sogen from "./Sogen";
+import Umi from "./Umi";
 
 export type CardEffect = {
     condition: () => boolean,
@@ -24,10 +44,11 @@ export type CardEffect = {
     location: (Location | "SZone" | "MZone" | "Hand")[],
     cost?: () => void
     target?: () => void
+    flip?: () => void
 }
 
 export default {
-    "Sparks": DragonCaptureJar,
+    "Sparks": Yami,
     "Hinotama": Hinotama,
     "Remove Trap": RemoveTrap,
     "Red Medicine": RedMedicine,
@@ -43,7 +64,28 @@ export default {
     "Monster Reborn": MonsterReborn,
     "Two-Pronged Attack": TwoProngedAttack,
     "Trap Hole": TrapHole,
-    "Dragon Capture Jar": DragonCaptureJar
+    "Dragon Capture Jar": DragonCaptureJar,
+    "Violet Crystal": VioletCrystal,
+    "Beast Fangs": BeastFangs,
+    "Book of Secret Arts": BookOfSecretArts,
+    "Power of Kaishin": PowerOfKaishin,
+    "Dark Energy": DarkEnergy,
+    "Laser Cannon Armor": LaserCannonArmor,
+    "Vile Germs": VileGerms,
+    "Silver Bow and Arrow": SilverBowAndArrow,
+    "Dragon Treasure": DragonTreasure,
+    "Electro-Whip": ElectroWhip,
+    "Mystical Moon": MysticalMoon,
+    "Machine Conversion Factory": MachineConversionFactory,
+    "Raise Body Heat": RaiseBodyHeat,
+    "Follow Wind": FollowWind,
+    "Wasteland": Wasteland,
+    "Forest": Forest,
+    "Mountain": Mountain,
+    "Sogen": Sogen,
+    "Umi": Umi,
+    "Yami": Yami,
+
 } as {
     [key: string]: (card: CardFolder) => CardEffect[]
 }

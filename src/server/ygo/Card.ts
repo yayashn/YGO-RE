@@ -128,7 +128,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const destroy = (cause: string) => {
         if(preventDestruction.Value === true) return;
         status.Value = `destroyedBy${cause}`
-        if(includes(cause, "Effect")) {
+        if(!includes(cause, "Battle")) {
             toGraveyard()
         }
         print(card, `destroyed by ${cause}`)
@@ -252,13 +252,18 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             const directActivationFromHand = locationCondition.includes("Hand")
             if(card.type.Value === "Spell Card") {
                 if(location.Value === "Hand" && !directActivationFromHand) {
-                    controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
-                    const zone = await changedOnce(controller.Value.selectedZone.Changed)
-                    location.Value = zone as Zone
-                    position.Value = 'FaceUp'
-                    controller.Value.selectedZone.Value = ''
-                    controller.Value.selectableZones.Value = '[]'
-                } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0) {
+                    if(includes(card.race.Value, "Field")) {
+                        location.Value = "FZone"
+                        position.Value = 'FaceUp'
+                    } else {
+                        controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
+                        const zone = await changedOnce(controller.Value.selectedZone.Changed)
+                        location.Value = zone as Zone
+                        position.Value = 'FaceUp'
+                        controller.Value.selectedZone.Value = ''
+                        controller.Value.selectableZones.Value = '[]'
+                    }
+                } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0 || location.Value.match("FZone").size() > 0) {
                     position.Value = 'FaceUp'
                 }
                 setAction(card.controller.Value, {

@@ -55,7 +55,7 @@ const zoneOrientation = {
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
     // Stackable zone animations
-    ;['GZone', 'BZone', 'EZone', 'Deck'].forEach((zoneName) => {
+    ;['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
         const zone = playerField[zoneName as keyof typeof playerField] as Vector3Value
         const position = zone.Value
 
@@ -79,10 +79,10 @@ const zoneOrientation = {
                 const tweenGoal = {
                     Position: new Vector3(position.X, position.Y + order * 0.5, position.Z),
                 } as Partial<ExtractMembers<Instance, Tweenable>>
-                (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
                 const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
                 Promise.defer(() => {
                     if (location === zoneName) {
+                        (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
                         tween.Play()
                     }
                 })
