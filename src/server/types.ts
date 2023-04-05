@@ -140,7 +140,6 @@ export interface CardFolder extends Folder {
     flip: BindableEvent
     flipSummon: BindableEvent
     changePosition: BindableEvent
-    canChangePosition: BoolValue
     banish: BindableEvent<(position: "FaceUp" | "FaceDown") => void>
     //canAttack: BoolValue
     activateEffect: BindableFunction

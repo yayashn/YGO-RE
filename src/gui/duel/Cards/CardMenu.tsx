@@ -271,7 +271,7 @@ export default withHooks(
                 }
 
                 const inMZone = card.location.Value.match('MZone').size() > 0
-                const canChangePosition = card.canChangePosition.Value === true
+                const canChangePosition = !hasCardFloodgate(card, "disableChangePosition")
                 const isFacedownDefense = card.position.Value === 'FaceDownDefense'
                 // Monster Zone Logic
                 if (inMZone && isTurnPlayer && isMainPhase && gameState === 'OPEN') {

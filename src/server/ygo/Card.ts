@@ -1,5 +1,6 @@
 import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
+import { addCardFloodgate, removeCardFloodgate } from "server/functions/floodgates"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
 import { getEmptyFieldZones, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
@@ -26,7 +27,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     instance('ObjectValue', 'cardButton', card) as ObjectValue
     instance('BoolValue', 'targettable', card) as BoolValue
     const status = instance('StringValue', 'status', card) as StringValue
-    const canChangePosition = instance('BoolValue', 'canChangePosition', card) as BoolValue
     //const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
     const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
     const activated = instance('BoolValue', 'activated', card) as BoolValue
@@ -41,7 +41,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     location.Value = 'Deck'
     position.Value = 'FaceDown'
     uid.Value = httpService.GenerateGUID(false)
-    canChangePosition.Value = true
     //canAttack.Value = true
     canActivate.Value = true
 
@@ -56,7 +55,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         })
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
-        card.canChangePosition.Value = false
+        addCardFloodgate(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
         Summon(_location)
     }
     ;(instance('BindableEvent', 'normalSummon', card) as BindableEvent).Event.Connect(NormalSummon)
@@ -64,7 +70,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const SpecialSummon = (_location: MZone, newPosition: Position) => {
         position.Value = newPosition
         controller.Value.canNormalSummon.Value = false
-        card.canChangePosition.Value = false
+        addCardFloodgate(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
         Summon(_location)
     }
     createInstance('BindableEvent', 'specialSummon', card).Event.Connect(SpecialSummon)
@@ -73,7 +86,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         if (card.type.Value.match('Monster').size() > 0) {
             position.Value = 'FaceDownDefense'
             controller.Value.canNormalSummon.Value = false
-            card.canChangePosition.Value = false
+            addCardFloodgate(card, {
+                floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+                floodgateName: "disableChangePosition",
+                floodgateCause: "Mechanic",
+                floodgateFilter: {
+                    uid: [card.uid.Value]
+                }
+            })
         } else {
             position.Value = 'FaceDown'
             if(card["type"].Value.match("Trap").size() > 0 || card["type"].Value.match("Quick").size() > 0) {
@@ -88,6 +108,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         controller.Value = _owner
         position.Value = 'FaceUp'
         location.Value = 'GZone'
+        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
     }
     ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
 
@@ -95,6 +116,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         controller.Value = _owner
         position.Value = newPosition
         location.Value = 'BZone'
+        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
     }
     createInstance('BindableEvent', 'banish', card).Event.Connect(banish)
 
@@ -122,7 +144,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         })
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
-        card.canChangePosition.Value = false
+        addCardFloodgate(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
         Summon(_location)
     }
     ;(instance('BindableEvent', 'tributeSummon', card) as BindableEvent).Event.Connect(
@@ -141,7 +170,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             position.Value = forcePosition
             return;
         }
-        canChangePosition.Value = false
+        addCardFloodgate(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
         if (position.Value === 'FaceUpAttack') {
             position.Value = 'FaceUpDefense'
         } else {
@@ -162,7 +198,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             action: "Flip Summon",
             summonedCards: [card]
         })
-        canChangePosition.Value = false
+        addCardFloodgate(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
         position.Value = 'FaceUpAttack'
     }
     ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
@@ -242,7 +285,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
 
         const startOfDamageStep = () => {
-            canChangePosition.Value = false
+            addCardFloodgate(card, {
+                floodgateUid: `disableChangePositionAfterAttack-${card.uid.Value}`,
+                floodgateName: "disableChangePosition",
+                floodgateCause: "Mechanic",
+                floodgateFilter: {
+                    uid: [card.uid.Value]
+                }
+            })
             duel.battleStep.Value = 'DAMAGE'
             duel.damageStep.Value = 'START'
             //during damage step only effects

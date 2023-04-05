@@ -125,7 +125,7 @@ export const Duel = (p1: Player, p2: Player) => {
             //attackingCard.Value!.canAttack.Value = false
             addCardFloodgate(attackingCard.Value!, {
                 floodgateName: 'disableAttack',
-                floodgateUid: 'disableAttackAfterAttack',
+                floodgateUid: `disableAttackAfterAttack-${attackingCard.Value!.uid.Value}`,
                 floodgateCause: "Mechanic",
                 floodgateFilter: {
                     uid: [attackingCard.Value!.uid.Value]
@@ -347,12 +347,13 @@ export const Duel = (p1: Player, p2: Player) => {
 
             const cardsInMZone = getFilteredCards(folder, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-                canChangePosition: [false]
             })
             for (const card of cardsInMZone) {
-                card.canChangePosition.Value = true
+                //card.canChangePosition.Value = true
                 //card.canAttack.Value = true
-                removeCardFloodgate(card, 'disableAttackAfterAttack')
+                removeCardFloodgate(card, `disableAttackAfterAttack-${card.uid.Value}`)
+                removeCardFloodgate(card, `disableChangePositionAfterPlacement-${card.uid.Value}`)
+                removeCardFloodgate(card, `disableChangePositionAfterAttack-${card.uid.Value}`)
             }
             if (turn.Value >= 2) {
                 turnPlayer.Value = opponent(turnPlayer.Value)

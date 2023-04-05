@@ -1,8 +1,8 @@
-import { getFilteredCards, getOpponent } from "server/utils";
+import { getFilteredCards } from "server/utils";
 import type { CardFolder, DuelFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
-import { addFloodgate } from "server/functions/floodgates";
+import { addCardFloodgate } from "server/functions/floodgates";
 import { HttpService } from "@rbxts/services";
 
 /*
@@ -12,25 +12,34 @@ import { HttpService } from "@rbxts/services";
 export default (card: CardFolder) => {
     const controller = card.controller.Value
     const duel = controller.Parent as DuelFolder
-    const opponent = getOpponent(controller)
 
     const effect = () => {
-        const removeDisableChangePositionFloodgate = addFloodgate(opponent, {
-            floodgateUid: `DCJ-${HttpService.GenerateGUID(false)}`,
+        const uid = `DCJ-${HttpService.GenerateGUID(false)}`
+        const removeDisableChangePositionFloodgate = addCardFloodgate(card, {
+            floodgateUid: uid,
             floodgateName: "disableChangePosition",
-            floodgateCause: "Effect"
-        })
-        const removeForceDefenseFloodgate = addFloodgate(opponent, {
-            floodgateUid: `DCJ-${HttpService.GenerateGUID(false)}`,
-            floodgateName: "forceDefense",
-            floodgateCause: "Effect"
+            floodgateCause: "Effect",
+            floodgateFilter: {
+                race: ["Dragon"],
+                location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+            }
+        });
+        const removeForceDefensePositionFloodgate = addCardFloodgate(card, {
+            floodgateUid: uid,
+            floodgateName: "forceFaceUpDefensePosition",
+            floodgateCause: "Effect",
+            floodgateFilter: {
+                race: ["Dragon"],
+                location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+                position: ["FaceUpAttack"]
+            }
         })
         
         const connections: RBXScriptConnection[] = []
 
         const onCardRemoved = () => {
             removeDisableChangePositionFloodgate()
-            removeForceDefenseFloodgate()
+            removeForceDefensePositionFloodgate()
             connections.forEach(connection => connection.Disconnect())
         }
 
@@ -39,8 +48,8 @@ export default (card: CardFolder) => {
 
         const faceDownMonsters = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-            position: ['FaceDownDefense'],
-            controller: [opponent]
+            position: ['FaceUpAttack'],
+            race: ["Dragon"]
         })
         faceDownMonsters.forEach(monster => monster.changePosition.Fire("FaceUpDefense"))
     }

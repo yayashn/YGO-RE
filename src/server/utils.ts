@@ -45,9 +45,9 @@ export interface CardFilter {
     location?: Location[]
     controller?: PlayerValue[]
     uid?: string[]
-    canChangePosition?: boolean[]
     type?: string[]
     position?: Position[]
+    race?: string[]
 }
 
 export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {

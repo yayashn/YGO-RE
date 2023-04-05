@@ -3,9 +3,14 @@ import { CardFolder, DuelFolder, PlayerValue, Position } from "server/types"
 import { Location } from "shared/types"
 import { JSON } from "shared/utils"
 
+export type FloodgateName =
+      "disableAttack" 
+    | "forceFaceUpDefensePosition"
+    | "disableChangePosition"
+
 export type FloodgatePlayer = {
     floodgateUid: string
-    floodgateName: string
+    floodgateName: FloodgateName
     floodgateCause: "Effect" | "Mechanic"
 }
 
@@ -27,7 +32,7 @@ export const removeFloodgate = (player: PlayerValue, floodgateUid: string) => {
     player.floodgates.Value = JSON.stringify(newFloodgatesPlayer)
 }
 
-export const hasFloodgate = (player: PlayerValue, floodgateName: string) => {
+export const hasFloodgate = (player: PlayerValue, floodgateName: FloodgateName) => {
     const floodgatesPlayer = getFloodgates(player)
     return floodgatesPlayer.some(floodgate => floodgate.floodgateName === floodgateName)
 }
@@ -43,7 +48,7 @@ export type FloodgateFilter = {
 
 export type FloodgateCard = {
     floodgateUid: string
-    floodgateName: string
+    floodgateName: FloodgateName
     floodgateCause: "Effect" | "Mechanic"
     floodgateFilter: FloodgateFilter
 }
@@ -84,7 +89,7 @@ export const removeCardFloodgate = (card: CardFolder, floodgateUid: string) => {
     duel.floodgates.Value = JSON.stringify(newFloodgatesCard)
 }
 
-export const hasCardFloodgate = (card: CardFolder, floodgateName: string) => {
+export const hasCardFloodgate = (card: CardFolder, floodgateName: FloodgateName) => {
     const floodgatesCard = getCardFloodgates(card);
 
     return floodgatesCard.some(floodgate => {
