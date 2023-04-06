@@ -1,5 +1,5 @@
-import { getCard, getFilteredCards, getTargets, pickTargets, pickZone, pickPosition, setTargets, stringifyCards } from "server/utils";
-import type { CardFolder, DuelFolder, PlayerValue } from "server/types";
+import { getFilteredCards, getTargets, pickTargets, pickZone, pickPosition, stringifyCards } from "server/utils";
+import type { CardFolder, DuelFolder } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import cardEffects, { CardEffect } from ".";
 import Object from "@rbxts/object-utils";
@@ -12,27 +12,30 @@ export default (card: CardFolder) => {
     const controller = card.controller.Value
     const duel = controller.Parent as DuelFolder
 
-    const condition = () => {
+    const getEligibleFusionMonsters = () => {
         const extraDeck = getFilteredCards(duel, {
             location: ["EZone"]
         })
 
-        const eligibleFusionMonsters = extraDeck.map(fusion => {
+        return extraDeck.filter(fusion => {
             const materials = cardEffects[fusion.Name](fusion)[0].fusionMaterials!
             
             return Object.entries(materials).every(([materialName, materialsRequired]) => {
                 return getFilteredCards(duel, {
                     location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "Hand"],
-                    Name: [materialName]
+                    Name: [materialName],
+                    controller: [controller]
                 }).size() >= materialsRequired
             })
         })
+    }
 
-        return false
+    const condition = () => {
+        return getEligibleFusionMonsters().size() > 0
     }
     
     const effect = async () => {
-        const targets = getTargets(controller, card.targets.Value)
+        const targets = getTargets(controller, pickTargets(controller, 1, stringifyCards(getEligibleFusionMonsters())))
         const zone = await pickZone(controller);
         const position = await pickPosition(controller, targets[0]);
         targets[0].controller.Value = controller

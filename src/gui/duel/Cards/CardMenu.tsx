@@ -125,7 +125,7 @@ export default withHooks(
                     } else {
                         const tributesRequired = card.level.Value <= 6 ? 1 : 2
 
-                        pickTargets(
+                        YGOPlayer.targets.Value = pickTargets(
                             YGOPlayer,
                             tributesRequired,
                             stringifyCards(getFilteredCards(duel!, {
@@ -197,7 +197,7 @@ export default withHooks(
             },
             'Tribute Summon': async () => {
                 const tributesRequired = card.level.Value <= 6 ? 1 : 2
-                pickTargets(YGOPlayer, tributesRequired, 
+                YGOPlayer.targets.Value = pickTargets(YGOPlayer, tributesRequired, 
                     stringifyCards(getFilteredCards(duel!, {
                         location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                         controller: [YGOPlayer]
