@@ -326,11 +326,36 @@ export default withHooks(
 
             const continuousEffects = () => {
                 forceFaceUpDefensePosition()
+                checkExodia()
             }
 
             const forceFaceUpDefensePosition = () => {
                 if(hasCardFloodgate(card, "forceFaceUpDefensePosition")) {
                     card.position.Value = 'FaceUpDefense'
+                }
+            }
+
+            const checkExodia = () => {
+                if(card.Name === "Exodia the Forbidden One") {
+                    const pieces = [
+                        "Exodia the Forbidden One",
+                        "Right Leg of the Forbidden One",
+                        "Left Leg of the Forbidden One",
+                        "Left Arm of the Forbidden One",
+                        "Right Arm of the Forbidden One"
+                    ]
+                    const cardsInHand = getFilteredCards(duel!, {
+                        location: ["Hand"],
+                        controller: [YGOPlayer]
+                    })
+                    const winCondition = pieces.every((piece) => {
+                        return cardsInHand.some((card) => {
+                            return card.Name === piece
+                        })
+                    })
+                    if(winCondition) {
+                        duel!.endDuel.Fire(YGOPlayer)
+                    }
                 }
             }
 

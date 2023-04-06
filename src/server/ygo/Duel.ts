@@ -60,11 +60,12 @@ export const Duel = (p1: Player, p2: Player) => {
 
     let chain: Record<number, ChainedEffect> = {}
 
-    const endDuel = () => {
+    const endDuel = (winner: PlayerValue) => {
         (player1.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player1.Value, false);
         (player2.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player2.Value, false);
         folder.Destroy()
     }
+    createInstance('BindableEvent', 'endDuel', folder).Event.Connect(endDuel)
     
     const responses: Record<'player1' | 'player2', CardFolder[]> = {
         player1: [],
@@ -308,7 +309,7 @@ export const Duel = (p1: Player, p2: Player) => {
                     )
                     const topCard = deck.find((card) => card.order.Value === 0)
                     if (!topCard) {
-                        endDuel()
+                        endDuel(opponent(player))
                         return;
                     }
                     topCard.location.Value = 'Hand'

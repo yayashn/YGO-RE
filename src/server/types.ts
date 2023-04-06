@@ -63,6 +63,7 @@ export interface DuelFolder extends Folder {
     attackingCard: CardValue
     defendingCard: CardValue
     floodgates: StringValue
+    endDuel: BindableEvent
 }
 
 export interface CardInventory {
