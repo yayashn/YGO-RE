@@ -7,8 +7,6 @@ import {
     Dispatch,
     SetStateAction
 } from '@rbxts/roact-hooked'
-import getTargets from 'gui/functions/getTargets'
-import setTargets from 'gui/functions/setTargets'
 import useAllCards from 'gui/hooks/useAllCards'
 import useCanNormalSummon from 'gui/hooks/useCanNormalSummon'
 import useDuel from 'gui/hooks/useDuel'
@@ -17,7 +15,7 @@ import useYGOPlayer from 'gui/hooks/useYGOPlayer'
 import type { CardFolder } from 'server/types'
 import { HttpService } from '@rbxts/services'
 import { Button, Text } from 'shared/rowindcss/index'
-import { getEmptyFieldZones, getFilteredCards } from 'server/utils'
+import { getEmptyFieldZones, getFilteredCards, getTargets, pickTargets, stringifyCards } from 'server/utils'
 import useGameState from 'gui/hooks/useGameState'
 import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
@@ -126,18 +124,18 @@ export default withHooks(
                         )
                     } else {
                         const tributesRequired = card.level.Value <= 6 ? 1 : 2
-                        const targets = await setTargets(
+
+                        pickTargets(
                             YGOPlayer,
-                            {
+                            tributesRequired,
+                            stringifyCards(getFilteredCards(duel!, {
                                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                                 controller: [YGOPlayer]
-                            },
-                            tributesRequired
+                            }))
                         )
-                        targets.forEach((target) => {
+                        getTargets(YGOPlayer).forEach((target) => {
                             target.tribute.Fire()
                         })
-                        setTargets(YGOPlayer, {}, 0)
 
                         YGOPlayer.canNormalSummon.Value = false
                         YGOPlayer.selectableZones.Value = getEmptyFieldZones(
@@ -179,20 +177,19 @@ export default withHooks(
                     controller: [YGOOpponent]
                 })
                 if (monstersOnOpponentField.size() > 0) {
-                    const targets = await setTargets(
+                    getTargets(YGOPlayer, pickTargets(
                         YGOPlayer,
-                        {
+                        1,
+                        stringifyCards(getFilteredCards(duel!, {
                             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                             controller: [YGOOpponent]
-                        },
-                        1
-                    )
+                        }))
+                    ))
                     
                     duel!.attackingCard.Value = card
-                    duel!.defendingCard.Value = targets[0]
+                    duel!.defendingCard.Value = getTargets(YGOPlayer)[0]
                     
                     duel!.handleResponses.Invoke(YGOPlayer)
-                    setTargets(YGOPlayer, {}, 0)
                 } else {
                     duel!.attackingCard.Value = card
                     duel!.handleResponses.Invoke(YGOPlayer)
@@ -200,18 +197,15 @@ export default withHooks(
             },
             'Tribute Summon': async () => {
                 const tributesRequired = card.level.Value <= 6 ? 1 : 2
-                const targets = await setTargets(
-                    YGOPlayer,
-                    {
+                pickTargets(YGOPlayer, tributesRequired, 
+                    stringifyCards(getFilteredCards(duel!, {
                         location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                         controller: [YGOPlayer]
-                    },
-                    tributesRequired
+                    }))
                 )
-                targets.forEach((target) => {
+                getTargets(YGOPlayer).forEach((target) => {
                     target.tribute.Fire()
                 })
-                setTargets(YGOPlayer, {}, 0)
 
                 YGOPlayer.canNormalSummon.Value = false
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')

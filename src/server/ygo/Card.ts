@@ -280,6 +280,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         if(cardEffects[card.Name] === undefined) return false
         const effects = cardEffects[card.Name](card)
         return effects.some(({condition}) => {
+            if(!condition) return false;
             return condition() === true
         })
     }
@@ -288,14 +289,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const activateEffect = async () => {
         const effects = cardEffects[card.Name](card)
         const ifMoreThanOneEffect = effects.map(({condition}) => {
-            return condition()
+            return condition ? condition() : false;
         }).size() > 1
 
         if(ifMoreThanOneEffect) {
             // show effect selection menu
         } else {
             const { location: locationCondition, effect } = effects[0]
-            const directActivationFromHand = locationCondition.includes("Hand")
+            const directActivationFromHand = locationCondition?.includes("Hand")
             if(card.type.Value === "Spell Card") {
                 if(location.Value === "Hand" && !directActivationFromHand) {
                     if(includes(card.race.Value, "Field")) {
@@ -316,20 +317,20 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
                     action: "Activate Effect Spell",
                     summonedCards: [card]
                 })
-                duel.addToChain.Fire(card, effect)
+                duel.addToChain.Fire(card, effect!)
             } else if(card.type.Value === "Trap Card") {
                 position.Value = 'FaceUp'
                 setAction(card.controller.Value, {
                     action: "Activate Effect Trap",
                     summonedCards: [card]
                 })
-                duel.addToChain.Fire(card, effect)
+                duel.addToChain.Fire(card, effect!)
             } else if(includes(card.type.Value, "Monster")) {
                 setAction(card.controller.Value, {
                     action: "Activate Effect Monster Flip",
                     summonedCards: [card]
                 })
-                duel.addToChain.Fire(card, effect)
+                duel.addToChain.Fire(card, effect!)
             }
         }
         activated.Value = true

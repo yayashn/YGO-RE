@@ -48,6 +48,7 @@ export interface CardFilter {
     type?: string[]
     position?: Position[]
     race?: string[]
+    Name?: string[]
 }
 
 export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
@@ -56,6 +57,9 @@ export const getFilteredCards = (duel: DuelFolder, cardFilter: CardFilter) => {
         Object.entries(cardFilter).every(([key, values]) => {
             if(key === "type") {
                 return values.some((value) => card.type.Value.match(value as string).size() > 0)
+            }
+            if(key === "Name") {
+                return values.some((value) => card[key] === value)
             }
             return values.some((value) => card[key].Value === value)
         })

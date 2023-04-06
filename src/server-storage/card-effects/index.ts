@@ -38,13 +38,27 @@ import Mountain from "./Mountain";
 import Sogen from "./Sogen";
 import Umi from "./Umi";
 import ManEaterBug from "./Man-Eater Bug";
+import FlameSwordsman from "./Flame Swordsman";
+import HaneHane from "./Hane-Hane";
+import ReaperOfTheCards from "./Reaper of the Cards";
+import ArmedNinja from "./Armed Ninja";
+import CharubinTheFireKnight from "./Charubin the Fire Knight";
+import DarkfireDragon from "./Darkfire Dragon";
+import Fusionist from "./Fusionist";
+import FlameGhost from "./Flame Ghost";
+import KarbonalaWarrior from "./Karbonala Warrior";
+import DragonessTheWickedKnight from "./Dragoness the Wicked Knight";
+import MetalDragon from "./Metal Dragon";
+import FlowerWolf from "./Flower Wolf";
+import GaiaTheDragonChampion from "./Gaia the Dragon Champion";
 
 export type CardEffect = {
-    condition: () => boolean,
-    effect: () => void,
-    location: (Location | "SZone" | "MZone" | "Hand")[],
+    condition?: () => boolean,
+    effect?: () => void,
+    location?: (Location | "SZone" | "MZone" | "Hand")[],
     cost?: () => void
     target?: () => void
+    fusionMaterials?: Record<string, number>
 }
 
 export default {
@@ -85,7 +99,22 @@ export default {
     "Sogen": Sogen,
     "Umi": Umi,
     "Yami": Yami,
-    "Man-Eater Bug": ManEaterBug
+    "Man-Eater Bug": ManEaterBug,
+    "Hane-Hane": HaneHane,
+    "Reaper of the Cards": ReaperOfTheCards,
+    "Armed Ninja": ArmedNinja,
+
+    //Normal Fusion Monsters
+    "Flame Swordsman": FlameSwordsman,
+    "Charubin the Fire Knight": CharubinTheFireKnight,
+    "Darkfire Dragon": DarkfireDragon,
+    "Fusionist": Fusionist,
+    "Flame Ghost": FlameGhost,
+    "Karbonala Warrior": KarbonalaWarrior,
+    "Dragoness the Wicked Knight": DragonessTheWickedKnight,
+    "Metal Dragon": MetalDragon,
+    "Flower Wolf": FlowerWolf,
+    "Gaia the Dragon Champion": GaiaTheDragonChampion
 
 } as {
     [key: string]: (card: CardFolder) => CardEffect[]
