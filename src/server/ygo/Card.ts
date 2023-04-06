@@ -2,7 +2,7 @@ import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
 import { addCardFloodgate, removeCardFloodgate } from "server/functions/floodgates"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
-import { getEmptyFieldZones, setAction } from "server/utils"
+import { getEmptyFieldZones, getFilteredCards, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
 import { createInstance, includes, instance } from "shared/utils"
 
@@ -35,13 +35,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     const targets = createInstance('StringValue', 'targets', card)
     const preventDestruction = createInstance('BoolValue', 'preventDestruction', card)
     const continuous = createInstance('BoolValue', 'continuous', card)
+    const chainLink = createInstance('IntValue', 'chainLink', card)
 
     order.Value = _order
     controller.Value = _owner
     location.Value = 'Deck'
     position.Value = 'FaceDown'
     uid.Value = httpService.GenerateGUID(false)
-    //canAttack.Value = true
     canActivate.Value = true
 
     const Summon = (_location: MZone) => {
@@ -84,6 +84,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
 
     const Set = (_location: SZone | MZone) => {
         if (card.type.Value.match('Monster').size() > 0) {
+            setAction(controller.Value, {
+                action: "Set Monster",
+                summonedCards: [card]
+            })
             position.Value = 'FaceDownDefense'
             controller.Value.canNormalSummon.Value = false
             addCardFloodgate(card, {
@@ -95,6 +99,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
                 }
             })
         } else {
+            setAction(controller.Value, {
+                action: "Set",
+                summonedCards: [card]
+            })
             position.Value = 'FaceDown'
             if(card["type"].Value.match("Trap").size() > 0 || card["type"].Value.match("Quick").size() > 0) {
                 canActivate.Value = false;
@@ -188,16 +196,23 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         changePosition
     )
 
-    const flip = () => {
+    const flip = (inBattle?: boolean) => {
         position.Value = 'FaceUpDefense'
+        if(!inBattle && includes(card.type.Value, "Flip")) {
+            const cost = getCost()
+            if(cost) {
+                cost()
+            }
+            const target = getTarget()
+            if(target) {
+                target()
+            }
+            activateEffect()
+        }
     }
     ;(instance('BindableEvent', 'flip', card) as BindableEvent).Event.Connect(flip)
 
     const flipSummon = () => {
-        setAction(controller.Value, {
-            action: "Flip Summon",
-            summonedCards: [card]
-        })
         addCardFloodgate(card, {
             floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
             floodgateName: "disableChangePosition",
@@ -207,6 +222,22 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             }
         })
         position.Value = 'FaceUpAttack'
+        if(includes(card.type.Value, "Flip")) {
+            const cost = getCost()
+            if(cost) {
+                cost()
+            }
+            const target = getTarget()
+            if(target) {
+                target()
+            }
+            activateEffect()
+        } else {
+            setAction(controller.Value, {
+                action: "Flip Summon",
+                summonedCards: [card]
+            })
+        }
     }
     ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
 
@@ -278,6 +309,12 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
                     summonedCards: [card]
                 })
                 duel.addToChain.Fire(card, effect)
+            } else if(includes(card.type.Value, "Monster")) {
+                setAction(card.controller.Value, {
+                    action: "Activate Effect Monster Flip",
+                    summonedCards: [card]
+                })
+                duel.addToChain.Fire(card, effect)
             }
         }
         activated.Value = true
@@ -288,6 +325,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
         const defenderLocation = isDirectAttack ? '' : defender.location.Value
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
+
+        let defenderIsFlip = false;
 
         const startOfDamageStep = () => {
             addCardFloodgate(card, {
@@ -300,6 +339,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             })
             duel.battleStep.Value = 'DAMAGE'
             duel.damageStep.Value = 'START'
+            duel.handleResponses.Invoke(duel.turnPlayer.Value)
             //during damage step only effects
             //start of damage step effects
             //ATK/DEF change effects
@@ -310,9 +350,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
         const beforeDamageCalculation = () => {
             duel.damageStep.Value = 'BEFORE'
             if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {
-                defender.flip.Fire()
+                defender.flip.Fire(true)
+                if(includes(defender.type.Value, "Flip")) {
+                    defenderIsFlip = true;
+                }
                 wait(1)
             }
+            duel.handleResponses.Invoke(duel.turnPlayer.Value)
             //ATK/DEF change effects
             //before damage calculation effects
             //check if players finished effects
@@ -331,6 +375,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             duel.damageStep.Value = 'DURING'
             //during damage calculation only effects immediately
             //during damage calculation effects
+            duel.handleResponses.Invoke(duel.turnPlayer.Value)
             if (isDirectAttack) {
                 defender.updateLP.Fire(-card.atk.Value)
             } else {
@@ -366,6 +411,19 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
             //after damage calculation effects
             //battle damage effects
             //flip effects
+            if(defenderIsFlip) {
+                const cost = defender.getCost.Invoke()
+                if(cost) {
+                    cost()
+                }
+                const target = defender.getTarget.Invoke()
+                if(target) {
+                    target()
+                }
+                defender.activateEffect.Invoke()
+            } else {
+                duel.handleResponses.Invoke(duel.turnPlayer.Value)
+            }
             endOfDamageStep()
         }
 

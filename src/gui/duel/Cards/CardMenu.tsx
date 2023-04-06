@@ -33,6 +33,7 @@ import { hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'serv
 import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 import useRace from 'gui/hooks/useRace'
+import useChainLink from 'gui/hooks/useChainLink'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -75,6 +76,7 @@ export default withHooks(
         const floodgates = useFloodgates()
         const cardFloodgates = useCardFloodgates(card)
         const race = useRace(card)
+        const chainLink = useChainLink(card)
 
         if (!YGOPlayer || !YGOOpponent) return <Roact.Fragment></Roact.Fragment>
 
@@ -370,7 +372,8 @@ export default withHooks(
             showMenu,
             floodgates,
             cardFloodgates,
-            race
+            race,
+            chainLink
         ])
 
         return (
@@ -388,10 +391,10 @@ export default withHooks(
                     {enabledActions.map((button: CardAction) => {
                         return (
                             <textbutton
-                                Size={new UDim2(1, 0, 0, 17)}
+                                Size={new UDim2(1, 0, 0, 30)}
                                 Text={button}
                                 TextColor3={Color3.fromRGB(255, 255, 255)}
-                                TextScaled={true}
+                                TextSize={14}
                                 TextStrokeColor3={Color3.fromRGB(0, 0, 0)}
                                 TextStrokeTransparency={0}
                                 TextXAlignment={Enum.TextXAlignment.Center}
@@ -430,6 +433,40 @@ export default withHooks(
                     TextStrokeTransparency={0}
                     TextSize={20}
                     Font={Enum.Font.ArialBold}/>}
+                    {chainLink !== 0 && 
+                        <imagelabel
+                            Size={new UDim2(1,0,1,0)}
+                            BackgroundTransparency={1}
+                            Image="rbxgameasset://Images/chain"
+                            Position={new UDim2(.5,0,.5,0)}
+                            AnchorPoint={new Vector2(.5,.5)}>
+                                <uiaspectratioconstraint AspectRatio={1} />
+                                <textlabel 
+                                BackgroundTransparency={1}
+                                TextColor3={Color3.fromRGB(255,255,255)}
+                                Size={new UDim2(1,0,0,17)}
+                                Position={new UDim2(.5,0,.5,0)}
+                                AnchorPoint={new Vector2(.5,.5)}
+                                Text={`${chainLink}`}
+                                TextXAlignment="Center"
+                                TextYAlignment="Center"
+                                TextStrokeColor3={Color3.fromRGB(0,0,0)}
+                                TextStrokeTransparency={0}
+                                TextSize={40}
+                                Font={Enum.Font.ArialBold}>
+                                </textlabel>
+                        </imagelabel>
+                    }
+                    {card.checkEffectConditions.Invoke() && card.controller.Value === YGOPlayer &&
+                        <imagelabel
+                            Size={new UDim2(1,0,0,25)}
+                            BackgroundTransparency={1}
+                            Image="rbxgameasset://Images/activate"
+                            Position={new UDim2(.5,0,.5,0)}
+                            AnchorPoint={new Vector2(.5,.5)}>
+                                <uiaspectratioconstraint AspectRatio={1} />
+                        </imagelabel>
+                    }
                 </billboardgui>
             </Roact.Fragment>
         )

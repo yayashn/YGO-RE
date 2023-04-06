@@ -1,10 +1,10 @@
 import { getFilteredCards } from "server/utils";
 import type { CardFolder, DuelFolder } from "server/types";
-import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
 import { addCardFloodgate } from "server/functions/floodgates";
 import { HttpService } from "@rbxts/services";
 import { includes } from "shared/utils";
+import NormalTrap from "server-storage/conditions/NormalTrap";
 
 /*
     Change all face-up Dragon-Type monsters on the field to Defense Position, 
@@ -61,7 +61,7 @@ export default (card: CardFolder) => {
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalSpell(card),
+            condition: () => NormalTrap(card),
             effect: () => effect(),
             location: ['SZone']
         }

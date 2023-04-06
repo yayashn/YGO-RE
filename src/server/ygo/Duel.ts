@@ -73,11 +73,14 @@ export const Duel = (p1: Player, p2: Player) => {
     const addToChain = (card: CardFolder, effect: Callback) => {
         gameState.Value = 'CLOSED'
         card.activated.Value = true
-        chain[Object.keys(chain).size()] = {
+        const chainLink = Object.keys(chain).size() + 1
+        card.chainLink.Value = chainLink
+        chain[chainLink - 1] = {
             card,
             effect,
             negated: false
         }
+        
         opponent(card.controller.Value).targets.Value = ''
         handleResponses(opponent(card.controller.Value))
     }
@@ -95,8 +98,9 @@ export const Duel = (p1: Player, p2: Player) => {
             const { card, effect, negated } = chain[chainNumber]
             if (!negated && card.effectsNegated.Value === false) {
                 effect()
-                await Promise.delay(3)
             }
+            await Promise.delay(3)
+            card.chainLink.Value = 0
             if(!includes(card.race.Value, "Equip")) {
                 card.targets.Value = ''
             }
@@ -387,7 +391,6 @@ export const Duel = (p1: Player, p2: Player) => {
             phase.Value = p
         } else if (p === 'BP') {
             phase.Value = p
-            await handleResponses(turnPlayer.Value)
             battleStep.Value = 'START'
             await handleResponses(turnPlayer.Value)
             battleStep.Value = 'BATTLE'

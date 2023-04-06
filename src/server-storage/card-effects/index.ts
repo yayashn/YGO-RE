@@ -37,6 +37,7 @@ import Forest from "./Forest";
 import Mountain from "./Mountain";
 import Sogen from "./Sogen";
 import Umi from "./Umi";
+import ManEaterBug from "./Man-Eater Bug";
 
 export type CardEffect = {
     condition: () => boolean,
@@ -44,7 +45,6 @@ export type CardEffect = {
     location: (Location | "SZone" | "MZone" | "Hand")[],
     cost?: () => void
     target?: () => void
-    flip?: () => void
 }
 
 export default {
@@ -85,6 +85,7 @@ export default {
     "Sogen": Sogen,
     "Umi": Umi,
     "Yami": Yami,
+    "Man-Eater Bug": ManEaterBug
 
 } as {
     [key: string]: (card: CardFolder) => CardEffect[]

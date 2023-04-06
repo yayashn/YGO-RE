@@ -3,7 +3,15 @@ export type Card = {
 }
 
 const defaultCardsDev = [
-    { name: "Gravedigger Ghoul"},
+    { name: "Man-Eater Bug" },
+    { name: "Man-Eater Bug" },
+    { name: "Man-Eater Bug" },
+    { name: "Man-Eater Bug" },
+    { name: "Man-Eater Bug" },
+    { name: "Pot of Greed" },
+    { name: "Dragon Capture Jar"},
+    { name: "Dragon Capture Jar"},
+    { name: "Dragon Capture Jar"},
 ]
 
 const defaultCards = [
@@ -52,10 +60,10 @@ const defaultCards = [
 const decks: {
     [key: string]: Card[]
 } = {
-    "default": defaultCards
+    "default": defaultCardsDev
 }
 
-const cards: Card[] = defaultCards
+const cards: Card[] = defaultCardsDev
 
 const profileTemplate = {
     decks,

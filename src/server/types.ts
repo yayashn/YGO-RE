@@ -154,6 +154,7 @@ export interface CardFolder extends Folder {
     preventDestruction: BoolValue
     continuous: BoolValue
     specialSummon: BindableEvent<(location: Location, position: Position) => void>
+    chainLink: IntValue 
 }
 
 
