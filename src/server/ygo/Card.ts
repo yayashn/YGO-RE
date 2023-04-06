@@ -127,6 +127,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     createInstance('BindableEvent', 'toHand', card).Event.Connect(toHand)
 
+    const reveal = () => {
+        const oldPosition = position.Value
+        position.Value = 'FaceUp'
+        wait(3)
+        position.Value = oldPosition
+    }
+    createInstance('BindableFunction', 'reveal', card).OnInvoke = reveal
+
     const banish = (newPosition: Position) => {
         controller.Value = _owner
         position.Value = newPosition
