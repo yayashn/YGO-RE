@@ -120,6 +120,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
     }
     ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
 
+    const toHand = () => {
+        controller.Value = _owner
+        position.Value = "FaceUp"
+        location.Value = 'Hand'
+    }
+    createInstance('BindableEvent', 'toHand', card).Event.Connect(toHand)
+
     const banish = (newPosition: Position) => {
         controller.Value = _owner
         position.Value = newPosition

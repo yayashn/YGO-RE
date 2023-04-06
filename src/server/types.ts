@@ -155,6 +155,7 @@ export interface CardFolder extends Folder {
     continuous: BoolValue
     specialSummon: BindableEvent<(location: Location, position: Position) => void>
     chainLink: IntValue 
+    toHand: BindableEvent
 }
 
 
