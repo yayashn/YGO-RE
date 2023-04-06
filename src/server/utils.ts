@@ -121,7 +121,6 @@ export const pickTargets = (player: PlayerValue, n: number, targettables: string
     player.targettableCards.Value = targettables
     const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder;
     let pickedTargets: string = "";
-    print(6)
     const connection = player.targets.Changed.Connect((newTargets) => {
         const targets = newTargets.split(",").map(target => getCard(duel, target)!);
         if (targets.size() === n) {
@@ -129,11 +128,9 @@ export const pickTargets = (player: PlayerValue, n: number, targettables: string
             connection.Disconnect()
         }
     })
-    print(4)
     while (connection.Connected) {
         wait()
     }
-    print(5)
     player.targettableCards.Value = ""
     return pickedTargets
 }

@@ -63,6 +63,7 @@ export default withHooks(() => {
                             MouseButton1Click: () => {
                                 if(duel!.turnPlayer.Value !== YGOPlayer) return;
                                 if(duel.gameState.Value !== "OPEN") return;
+                                if(duel.battleStep.Value === "DAMAGE") return;
                                 if(phase === "MP1") {
                                     if(phaseName === "BP") {
                                         if(duel!.turn.Value <= 1) {

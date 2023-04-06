@@ -56,6 +56,7 @@ export const Duel = (p1: Player, p2: Player) => {
     actor.Value = player1
     phase.Value = 'DP'
     gameState.Value = 'OPEN'
+    damageStep.Value = 'NONE'
 
     let chain: Record<number, ChainedEffect> = {}
 

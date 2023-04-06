@@ -459,7 +459,7 @@ export default withHooks(
                     }
                     {card.checkEffectConditions.Invoke() && card.controller.Value === YGOPlayer &&
                         <imagelabel
-                            Size={new UDim2(1,0,0,25)}
+                            Size={new UDim2(1,0,0,50)}
                             BackgroundTransparency={1}
                             Image="rbxgameasset://Images/activate"
                             Position={new UDim2(.5,0,.5,0)}

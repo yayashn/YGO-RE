@@ -6,12 +6,12 @@ export interface PhaseValue extends StringValue {
     Value: Phase
 }
 
-export type BattleStep = 'START' | 'BATTLE' | 'DAMAGE' | 'END'
+export type BattleStep = 'START' | 'BATTLE' | 'DAMAGE' | 'END' | 'NONE'
 export interface BattleStepValue extends StringValue {
     Value: BattleStep
 }
 
-export type DamageStep = 'START' | 'BEFORE' | 'DURING' | 'AFTER' | 'END'
+export type DamageStep = 'START' | 'BEFORE' | 'DURING' | 'AFTER' | 'END' | 'NONE'
 export interface DamageStepValue extends StringValue {
     Value: DamageStep
 }

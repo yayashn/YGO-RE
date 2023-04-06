@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@rbxts/compiler-types': ^2.0.4-types.0
+  '@rbxts/flipper': ^2.0.1
   '@rbxts/object-utils': ^1.0.4
   '@rbxts/profileservice': ^1.4.1
   '@rbxts/roact': ^1.4.4-ts.0
@@ -21,6 +22,7 @@ specifiers:
   typescript: ^4.8.4
 
 dependencies:
+  '@rbxts/flipper': 2.0.1
   '@rbxts/object-utils': 1.0.4
   '@rbxts/profileservice': 1.4.1
   '@rbxts/roact-flipper': 2.1.0-ts.5
@@ -125,6 +127,10 @@ packages:
   /@rbxts/compiler-types/2.0.4-types.1:
     resolution: {integrity: sha512-sLFiyMH9j8kcCd07lt6R+WgneksCGqYUFKu7qX02ufUU7r9eR2dXoOt2A9Nxh3unTuCu5mYyO0M6JYb82fOHxA==}
     dev: true
+
+  /@rbxts/flipper/2.0.1:
+    resolution: {integrity: sha512-kxb5AZizP05XSmo3waS/QkcfNMD5b6HX4gGwyHOyBow260R5MIT4L/ZUPLvleXXyb9b67X4NVmHoac1tPXOLNA==}
+    dev: false
 
   /@rbxts/object-utils/1.0.4:
     resolution: {integrity: sha512-dLLhf022ipV+9i910sOE7kl9losKHoon0WgeerHqVMQA5EYsLUsVT2AxhJuhk8MiDn5oJ2GiFofE/LadY9TpJQ==}

@@ -16,6 +16,8 @@ import addTarget from 'gui/functions/addTarget'
 import CardMenu from './CardMenu'
 import { cardInfoStore } from 'gui/duel/CardInfo'
 import { useGlobalState } from 'shared/useGlobalState'
+import { useLinear, useSpring } from '@rbxts/roact-flipper'
+import useAnimate from 'shared/lib/useAnimate'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -28,6 +30,7 @@ export default withHooks(({ PlayerValue }: { PlayerValue: PlayerValue }) => {
     const cards = useCards(PlayerValue.Value)
     const [showMenu, setShowMenu] = useState<string | false>(false)
     const duel = PlayerValue.Parent as DuelFolder
+
 
     useEffect(() => {
         const connection = duel.phase.Changed.Connect((value) => {
@@ -100,52 +103,18 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const isTarget = useIsTarget(card)
     const isTargettable = useIsTargettable(card)
     const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
-
-    useMount(
-        () => {
-            const tweenInfo = new TweenInfo(
-                0.5,
-                Enum.EasingStyle.Quad,
-                Enum.EasingDirection.Out,
-                -1,
-                true,
-            )
-            const tween = tweenService.Create(artRef.getValue()!, tweenInfo, {
-                ImageTransparency: 0.5,
-            } as Partial<ExtractMembers<ImageButton, Tweenable>>)
-            const tweenSleeve = tweenService.Create(sleeveRef.getValue()!, tweenInfo, {
-                ImageTransparency: 0.5,
-            } as Partial<ExtractMembers<ImageButton, Tweenable>>)
-
-            const handleTween = () => {
-                if (isTargettable && !isTarget) {
-                    tween.Play()
-                    tweenSleeve.Play()
-                } else if (isTarget) {
-                    tween.Pause()
-                    tweenSleeve.Pause()
-                    artRef.getValue()!.ImageTransparency = 0.5
-                    sleeveRef.getValue()!.ImageTransparency = 0.5
-                } else {
-                    tween.Pause()
-                    tweenSleeve.Pause()
-                    artRef.getValue()!.ImageTransparency = 0
-                    sleeveRef.getValue()!.ImageTransparency = 0
-                }
-            }
-            const connections = [
-                card.controller.Value.targets.Changed.Connect(handleTween),
-                card.controller.Value.targettableCards.Changed.Connect(handleTween),
-            ]
-
-            return () => {
-                connections.forEach((connection) => {
-                    connection.Disconnect()
-                })
-            }
-        },
-        [],
-        artRef,
+    const looping = isTargettable && !isTarget
+    const imageTransparency = useAnimate(
+        isTarget ? 0.5 : 0,
+        (isTargettable || isTarget) ? 0.5 : 0,
+        {
+            duration: 0.5,
+            easingStyle: Enum.EasingStyle.Linear,
+            easingDirection: Enum.EasingDirection.InOut,
+            repeatCount: looping ? -1 : 1,
+            delayTime: 0,
+            reverses: true,
+        }
     )
 
     useMount(
@@ -293,6 +262,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
             <surfacegui Key="Art" Face="Bottom">
                 <imagelabel
                     Ref={artRef}
+                    ImageTransparency={imageTransparency}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
@@ -319,6 +289,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
             <surfacegui Key="Sleeve" Face="Top">
                 <imagelabel
                     Ref={sleeveRef}
+                    ImageTransparency={imageTransparency}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     Image={
