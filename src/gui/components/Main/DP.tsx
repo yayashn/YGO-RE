@@ -1,10 +1,18 @@
 import Roact, { Binding } from '@rbxts/roact'
 import { useEffect, useState, withHooks } from '@rbxts/roact-hooked'
-import { Players } from '@rbxts/services'
+import { Players, ServerScriptService } from '@rbxts/services'
 
 const player = script.FindFirstAncestorWhichIsA('Player')
 const DEV = Players.GetChildren().size() === 0
-const dpValue = player?.WaitForChild("dp") as IntValue
+const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players") as Folder;
+let playerFolder: Folder;
+let dpValue: IntValue;
+try {
+    playerFolder = playersFolder.WaitForChild(player!.Name) as Folder;
+    dpValue = playerFolder!.WaitForChild("dp") as IntValue
+} catch {
+    
+}
 
 export default withHooks(() => {
     const [dp, setDP] = useState<number>(-1)

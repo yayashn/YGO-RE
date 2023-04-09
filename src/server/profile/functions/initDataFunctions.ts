@@ -3,8 +3,14 @@ import { Card, ProfileTemplate } from "../profileTemplate";
 import { createInstance, instance } from "shared/utils";
 import { getDeck, getCards, addCardToDeck, removeCardFromDeck, getDecks } from "./cards";
 import { addDeck, getAvatar, getDP } from "./handleData";
+import avatars from "../avatars";
+import { ServerScriptService } from "@rbxts/services";
+
+const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players") as Folder;
 
 export default (profile: Profile<ProfileTemplate>, player: Player) => {
+    const playerFolder = playersFolder.WaitForChild(player.Name) as Folder;
+
     const getDecksBf = createInstance("BindableFunction", "getDecks", player);
     getDecksBf.OnInvoke = () => {
         return getDecks(profile)
@@ -42,16 +48,19 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
 
     const getAvatarsBf = createInstance("BindableFunction", "getAvatars", player);
     getAvatarsBf.OnInvoke = () => {
-        
+        return profile.Data.avatars;
     }
 
+    const avatar = createInstance("StringValue", "avatar", playerFolder);
     const getAvatarBf = createInstance("BindableFunction", "getAvatar", player);
     getAvatarBf.OnInvoke = () => {
-        return getAvatar(profile)
+        const currentAvatar = avatars[profile.Data.equipped.avatar];
+        avatar.Value = currentAvatar;
+        return currentAvatar;
     }
 
     const dp = createInstance("NumberValue", "dp", player);
-    const getDPBf = createInstance("BindableFunction", "getDP", player);
+    const getDPBf = createInstance("BindableFunction", "getDP", playerFolder);
     getDPBf.OnInvoke = () => {
         const currentDP = getDP(profile);
         dp.Value = currentDP;

@@ -76,12 +76,12 @@ const cards: Card[] = [...defaultCards, { name: "Gaia the Dragon Champion"}]
 const profileTemplate = {
     decks,
     cards,
-    avatars: ["default"],
+    avatars: ["Kuriboh"],
     duelDisks: ["default"],
     dp: 1000,
     equipped: {
         deck: "default",
-        avatar: "default",
+        avatar: "Kuriboh",
     } as { [key: string]: string }
 }
 
