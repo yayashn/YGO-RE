@@ -6,20 +6,28 @@ export const getCards = (profile: Profile<ProfileTemplate>) => {
     return profile.Data.cards;
 }
 
-export const getDeck = (profile: Profile<ProfileTemplate>) => {
-    return profile.Data.decks[profile.Data.equipped.deck];
+export const getDeck = (profile: Profile<ProfileTemplate>, deckName?: string) => {
+    return profile.Data.decks[deckName ?? profile.Data.equipped.deck];
 }
 
-export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card) => {
-    const deck = getDeck(profile);
+export const getDecks = (profile: Profile<ProfileTemplate>) => {
+    return profile.Data.decks;
+}
+
+export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card, deckName: string, extra?: boolean) => {
+    const deck = getDeck(profile, deckName);
     const cards = getCards(profile);
 
-    const numberOfCardInDeck = deck.filter(c => {
+    print(1)
+
+    const numberOfCardInDeck = deck[extra ? "extra" : "deck"].filter(c => {
         return Object.entries(card).every(([key, value]) => {
             return c[key] === value
         })
     }).size()
     if(numberOfCardInDeck >= 3) return
+
+    print(2)
 
     const numberOfCardInInventory = cards.filter(c => {
         return Object.entries(card).every(([key, value]) => {
@@ -27,25 +35,30 @@ export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card) => 
         })
     }).size()
     if((numberOfCardInInventory - numberOfCardInDeck) <= 0) return
+
+    print(3)
     
-    profile.Data.decks[profile.Data.equipped.deck].push(card)
+    profile.Data.decks[deckName][extra ? "extra" : "deck"].push(card)
+
+    print(4)
 }
 
-export const removeCardFromDeck = (profile: Profile<ProfileTemplate>, card: Card) => {
-    const deck = getDeck(profile);
+export const removeCardFromDeck = (profile: Profile<ProfileTemplate>, card: Card, deckName: string, extra?: boolean) => {
+    const deck = getDeck(profile, deckName);
 
-    const numberOfCardInDeck = deck.filter(c => {
+    const numberOfCardInDeck = deck[extra ? "extra" : "deck"].filter(c => {
         return Object.entries(card).every(([key, value]) => {
             return c[key] === value
         })
     }).size()
+
     if(numberOfCardInDeck === 0) return
 
-    const index = deck.findIndex(c => {
+    const index = deck[extra ? "extra" : "deck"].findIndex(c => {
         return Object.entries(card).every(([key, value]) => {
             return c[key] === value
         })
     })
 
-    profile.Data.decks[profile.Data.equipped.deck].remove(index)
+    profile.Data.decks[deckName][extra ? "extra" : "deck"].remove(index)
 }

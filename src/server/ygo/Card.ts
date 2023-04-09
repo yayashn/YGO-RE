@@ -122,8 +122,12 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
 
     const toHand = () => {
         controller.Value = _owner
-        position.Value = "FaceUp"
-        location.Value = 'Hand'
+        position.Value = "FaceDown"
+        if(includes(card.type.Value, "Fusion")) {
+            location.Value = 'EZone'
+        } else {
+            location.Value = 'Hand'
+        }
     }
     createInstance('BindableEvent', 'toHand', card).Event.Connect(toHand)
 

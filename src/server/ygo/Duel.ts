@@ -282,7 +282,7 @@ export const Duel = (p1: Player, p2: Player) => {
             let o = 0
             for (const card of (
                 player.Value.WaitForChild('getDeck') as BindableFunction
-            ).Invoke()) {
+            ).Invoke().deck) {
                 Card((card as CardInventory).name, player, o)
                 o++
             }

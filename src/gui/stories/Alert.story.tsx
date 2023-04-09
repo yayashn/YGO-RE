@@ -1,8 +1,6 @@
 import Roact from '@rbxts/roact'
 import { useEffect, useRef, withHooks } from '@rbxts/roact-hooked'
-import { Div, Text, Button } from '../shared/rowindcss'
 import { useGlobalState, createGlobalState } from 'shared/useGlobalState'
-import colours from './main/colours'
 import { CardFolder } from 'server/types'
 import { ReplicatedStorage } from '@rbxts/services'
 import { includes } from 'shared/utils'

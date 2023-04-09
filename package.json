@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"@rbxts/flipper": "^2.0.1",
+		"@rbxts/motion": "0.0.1-d",
 		"@rbxts/object-utils": "^1.0.4",
 		"@rbxts/profileservice": "^1.4.1",
 		"@rbxts/roact-flipper": "^2.1.0-ts.5",

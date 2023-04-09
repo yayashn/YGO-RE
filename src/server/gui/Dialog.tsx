@@ -1,5 +1,6 @@
 import Roact from '@rbxts/roact'
-import { withHooks } from '@rbxts/roact-hooked'
+import { useEffect, useRef, useState, withHooks } from '@rbxts/roact-hooked'
+import { ReplicatedStorage, ServerStorage } from '@rbxts/services'
 
 export interface DialogOption {
     text: string
@@ -7,12 +8,36 @@ export interface DialogOption {
 }
 
 export interface DialogProps {
-    message: string
-    options?: DialogOption[]
+    message: string;
+    options?: DialogOption[];
+    handleInput?: (input: string) => void;
+    player?: Player;
 }
 
-export default withHooks<DialogProps>(({ message, options }) => {
+const cardSearchInput = ReplicatedStorage.FindFirstChild('remotes')!.FindFirstChild(
+    'cardSearchInput'
+) as RemoteEvent
+const cardSearchScript = ServerStorage.FindFirstChild('cardSearch') as LocalScript
+
+export default withHooks<DialogProps>(({ message, options, handleInput, player }) => {
+    const [input, setInput] = useState<string>('')
+    const inputRef = useRef<TextBox>()
     const hasButtons = options && options.size() > 0
+
+    useEffect(() => {
+        if (inputRef.getValue()) {
+            const cardSearchScriptClone = cardSearchScript.Clone()
+            cardSearchScriptClone.Parent = inputRef.getValue()
+            cardSearchInput.OnServerEvent.Connect((p, text) => {
+                if (p !== player) return
+                setInput(text as string)
+            })
+
+            return () => {
+                cardSearchScriptClone.Destroy()
+            }
+        }
+    }, [inputRef])
 
     return (
         <frame {...PromptContainer}>
@@ -30,7 +55,9 @@ export default withHooks<DialogProps>(({ message, options }) => {
             />
             <uisizeconstraint MaxSize={new Vector2(450, 9999)} />
 
-            <textlabel {...MessageStyle} Text={message} />
+            {!player && <textlabel {...MessageStyle} Text={message}/>}
+            {player && <textbox Ref={inputRef}
+             {...InputStyle} PlaceholderText={message} Text={input}/>}
 
             {hasButtons && (
                 <frame Size={new UDim2(1, 0, 0, 40)} BackgroundTransparency={1}>
@@ -40,13 +67,30 @@ export default withHooks<DialogProps>(({ message, options }) => {
                         HorizontalAlignment="Center"
                         Padding={new UDim(0, 10)}
                     />
-                    {options.map((option, index) => (
+                    {!player && options.map((option, index) => (
                         <textbutton
                             {...ButtonStyle}
                             Text={option.text}
                             Key={index}
                             Event={{
                                 MouseButton1Click: option.MouseButton1Click
+                            }}
+                        >
+                            <uipadding {...ButtonPadding} />
+                        </textbutton>
+                    ))}
+                    {player && options.map((option, index) => (
+                        <textbutton
+                            {...ButtonStyle}
+                            Text={option.text}
+                            Key={index}
+                            Event={{
+                                MouseButton1Click: () => {
+                                    if (option.text.lower() === "submit" && handleInput) {
+                                        handleInput(input);
+                                    }
+                                    option.MouseButton1Click();
+                                },
                             }}
                         >
                             <uipadding {...ButtonPadding} />
@@ -77,6 +121,19 @@ const MessageStyle: JSX.IntrinsicElement<TextLabel> = {
     TextSize: 16,
     TextWrapped: true,
     AutomaticSize: 'Y'
+}
+
+const InputStyle: JSX.IntrinsicElement<TextBox> = {
+    Size: new UDim2(0.9, 0, 0, 40),
+    TextColor3: Color3.fromRGB(255, 255, 255),
+    BackgroundColor3: new Color3(6 / 255, 52 / 255, 63 / 255),
+    BorderColor3: new Color3(26 / 255, 101 / 255, 110 / 255),
+    BorderSizePixel: 1,
+    TextXAlignment: 'Center',
+    TextYAlignment: 'Center',
+    TextSize: 16,
+    TextWrapped: true,
+    AutomaticSize: 'Y' 
 }
 
 const ButtonStyle: JSX.IntrinsicElement<TextButton> = {

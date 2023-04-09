@@ -18,6 +18,7 @@ import { cardInfoStore } from 'gui/duel/CardInfo'
 import { useGlobalState } from 'shared/useGlobalState'
 import { useLinear, useSpring } from '@rbxts/roact-flipper'
 import useAnimate from 'shared/lib/useAnimate'
+import { motion } from 'shared/motion'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -104,53 +105,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const isTargettable = useIsTargettable(card)
     const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
     const looping = isTargettable && !isTarget
-    const imageTransparency = useAnimate(
-        isTarget ? 0.5 : 0,
-        (isTargettable || isTarget) ? 0.5 : 0,
-        {
-            duration: 0.5,
-            easingStyle: Enum.EasingStyle.Linear,
-            easingDirection: Enum.EasingDirection.InOut,
-            repeatCount: looping ? -1 : 1,
-            delayTime: 0,
-            reverses: true,
-        }
-    )
 
-    useMount(
-        () => {
-            if (sleeveRef.getValue()?.FindFirstAncestorWhichIsA('PlayerGui') === undefined) {
-                while (sleeveRef.getValue()?.FindFirstAncestorWhichIsA('PlayerGui') === undefined) {
-                    wait()
-                }
-            }
-            const connection = card.location.Changed.Connect((value) => {
-                if (value === 'Hand') {
-                    artRef.getValue()!.Size = new UDim2(0.8, 0, 0.8, 0)
-                } else {
-                    artRef.getValue()!.Size = new UDim2(1, 0, 1, 0)
-                }
-            })
-            if (card.location.Value !== 'Hand') return
-            ;[sleeveRef.getValue()!, artRef.getValue()!].forEach((button) => {
-                const tweenInfo = new TweenInfo(
-                    0.1,
-                    Enum.EasingStyle.Quad,
-                    Enum.EasingDirection.Out,
-                )
-                const tween = tweenService.Create(button, tweenInfo, {
-                    Size: hover ? new UDim2(1, 0, 1, 0) : new UDim2(0.8, 0, 0.8, 0),
-                } as Partial<ExtractMembers<SurfaceGui, Tweenable>>)
-                tween.Play()
-            })
-
-            return () => {
-                connection.Disconnect()
-            }
-        },
-        [hover],
-        artRef,
-    )
 
     useMount(
         () => {
@@ -256,13 +211,28 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
         cardRef,
     )
 
+    const cardVariants = {
+        hovered: {
+            Size: new UDim2(1, 0, 1, 0),
+        },
+        unhovered: {
+            Size: new UDim2(0.8, 0, 0.8, 0),
+        }
+    }
+
     return (
         <surfacegui Ref={cardRef} Key="Card">
             <CardMenu card={card} useShowMenu={[showMenu === card.uid.Value, setShowMenu]} />
             <surfacegui Key="Art" Face="Bottom">
-                <imagelabel
-                    Ref={artRef}
-                    ImageTransparency={imageTransparency}
+                <motion.imagelabel
+                    ref={artRef as unknown as Roact.Ref<GuiObject & Record<string, unknown>>}
+                    ImageTransparency={0}
+                    variants={cardVariants}
+                    animate={(hover || card.location.Value !== "Hand") ? "hovered" : "unhovered"}
+                    transition={{
+                        duration: 0.1,
+                        easingStyle: Enum.EasingStyle.Quad
+                    }}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
@@ -283,13 +253,19 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                             setHover(false)
                         },
                     }}
-                ></imagelabel>
+                ></motion.imagelabel>
             </surfacegui>
 
             <surfacegui Key="Sleeve" Face="Top">
-                <imagelabel
-                    Ref={sleeveRef}
-                    ImageTransparency={imageTransparency}
+                <motion.imagelabel
+                    ref={sleeveRef as unknown as Roact.Ref<GuiObject & Record<string, unknown>>}
+                    ImageTransparency={0}
+                    variants={cardVariants}
+                    animate={(hover || card.location.Value !== "Hand") ? "hovered" : "unhovered"}
+                    transition={{
+                        duration: 0.1,
+                        easingStyle: Enum.EasingStyle.Quad
+                    }}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     Image={
@@ -308,7 +284,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                             setHover(false)
                         },
                     }}
-                ></imagelabel>
+                ></motion.imagelabel>
             </surfacegui>
         </surfacegui>
     )

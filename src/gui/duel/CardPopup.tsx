@@ -6,10 +6,13 @@ import useTargettables from 'gui/hooks/useTargettables'
 import useYGOPlayer from 'gui/hooks/useYGOPlayer'
 import { CardFolder, PlayerValue } from 'server/types'
 import { getTargets, removeTarget, addTarget, getCardInfo, getTargettables } from 'server/utils'
+import { useGlobalState } from 'shared/useGlobalState'
+import { cardInfoStore } from './CardInfo'
 
 export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player: PlayerValue }) => {
     const isTarget = useIsTarget(card)
     const cardInfo = getCardInfo(card.Name)
+    const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
 
     return (
         <frame BackgroundTransparency={1}>
@@ -19,13 +22,15 @@ export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player
                 ImageTransparency={isTarget ? 0.5 : 0}
                 Event={{
                     MouseButton1Click: () => {
-                        print('clicked')
                         const targets = getTargets(player)
                         if (targets.includes(card)) {
                             removeTarget(player, card)
                         } else {
                             addTarget(player, card)
                         }
+                    },
+                    MouseEnter: () => {
+                        setCurrentCardInfo(cardInfo)
                     }
                 }}
                 Size={new UDim2(1, 0, 1, -20)}

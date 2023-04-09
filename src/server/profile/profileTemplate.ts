@@ -55,21 +55,34 @@ const defaultCards = [
     { name: "Kurama"},
     { name: "Kurama"},
     { name: "Spike Seadra"},
+    { name: "Gaia the Dragon Champion"},
 ]
 
 const decks: {
-    [key: string]: Card[]
+    [key: string]: {
+        deck: Card[],
+        extra: Card[],
+    }
 } = {
-    "default": defaultCardsDev
+    "default": {
+        deck: [...defaultCards],
+        extra: [
+            { name: "Gaia the Dragon Champion" },
+        ],
+    }
 }
 
-const cards: Card[] = defaultCardsDev
+const cards: Card[] = [...defaultCards]
 
 const profileTemplate = {
     decks,
     cards,
+    avatars: ["default"],
+    duelDisks: ["default"],
+    dp: 1000,
     equipped: {
         deck: "default",
+        avatar: "default",
     } as { [key: string]: string }
 }
 

@@ -62,7 +62,7 @@ export type CardEffect = {
 }
 
 export default {
-    "Sparks": Yami,
+    "Sparks": Sparks,
     "Hinotama": Hinotama,
     "Remove Trap": RemoveTrap,
     "Red Medicine": RedMedicine,
