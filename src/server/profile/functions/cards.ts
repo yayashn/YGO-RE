@@ -18,8 +18,6 @@ export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card, dec
     const deck = getDeck(profile, deckName);
     const cards = getCards(profile);
 
-    print(1)
-
     const numberOfCardInDeck = deck[extra ? "extra" : "deck"].filter(c => {
         return Object.entries(card).every(([key, value]) => {
             return c[key] === value
@@ -27,7 +25,6 @@ export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card, dec
     }).size()
     if(numberOfCardInDeck >= 3) return
 
-    print(2)
 
     const numberOfCardInInventory = cards.filter(c => {
         return Object.entries(card).every(([key, value]) => {
@@ -36,11 +33,8 @@ export const addCardToDeck = (profile: Profile<ProfileTemplate>, card: Card, dec
     }).size()
     if((numberOfCardInInventory - numberOfCardInDeck) <= 0) return
 
-    print(3)
     
     profile.Data.decks[deckName][extra ? "extra" : "deck"].push(card)
-
-    print(4)
 }
 
 export const removeCardFromDeck = (profile: Profile<ProfileTemplate>, card: Card, deckName: string, extra?: boolean) => {

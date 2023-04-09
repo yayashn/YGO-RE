@@ -18,7 +18,6 @@ export default (card: CardFolder) => {
 
     useEffect(() => {
         if(!isTarget) return
-        print(`${card.Name} target: ${isTarget}`)
     }, [isTarget])
 
     return isTarget

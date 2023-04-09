@@ -1,4 +1,4 @@
-import { createInstance, includes, instance } from 'shared/utils'
+import { createInstance, getCardData, includes, instance } from 'shared/utils'
 import { ServerScriptService } from '@rbxts/services'
 import { clearAction, getAction, getFilteredCards } from '../utils'
 import Object from '@rbxts/object-utils'
@@ -285,6 +285,12 @@ export const Duel = (p1: Player, p2: Player) => {
             ).Invoke().deck) {
                 Card((card as CardInventory).name, player, o)
                 o++
+            }
+
+            for(const card of (
+                player.Value.WaitForChild('getDeck') as BindableFunction
+            ).Invoke().extra) {
+                Card((card as CardInventory).name, player, o, true)
             }
 
             const shuffle = () => {

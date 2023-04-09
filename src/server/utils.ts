@@ -113,6 +113,19 @@ export const pickZone = async (player: PlayerValue) => {
     return zone as Zone;
 }
 
+export const pickZoneSync = (player: PlayerValue) => {
+    player.selectableZones.Value = getEmptyFieldZones('MZone', player, 'Player')
+    while (true) {
+        if(player.selectedZone.Value !== "") {
+            const selectedZone = player.selectedZone.Value
+            player.selectedZone.Value = ""
+            player.selectableZones.Value = "[]"
+            return selectedZone as Zone;
+        }
+        wait()
+    }
+}
+
 export const pickPosition = async (player: PlayerValue, card: CardFolder) => {
     player.selectPositionCard.Value = card.uid.Value
     const position = await changedOnce(player.selectedPosition.Changed)
@@ -121,15 +134,29 @@ export const pickPosition = async (player: PlayerValue, card: CardFolder) => {
     return position as Position;
 }
 
+export const pickPositionSync = (player: PlayerValue, card: CardFolder) => {
+    player.selectPositionCard.Value = card.uid.Value
+    while (true) {
+        if(player.selectedPosition.Value !== "") {
+            const position = player.selectedPosition.Value
+            player.selectedPosition.Value = ""
+            player.selectPositionCard.Value = ""
+            return position as Position;
+        }
+        wait()
+    }
+}
+
 export const pickTargets = (player: PlayerValue, n: number, targettables: string) => {
+    player.targets.Value = ""
     player.targettableCards.Value = targettables
     const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder;
     let pickedTargets: string = "";
     const connection = player.targets.Changed.Connect((newTargets) => {
         const targets = newTargets.split(",").map(target => getCard(duel, target)!);
         if (targets.size() === n) {
-            pickedTargets = newTargets
             connection.Disconnect()
+            pickedTargets = newTargets
         }
     })
     while (connection.Connected) {

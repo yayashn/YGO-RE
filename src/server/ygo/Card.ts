@@ -11,7 +11,7 @@ const replicatedStorage = game.GetService('ReplicatedStorage')
 const cards = replicatedStorage.WaitForChild('cards') as Folder
 const httpService = game.GetService('HttpService')
 
-export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
+export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?: boolean) => {
     const duel = _owner.FindFirstAncestorWhichIsA('Folder') as DuelFolder
 
     const cardDataFolder = cards.FindFirstChild(_name, true)
@@ -39,7 +39,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number) => {
 
     order.Value = _order
     controller.Value = _owner
-    location.Value = 'Deck'
+    location.Value = extra ? "EZone" : 'Deck'
     position.Value = 'FaceDown'
     uid.Value = httpService.GenerateGUID(false)
     canActivate.Value = true

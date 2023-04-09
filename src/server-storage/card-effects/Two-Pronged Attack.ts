@@ -42,17 +42,13 @@ export default (card: CardFolder) => {
         controller.targets.Value = ""
         const opponentMonsterTargetUids = pickTargets(controller, 1, stringifyCards(opponentMonsters));
         const allTargetUids = [...controllerMonsterTargetUids.split(","), ...opponentMonsterTargetUids.split(",")]
-        print(allTargetUids)
         card.targets.Value = allTargetUids.join(',')
-        print(card.targets.Value)
     }
 
     const effect = () => {
         const targets = getTargets(controller, card.targets.Value)
-        print(targets)
         targets.forEach(target => {
             target.destroy_.Fire("Effect")
-            print('destroyed')
         })
     }
 

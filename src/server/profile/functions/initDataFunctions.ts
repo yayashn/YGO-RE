@@ -59,8 +59,8 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
         return currentAvatar;
     }
 
-    const dp = createInstance("NumberValue", "dp", player);
-    const getDPBf = createInstance("BindableFunction", "getDP", playerFolder);
+    const dp = createInstance("NumberValue", "dp", playerFolder);
+    const getDPBf = createInstance("BindableFunction", "getDP", player);
     getDPBf.OnInvoke = () => {
         const currentDP = getDP(profile);
         dp.Value = currentDP;

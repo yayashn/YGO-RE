@@ -19,7 +19,6 @@ export default (card: CardFolder) => {
 
     useEffect(() => {
         if(!isTargettable) return
-        print(`${card.Name} targettable: ${isTargettable}`)
     }, [isTargettable])
 
     return isTargettable

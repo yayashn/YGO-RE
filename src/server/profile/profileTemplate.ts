@@ -3,15 +3,23 @@ export type Card = {
 }
 
 const defaultCardsDev = [
-    { name: "Man-Eater Bug" },
-    { name: "Man-Eater Bug" },
-    { name: "Man-Eater Bug" },
-    { name: "Man-Eater Bug" },
-    { name: "Man-Eater Bug" },
-    { name: "Pot of Greed" },
-    { name: "Dragon Capture Jar"},
-    { name: "Dragon Capture Jar"},
-    { name: "Dragon Capture Jar"},
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Curse of Dragon" },
+    { name: "Polymerization" },
+    { name: "Polymerization" },
+    { name: "Polymerization" },
+    { name: "Polymerization" },
+    { name: "Polymerization" },
 ]
 
 const defaultCards = [
@@ -64,14 +72,14 @@ const decks: {
     }
 } = {
     "default": {
-        deck: [...defaultCards],
+        deck: [...defaultCardsDev],
         extra: [
             { name: "Gaia the Dragon Champion" },
         ],
     }
 }
 
-const cards: Card[] = [...defaultCards, { name: "Gaia the Dragon Champion"}]
+const cards: Card[] = [...defaultCardsDev, { name: "Gaia the Dragon Champion"}]
 
 const profileTemplate = {
     decks,
