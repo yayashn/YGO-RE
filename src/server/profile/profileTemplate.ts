@@ -55,7 +55,6 @@ const defaultCards = [
     { name: "Kurama"},
     { name: "Kurama"},
     { name: "Spike Seadra"},
-    { name: "Gaia the Dragon Champion"},
 ]
 
 const decks: {
@@ -72,7 +71,7 @@ const decks: {
     }
 }
 
-const cards: Card[] = [...defaultCards]
+const cards: Card[] = [...defaultCards, { name: "Gaia the Dragon Champion"}]
 
 const profileTemplate = {
     decks,

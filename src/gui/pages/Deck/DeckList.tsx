@@ -15,13 +15,7 @@ const addDeck = player?.WaitForChild("addDeck") as BindableEvent
 
 const defaultList = [
     "default",
-    "default2",
-    "default3",
-    "default4",
-    "default5",
-    "default6",
-    "default7",
-    "default8",
+
 ]
 
 export default withHooks(() => {
@@ -52,19 +46,21 @@ export default withHooks(() => {
             BorderSizePixel={0}
             BackgroundTransparency={1}
             ScrollBarThickness={4}
+            CanvasSize={new UDim2(0, 0, 0, 0)}
             AutomaticCanvasSize={Enum.AutomaticSize.Y}
         >
             <uigridlayout
                 CellPadding={new UDim2(0, 50, 0, 50)}
                 CellSize={new UDim2(0, 75, 0, 75)}
                 FillDirection={Enum.FillDirection.Horizontal}
-                HorizontalAlignment={Enum.HorizontalAlignment.Center}
+                HorizontalAlignment={Enum.HorizontalAlignment.Left}
                 SortOrder={Enum.SortOrder.LayoutOrder}
             />
             <uipadding
-                PaddingLeft={new UDim(0, -10)}
-                PaddingRight={new UDim(0, 20)}
-                PaddingTop={new UDim(0, 20)}
+                PaddingLeft={new UDim(0, 30)}
+                PaddingRight={new UDim(0, 30)}
+                PaddingTop={new UDim(0, 30)}
+                PaddingBottom={new UDim(0, 100)}
             />
             <textbutton 
             Event={{
@@ -76,6 +72,7 @@ export default withHooks(() => {
                     setAddDeckHack(addDeckHack => addDeckHack + 1)
                 }
             }}
+            AutomaticSize="XY"
             Text="" LayoutOrder={-1} BorderSizePixel={0}>
                 <uiaspectratioconstraint AspectRatio={1} />
                 <frame
@@ -114,6 +111,7 @@ export default withHooks(() => {
                         Text=""
                         LayoutOrder={i}
                         BorderSizePixel={0}
+                        AutomaticSize="XY"
                     >
                         <uiaspectratioconstraint AspectRatio={1} />
                         <frame
@@ -131,8 +129,8 @@ export default withHooks(() => {
                             Text={deckListName}
                             Size={new UDim2(0, 100, 0, 100)}
                             BackgroundTransparency={1}
-                            Position={new UDim2(0, 0, 1, 0)}
-                            AnchorPoint={new Vector2(0, 1)}
+                            Position={new UDim2(0, 0, 0, 0)}
+                            AnchorPoint={new Vector2(0, 0)}
                             TextYAlignment={Enum.TextYAlignment.Bottom}
                             TextStrokeColor3={colours.outline}
                             Font={Enum.Font.SourceSansBold}
