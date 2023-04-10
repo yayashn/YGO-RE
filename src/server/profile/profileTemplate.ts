@@ -72,21 +72,21 @@ const decks: {
     }
 } = {
     "default": {
-        deck: [...defaultCardsDev],
+        deck: [...defaultCards],
         extra: [
             { name: "Gaia the Dragon Champion" },
         ],
     }
 }
 
-const cards: Card[] = [...defaultCardsDev, { name: "Gaia the Dragon Champion"}]
+const cards: Card[] = [...defaultCards]
 
 const profileTemplate = {
     decks,
     cards,
     avatars: ["Kuriboh"],
     duelDisks: ["default"],
-    dp: 1000,
+    dp: 10000,
     equipped: {
         deck: "default",
         avatar: "Kuriboh",

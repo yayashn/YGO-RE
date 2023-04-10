@@ -1,5 +1,5 @@
 import Roact from '@rbxts/roact'
-import colours from 'gui/colours'
+import colours from 'shared/colours'
 import { useGlobalState } from 'shared/useGlobalState'
 import { Players } from '@rbxts/services'
 import { deckStore } from './Store'

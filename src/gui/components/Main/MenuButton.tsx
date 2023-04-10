@@ -1,7 +1,7 @@
 import { motion } from "shared/motion"
 import Roact from "@rbxts/roact"
 import { withHooks, useState } from "@rbxts/roact-hooked"
-import colours from "gui/colours"
+import colours from "shared/colours"
 
 interface MenuButtonProps {
     icon: string,

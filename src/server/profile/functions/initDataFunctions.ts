@@ -1,10 +1,11 @@
 import { Profile } from "@rbxts/profileservice/globals";
 import { Card, ProfileTemplate } from "../profileTemplate";
-import { createInstance, instance } from "shared/utils";
+import { createInstance, getCardData, instance } from "shared/utils";
 import { getDeck, getCards, addCardToDeck, removeCardFromDeck, getDecks } from "./cards";
 import { addDeck, getAvatar, getDP } from "./handleData";
 import avatars from "../avatars";
 import { ServerScriptService } from "@rbxts/services";
+import packs from "server/shop/packs/packs";
 
 const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("players") as Folder;
 
@@ -34,6 +35,26 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
     const getCardsBf = instance("BindableFunction", "getCards", player) as BindableFunction;
     getCardsBf.OnInvoke = () => {
         return [...getCards(profile)];
+    }
+
+    const buyCardsBf = createInstance("BindableFunction", "buyCards", player);
+    buyCardsBf.OnInvoke =(pack: string) => {
+        const packData = packs[pack];
+        const dp = profile.Data.dp
+
+        if(dp >= packData.price) {
+            setDPBe.Fire(dp - packData.price);
+            
+            const cards = packData.getFullRandomPack();
+            cards.forEach(card => {
+                profile.Data.cards = [...profile.Data.cards, { name: card }]
+            })
+            return cards.map(card => {
+                return getCardData(card)!;
+            })
+        } else {
+            return false
+        }
     }
 
     const addCardToDeckBe = instance("BindableEvent", "addCardToDeck", player) as BindableEvent;

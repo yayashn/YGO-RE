@@ -4,6 +4,7 @@ import Main from './components/Main/Main'
 import { useGlobalState } from 'shared/useGlobalState'
 import pageState  from "./store/pageState"
 import Deck from './pages/Deck/Deck'
+import Shop from './pages/Shop/Shop'
 
 export default withHooks(() => {
     const [page, setPage] = useGlobalState(pageState)
@@ -12,6 +13,7 @@ export default withHooks(() => {
         <frame Size={new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
             <Main/>
             <Deck/>
+            <Shop/>
         </frame>
     )
 })

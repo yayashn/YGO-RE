@@ -19,6 +19,10 @@ export default withHooks(() => {
             HorizontalAlignment={Enum.HorizontalAlignment.Right} />
         <uipadding PaddingRight={new UDim(0, 55)} />
         <MenuButton onClick={() => {
+            setPage(page === "SHOP" ? undefined : "SHOP")
+        } }
+            text="SHOP" icon="rbxgameasset://Images/coin" />
+        <MenuButton onClick={() => {
             setPage(page === "DECK" ? undefined : "DECK")
         } }
             text="DECK" icon="rbxassetid://4943949493" />

@@ -3,7 +3,7 @@ import { useEffect, useState, withHooks } from '@rbxts/roact-hooked'
 import { motion } from 'shared/motion'
 import { createGlobalState, useGlobalState } from 'shared/useGlobalState'
 import pageState from 'gui/store/pageState'
-import colours from 'gui/colours'
+import colours from 'shared/colours'
 import DeckList from './DeckList'
 import { deckStore, equippedDeckStore } from './Store'
 import DeckEditor from './DeckEditor'
@@ -55,6 +55,12 @@ export default withHooks(() => {
     const [page, setPage] = useGlobalState(pageState)
     const [deck, setDeck] = useGlobalState(deckStore)
     const [isEquipped, setIsEquipped] = useGlobalState(equippedDeckStore)
+
+    useEffect(() => {
+        if(page !== 'DECK') {
+            setDeck(undefined)
+        }
+    }, [page])
 
     useEffect(() => {
         const connection = setEquippedDeck.Event.Connect((deckName: string) => {

@@ -1,7 +1,7 @@
 import Roact from '@rbxts/roact'
-import colours from 'gui/colours'
+import colours from 'shared/colours'
 import { useGlobalState } from 'shared/useGlobalState'
-import { Players, ReplicatedStorage, ServerStorage } from '@rbxts/services'
+import { Players, ReplicatedStorage, ServerScriptService, ServerStorage } from '@rbxts/services'
 import { deckStore } from './Store'
 import { useEffect, useRef, useState, withHooks } from '@rbxts/roact-hooked'
 import Object from '@rbxts/object-utils'
@@ -20,6 +20,17 @@ const cardSearchInput = ReplicatedStorage.FindFirstChild('remotes')!.FindFirstCh
 const cardSearchScript = ServerStorage.FindFirstChild('cardSearch') as LocalScript
 const addCardToDeck = player?.WaitForChild('addCardToDeck') as BindableEvent
 const removeCardFromDeck = player?.WaitForChild('removeCardFromDeck') as BindableEvent
+
+let playersFolder: Folder;
+let playerFolder: Folder;
+let dpValue: IntValue;
+try {
+    playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirstChild('players') as Folder
+    playerFolder = playersFolder.FindFirstChild(player!.Name) as Folder
+    dpValue = playerFolder.WaitForChild('dp') as IntValue
+} catch {
+
+}
 
 const defaultCards = [
     { name: 'Skull Servant' },
@@ -118,6 +129,13 @@ export default withHooks(() => {
 
     useEffect(() => {
         refreshCards()
+        const connection = dpValue.Changed.Connect(() => {
+            refreshCards()
+        })
+
+        return () => {
+            connection.Disconnect()
+        }
     }, [])
 
     const parsedCards = Object.entries(
@@ -182,21 +200,27 @@ export default withHooks(() => {
                 >
                     <uigridlayout CellSize={new UDim2(0, 100 * 0.61, 0, 150 * 0.61)} />
                     {deck.map((card) => {
-                        const cardData = getCardData(card.name) as CardFolder
-                        const art = cardData.art.Image
-                        return (
-                            <imagebutton
-                                Event={{
-                                    MouseButton1Click: () => {
-                                        if (DEV) return
-                                        removeCardFromDeck.Fire(card, deckState, includes(cardData.type.Value, "Fusion"))
-                                        refreshCards()
-                                    }
-                                }}
-                                ZIndex={90}
-                                Image={art}
-                            />
-                        )
+                        try {
+                            const cardData = getCardData(card.name) as CardFolder
+                            print(cardData, card.name)
+                            const art = cardData.art.Image
+                            return (
+                                <imagebutton
+                                    Event={{
+                                        MouseButton1Click: () => {
+                                            if (DEV) return
+                                            removeCardFromDeck.Fire(card, deckState, includes(cardData.type.Value, "Fusion"))
+                                            refreshCards()
+                                        }
+                                    }}
+                                    ZIndex={90}
+                                    Image={art}
+                                />
+                            )                            
+                        } catch {
+                            print("Error loading card: " + card.name)
+                            return <Roact.Fragment/>
+                        }
                     })}
                 </scrollingframe>
                 <scrollingframe
@@ -209,7 +233,10 @@ export default withHooks(() => {
                 >
                     <uigridlayout CellSize={new UDim2(0, 100 * 0.61, 0, 150 * 0.61)} />
                     {extra.map((card) => {
-                        const art = (getCardData(card.name)!.FindFirstChild('art') as ImageButton)
+                        try {
+                            const cardData = getCardData(card.name) as CardFolder
+                            print(cardData, card.name)
+                            const art = (cardData.FindFirstChild('art') as ImageButton)
                             .Image
                         return (
                             <imagebutton
@@ -224,6 +251,10 @@ export default withHooks(() => {
                                 Image={art}
                             />
                         )
+                        } catch {
+                            print("Error loading card: " + card.name)
+                            return <Roact.Fragment/>
+                        }
                     })}
                 </scrollingframe>
             </frame>
@@ -263,6 +294,7 @@ export default withHooks(() => {
                         if (!DEV && !(cardName.lower().match(input.lower()).size() > 0))
                             return <Roact.Fragment />
                         const cardData = getCardData(cardName) as CardFolder
+                        print(cardData, card.name)
                         const art = (cardData.FindFirstChild('art') as ImageButton).Image
                         return (
                             <textbutton
