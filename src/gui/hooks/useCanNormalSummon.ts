@@ -8,7 +8,7 @@ export default (controllerValue: ControllerValue) => {
         let canNormalSummonConnection = controllerValue.Value.canNormalSummon.Changed.Connect((newValue) => {
             setCanNormalSummon(newValue);
         });
-        controllerValue.Changed.Connect(() => {
+        const connection = controllerValue.Changed.Connect(() => {
             canNormalSummonConnection.Disconnect();
             canNormalSummonConnection = controllerValue.Value.canNormalSummon.Changed.Connect((newValue) => {
                 setCanNormalSummon(newValue);
@@ -17,6 +17,7 @@ export default (controllerValue: ControllerValue) => {
 
         return () => {
             canNormalSummonConnection.Disconnect();
+            connection.Disconnect();
         }
     }, [])
 

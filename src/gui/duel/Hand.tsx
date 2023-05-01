@@ -11,15 +11,6 @@ type Hand = Model & {
 }
 
 export const Hand = withHooks(() => {
-    const handRef = useRef<SurfaceGui>()
-
-    useMount(() => {
-        handRef.getValue()!.ChildAdded.Connect((cardButton) => {
-          const cardFolder = (cardButton.WaitForChild("cardFolder") as ObjectValue).Value as CardFolder 
-          
-        })
-    }, [], handRef)
-
     return (
         <surfacegui Key="Hand">
 

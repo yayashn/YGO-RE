@@ -16,9 +16,8 @@ import addTarget from 'gui/functions/addTarget'
 import CardMenu from './CardMenu'
 import { cardInfoStore } from 'gui/duel/CardInfo'
 import { useGlobalState } from 'shared/useGlobalState'
-import { useLinear, useSpring } from '@rbxts/roact-flipper'
-import useAnimate from 'shared/lib/useAnimate'
 import { motion } from 'shared/motion'
+import HoverCard from 'server-storage/animations/HoverCard/HoverCard'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -31,7 +30,6 @@ export default withHooks(({ PlayerValue }: { PlayerValue: PlayerValue }) => {
     const cards = useCards(PlayerValue.Value)
     const [showMenu, setShowMenu] = useState<string | false>(false)
     const duel = PlayerValue.Parent as DuelFolder
-
 
     useEffect(() => {
         const connection = duel.phase.Changed.Connect((value) => {
@@ -98,17 +96,16 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const cardRef = useRef<SurfaceGui>()
     const showArt = useShowArt(card)
     const [hover, setHover] = useState(false)
-    const artRef = useRef<ImageLabel>()
-    const sleeveRef = useRef<ImageLabel>()
     const [showMenu, setShowMenu] = useShowMenu!
     const isTarget = useIsTarget(card)
     const isTargettable = useIsTargettable(card)
     const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
-    const looping = isTargettable && !isTarget
 
 
     useMount(
         () => {
+            const connections: RBXScriptConnection[] = []
+
             const card3DValue = new Instance('ObjectValue')
             card3DValue.Value = cardRef.getValue()
             card3DValue.Name = 'card3D'
@@ -132,7 +129,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     setShowMenu((state) => state !== card.uid.Value ? card.uid.Value : false)
                 }
             }
-            onCardClick.OnServerEvent.Connect(clicked)
+            connections.push(onCardClick.OnServerEvent.Connect(clicked))
 
             const isOpponent = () => card.controller.Value.Value !== player
 
@@ -159,7 +156,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 }
                 moveCard3D.FireClient(player, cardRef.getValue(), card.location.Value, isOpponent())
             }
-            card.location.Changed.Connect(cardLocationChanged)
+            connections.push(card.location.Changed.Connect(cardLocationChanged))
             cardLocationChanged()
 
             const positionChanged = instance(
@@ -167,15 +164,15 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 'positionChanged',
                 cardRef.getValue(),
             ) as RemoteEvent
-            card.position.Changed.Connect(() => {
+            connections.push(card.position.Changed.Connect(() => {
                 positionChanged.FireClient(player, card.position.Value)
-            })
+            }))
 
             const getLocationFromClient = instance(
                 'RemoteFunction',
                 'getLocation',
                 cardRef.getValue(),
-            ) as RemoteFunction
+            ) as RemoteFunction;
             getLocationFromClient.OnServerInvoke = () => {
                 return card.location.Value
             }
@@ -206,33 +203,21 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
             getUidFromClient.OnServerInvoke = () => {
                 return card.uid.Value
             }
+
+            return () => {
+                connections.forEach((connection) => connection.Disconnect())
+            }
         },
         [],
         cardRef,
     )
 
-    const cardVariants = {
-        hovered: {
-            Size: new UDim2(1, 0, 1, 0),
-        },
-        unhovered: {
-            Size: new UDim2(0.8, 0, 0.8, 0),
-        }
-    }
-
     return (
         <surfacegui Ref={cardRef} Key="Card">
             <CardMenu card={card} useShowMenu={[showMenu === card.uid.Value, setShowMenu]} />
             <surfacegui Key="Art" Face="Bottom">
-                <motion.imagelabel
-                    ref={artRef as unknown as Roact.Ref<GuiObject & Record<string, unknown>>}
+                <imagelabel
                     ImageTransparency={0}
-                    variants={cardVariants}
-                    animate={(hover || card.location.Value !== "Hand") ? "hovered" : "unhovered"}
-                    transition={{
-                        duration: 0.1,
-                        easingStyle: Enum.EasingStyle.Quad
-                    }}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
@@ -253,19 +238,33 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                             setHover(false)
                         },
                     }}
-                ></motion.imagelabel>
+                >
+                    <HoverCard
+                        playAnimation={(hover || card.location.Value !== "Hand")}
+                    />
+                    {(isTargettable && !isTarget) && <motion.uistroke
+                        Thickness={20}
+                        Color={new Color3(0.8, 0.2, 0.2)}
+                        Transparency={0}
+                        animate={{
+                            Transparency: 1,
+                            transition: {
+                                duration: 0.6,
+                                easingStyle: Enum.EasingStyle.Quad,
+                                repeatCount: -1,
+                            }
+                        }}
+                    />}
+                    {isTarget && <motion.uistroke
+                        Thickness={30}
+                        Color={new Color3(0.2, 0.8, 0.2)}
+                    />}
+                </imagelabel>
             </surfacegui>
 
             <surfacegui Key="Sleeve" Face="Top">
-                <motion.imagelabel
-                    ref={sleeveRef as unknown as Roact.Ref<GuiObject & Record<string, unknown>>}
+                <imagelabel
                     ImageTransparency={0}
-                    variants={cardVariants}
-                    animate={(hover || card.location.Value !== "Hand") ? "hovered" : "unhovered"}
-                    transition={{
-                        duration: 0.1,
-                        easingStyle: Enum.EasingStyle.Quad
-                    }}
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     Image={
@@ -284,7 +283,28 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                             setHover(false)
                         },
                     }}
-                ></motion.imagelabel>
+                >
+                    <HoverCard
+                        playAnimation={(hover || card.location.Value !== "Hand")}
+                    />
+                    {(isTargettable && !isTarget) && <motion.uistroke
+                        Thickness={20}
+                        Color={new Color3(0.2, 0.8, 0.2)}
+                        Transparency={0}
+                        animate={{
+                            Transparency: 1,
+                            transition: {
+                                duration: 0.6,
+                                easingStyle: Enum.EasingStyle.Quad,
+                                repeatCount: -1,
+                            }
+                        }}
+                    />}
+                    {isTarget && <motion.uistroke
+                        Thickness={30}
+                        Color={new Color3(0.2, 0.8, 0.2)}
+                    />}
+                </imagelabel>
             </surfacegui>
         </surfacegui>
     )

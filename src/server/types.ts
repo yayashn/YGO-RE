@@ -59,6 +59,7 @@ export interface DuelFolder extends Folder {
     chainResolving: BoolValue
     actor: ControllerValue
     handleResponses: BindableFunction<(p: PlayerValue) => Promise<void>>
+    handleResponsesSync: BindableFunction<(p: PlayerValue) => void>
     speedSpell: IntValue
     attackingCard: CardValue
     defendingCard: CardValue

@@ -2,6 +2,7 @@ import { Duel } from "server/ygo/Duel";
 import { ServerScriptService } from "@rbxts/services";
 import confirm from "server/gui/confirm";
 import alert from "server/gui/alert";
+import { CardFolder } from "server/types";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
@@ -14,17 +15,24 @@ const duelRequestTimeout = 10; // Timeout in seconds
 const lastDuelRequest = new Map<Player, number>();
 
 clickDetector.MouseClick.Connect(async (opponent) => {
-    const opponentDecks = (opponent.WaitForChild("getDecks") as BindableFunction).Invoke() as Record<string, string[]>
-    const opponentEquippedDeck = (opponent.WaitForChild("getEquippedDeck") as BindableFunction).Invoke().deck as string
-    if(opponentDecks[opponentEquippedDeck].size() < 40) {
+    const opponentDecks = (opponent.WaitForChild("getDecks") as BindableFunction).Invoke() as Record<string, Record<string, CardFolder[]>>
+    const opponentEquippedDeck = (opponent.WaitForChild("getEquippedDeck") as BindableFunction).Invoke() as string
+    const playerDecks = (player.WaitForChild("getDecks") as BindableFunction).Invoke() as Record<string, Record<string, CardFolder[]>>
+    const playerEquippedDeck = (player.WaitForChild("getEquippedDeck") as BindableFunction).Invoke() as string
+
+    if(opponentDecks[opponentEquippedDeck].deck.size() < 40) {
+        await alert(opponent, "Opponent has less than 40 cards in their deck!");
+        return
+    }
+    
+    if(playerDecks[playerEquippedDeck].deck.size() < 40) {
         await alert(opponent, "You must have a deck with at least 40 cards to duel!");
         return
     }
 
     for(const duel of duels.GetChildren()) {
         if(string.match(duel.Name, `|${player.Name}`) || string.match(duel.Name, `${player.Name}|`)) {
-            print("You are already in a duel!");
-            await alert(opponent, "You are already in a duel!");
+            await alert(opponent, "Opponent is already in a duel!");
             return;
         }
     }

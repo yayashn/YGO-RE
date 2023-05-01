@@ -44,6 +44,7 @@ const App = withHooks(() => {
 	if(YGOPlayer && YGOOpponent) {
 		return (
 			<Roact.Fragment>
+				<frame/>
 				<surfacegui Key="Field">
 					<Player playerValue={YGOOpponent}/>
 					<Phases/>
@@ -76,7 +77,8 @@ const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
 			<Zone zone={field[playerType].BZone}/>
 			<Zone zone={field[playerType].GZone}/>
 			<Zone zone={field[playerType].EZone}/>
-			<Zone zone={field[playerType].Deck}/>
+			<Zone 
+			zone={field[playerType].Deck}/>
 			<Cards PlayerValue={playerValue}/>
 		</surfacegui>
 	)

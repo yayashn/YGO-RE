@@ -26,6 +26,8 @@ import {
 import { Card } from './Card'
 import changedOnce from 'shared/lib/changedOnce'
 import { addCardFloodgate, addFloodgate, hasCardFloodgate, removeCardFloodgate, removeFloodgate } from 'server/functions/floodgates'
+import promptSync from 'server/gui/promptSync'
+import changedOnceSync from 'shared/lib/changedOnceSync'
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
@@ -192,7 +194,9 @@ export const Duel = (p1: Player, p2: Player) => {
 
                 if (response === 'YES') {
                     passes = 0
+                    print("begin")
                     await changedOnce(actor.Value.action.Changed)
+                    print("changes")
                     await Promise.delay(.25)
                 } else if (response === 'NO') {
                     passes++
@@ -210,6 +214,52 @@ export const Duel = (p1: Player, p2: Player) => {
         await resolveChain()
     }
     createInstance('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
+
+    const handleResponsesSync = (p: PlayerValue) => {
+        if(handlingResponses) return
+        speedSpell.Value = 2
+        handlingResponses = true
+        gameState.Value = 'CLOSED'
+        let passes = 0
+        actor.Value = p
+
+        while (passes < 2) {
+            const numberOfResponses = responses[actor.Value.Name].size()
+            const lastCardInChain = chain[Object.keys(chain).size() - 1]
+            const chainStartMessage = `You have ${numberOfResponses} card/effect${
+                numberOfResponses > 1 ? 's' : ''
+            } that can be activated. Activate?`
+            const chainResponseMessage = `"${
+                lastCardInChain ? lastCardInChain.card.Name : '?'
+            }" is activated. Chain another card or effect?`
+
+            if (numberOfResponses > 0) {
+                const response = promptSync(
+                    actor.Value,
+                    numberOfResponses >= 1
+                        ? chainStartMessage
+                        : chainResponseMessage || chainStartMessage
+                )
+                if (response === 'YES') {
+                    passes = 0
+                    changedOnceSync(actor.Value.action.Changed)
+                    wait(.25)
+                } else if (response === 'NO') {
+                    passes++
+                }
+            } else {
+                passes++
+            }
+
+            clearAction(opponent(actor.Value))
+            if(passes < 2) {
+                actor.Value = opponent(actor.Value)
+            }
+        }
+        handlingResponses = false
+        resolveChain()
+    }
+    createInstance('BindableFunction', 'handleResponsesSync', folder).OnInvoke = handleResponsesSync
 
     const thread = [player1, player2].map((player) =>
         coroutine.wrap(() => {
@@ -341,7 +391,6 @@ export const Duel = (p1: Player, p2: Player) => {
     thread[1]()
 
     const handlePhases = async (p: Phase) => {
-        await Promise.delay(0.15)
         gameState.Value = 'OPEN'
         if (p === 'DP') {
             turn.Value++
@@ -363,8 +412,6 @@ export const Duel = (p1: Player, p2: Player) => {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             })
             for (const card of cardsInMZone) {
-                //card.canChangePosition.Value = true
-                //card.canAttack.Value = true
                 removeCardFloodgate(card, `disableAttackAfterAttack-${card.uid.Value}`)
                 removeCardFloodgate(card, `disableChangePositionAfterPlacement-${card.uid.Value}`)
                 removeCardFloodgate(card, `disableChangePositionAfterAttack-${card.uid.Value}`)
@@ -389,7 +436,7 @@ export const Duel = (p1: Player, p2: Player) => {
                 print('drew 5')
             } 
             turnPlayer.Value.draw.Invoke(1)
-            await handleResponses(turnPlayer.Value)
+            await handleResponses(turnPlayer.Value) //1
             await handlePhases('SP')
         } else if (p === 'SP') {
             phase.Value = p

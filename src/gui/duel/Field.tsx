@@ -3,6 +3,7 @@ import { useRef, useState, withHooks, useEffect } from "@rbxts/roact-hooked";
 import useMount from "gui/hooks/useMount";
 import useSelectableZones from "gui/hooks/useSelectableZones";
 import useYGOPlayer from "gui/hooks/useYGOPlayer";
+import FadeZone from "server-storage/animations/FadeZone/FadeZone";
 import type { Zone } from "server/types";
 import { fieldZones } from "shared/defs";
 
@@ -30,9 +31,7 @@ const FieldZoneButton = withHooks(
 		}, [buttonRef], buttonRef)
 
 		useEffect(() => {
-			if(isHovered && includesZone(zoneName, playerType)) {
-				buttonRef.getValue()!.BackgroundTransparency = 0.5;
-			} else if(isHovered || includesZone(zoneName, playerType)) {
+			if(includesZone(zoneName, playerType)) {
 				tween?.Play();
 			} else {
 				tween?.Cancel();
@@ -60,8 +59,9 @@ const FieldZoneButton = withHooks(
 					MouseLeave: () => {
 						setIsHovered(false);
 					},
-				}}
-			/>
+				}}>
+					<FadeZone playAnimation={isHovered && !includesZone(zoneName, playerType)}/>
+			</textbutton>
 		);
 	},
 );

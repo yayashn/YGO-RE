@@ -1,5 +1,5 @@
 import type { CardFolder, DuelFolder, PlayerValue, Position, SZone, Zone } from './types'
-import { ServerScriptService } from '@rbxts/services'
+import { ServerScriptService, Workspace } from '@rbxts/services'
 import Object from '@rbxts/object-utils'
 import { Location, MZone } from 'shared/types'
 import { JSON } from 'shared/utils'
@@ -92,6 +92,7 @@ export const setAction = (player: PlayerValue, action: Action) => {
     }
     player.action.Value = JSON.stringify(encodedAction)
 }
+
 
 export const getAction = (player: PlayerValue, forceAction?: string) => {
     const encodedAction = JSON.parse(forceAction ?? player.action.Value) as EncodedAction
@@ -227,15 +228,32 @@ export type SelectableZone = {
     }
 }
 
-export const getEmptyFieldZones = (
+
+const getFieldZonePart = (player: "Opponent" | "Player", part: MZone | SZone) => Workspace.Field3D.Field[player].Field[part] // Field contains all the MZones and SZones parts.
+
+export function getEmptyFieldZones(
     zoneType: 'MZone' | 'SZone' | 'Both',
     YGOPlayer: PlayerValue,
     zoneSide: "Player" | "Opponent" | 'Both'
-) => {
+): string;
+
+export function getEmptyFieldZones(
+    zoneType: 'MZone' | 'SZone' | 'Both',
+    YGOPlayer: PlayerValue,
+    zoneSide: "Player" | "Opponent" | 'Both',
+    getPart: true
+): unknown[];
+
+export function getEmptyFieldZones(
+    zoneType: 'MZone' | 'SZone' | 'Both',
+    YGOPlayer: PlayerValue,
+    zoneSide: "Player" | "Opponent" | 'Both',
+    getPart?: boolean
+): string | unknown[] {
     const duel = YGOPlayer.FindFirstAncestorWhichIsA('Folder') as DuelFolder
-    const SZones = ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
-    const MZones = ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
-    const allZones = [...SZones, ...MZones]
+    const SZones: SZone[] = ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
+    const MZones: MZone[] = ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
+    const allZones: Location[] = [...SZones, ...MZones]
 
     const takenFieldZones = getFilteredCards(duel, {
         location: (zoneType === 'Both'
@@ -247,15 +265,23 @@ export const getEmptyFieldZones = (
     }).map((card) => card.location.Value)
 
     const emptyFieldZones = (zoneType === 'Both' ? allZones : zoneType === 'SZone' ? SZones : MZones)
-        .filter((zone) => !takenFieldZones.includes(zone as MZone | SZone))
+        .filter((zone) => !takenFieldZones.includes(zone))
         .map((zone) => {
-            return {
-                [zone as MZone | SZone]: {
-                    opponent: zoneSide === 'Both' || zoneSide === "Opponent",
-                    player: zoneSide === 'Both' || zoneSide === "Player"
+            if (getPart) {
+                return getFieldZonePart(zoneSide === 'Both' ? "Player" : zoneSide, zone as MZone | SZone);
+            } else {
+                return {
+                    [zone]: {
+                        opponent: zoneSide === 'Both' || zoneSide === "Opponent",
+                        player: zoneSide === 'Both' || zoneSide === "Player"
+                    }
                 }
             }
         })
 
-    return JSON.stringify(emptyFieldZones)
+    if (getPart) {
+        return emptyFieldZones;
+    } else {
+        return JSON.stringify(emptyFieldZones);
+    }
 }

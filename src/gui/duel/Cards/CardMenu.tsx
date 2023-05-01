@@ -15,7 +15,7 @@ import useYGOPlayer from 'gui/hooks/useYGOPlayer'
 import type { CardFolder } from 'server/types'
 import { HttpService } from '@rbxts/services'
 import { Button, Text } from 'shared/rowindcss/index'
-import { getEmptyFieldZones, getFilteredCards, getTargets, pickTargets, stringifyCards } from 'server/utils'
+import { getEmptyFieldZones, getFilteredCards, getTargets, pickTargets, setAction, stringifyCards } from 'server/utils'
 import useGameState from 'gui/hooks/useGameState'
 import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
@@ -27,7 +27,7 @@ import useCardStats from 'gui/hooks/useCardStats'
 import useLocation from 'gui/hooks/useLocation'
 import { includes } from 'shared/utils'
 import usePosition from 'gui/hooks/usePosition'
-import { hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'server/functions/floodgates'
+import { addCardFloodgateAsync, hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'server/functions/floodgates'
 import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 import useRace from 'gui/hooks/useRace'
@@ -107,8 +107,26 @@ export default withHooks(
             'Normal Summon': async () => {
                 YGOPlayer.canNormalSummon.Value = false
                 YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
-                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
-                card.normalSummon.Fire(zone)
+                
+                const connection = YGOPlayer.selectedZone.Changed.Connect((zone) => {
+                    connection.Disconnect()
+                    card.normalSummon.Fire(zone)
+                    setAction(YGOPlayer, {
+                        action: "Normal Summon",
+                        summonedCards: [card]
+                    })
+                    addCardFloodgateAsync(card, {
+                        floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+                        floodgateName: "disableChangePosition",
+                        floodgateCause: "Mechanic",
+                        floodgateFilter: {
+                            uid: [card.uid.Value]
+                        }
+                    })
+                })
+                while (connection.Connected) {
+                    await Promise.delay(0)
+                }
                 YGOPlayer.selectedZone.Value = ''
                 YGOPlayer.selectableZones.Value = '[]'
             },
@@ -189,10 +207,10 @@ export default withHooks(
                     duel!.attackingCard.Value = card
                     duel!.defendingCard.Value = getTargets(YGOPlayer)[0]
                     
-                    duel!.handleResponses.Invoke(YGOPlayer)
+                    duel!.handleResponsesSync.Invoke(YGOPlayer)
                 } else {
                     duel!.attackingCard.Value = card
-                    duel!.handleResponses.Invoke(YGOPlayer)
+                    duel!.handleResponsesSync.Invoke(YGOPlayer)
                 }
             },
             'Tribute Summon': async () => {

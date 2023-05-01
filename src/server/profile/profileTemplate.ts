@@ -3,23 +3,58 @@ export type Card = {
 }
 
 const defaultCardsDev = [
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Gaia The Fierce Knight" },
-    { name: "Curse of Dragon" },
-    { name: "Polymerization" },
-    { name: "Polymerization" },
-    { name: "Polymerization" },
-    { name: "Polymerization" },
-    { name: "Polymerization" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
+    { name: "Monster Reborn" },
+    { name: "Man-Eater Bug" },
+    { name: "Dragon Capture Jar" },
 ]
 
 const defaultCards = [
@@ -72,14 +107,12 @@ const decks: {
     }
 } = {
     "default": {
-        deck: [...defaultCards],
-        extra: [
-            { name: "Gaia the Dragon Champion" },
-        ],
+        deck: [...defaultCardsDev],
+        extra: [],
     }
 }
 
-const cards: Card[] = [...defaultCards]
+const cards: Card[] = [...defaultCardsDev]
 
 const profileTemplate = {
     decks,

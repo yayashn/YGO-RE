@@ -6,9 +6,13 @@ export default (image: Roact.Ref<ImageButton>) => {
     const [loading, setLoading] = useState(true);
 
     useMount(() => {
-        image.getValue()!.GetPropertyChangedSignal("IsLoaded").Connect(() => {
+        const connection = image.getValue()!.GetPropertyChangedSignal("IsLoaded").Connect(() => {
             setLoading(!image.getValue()!.IsLoaded)
         })
+
+        return () => {
+            connection.Disconnect();
+        }
     }, [], image)
 
     return loading;

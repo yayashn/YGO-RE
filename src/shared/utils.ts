@@ -51,14 +51,15 @@ export const JSON = {
     parse: (str: string) => httpService.JSONDecode(str) as Record<string, unknown> | unknown[]
 }
 
-export const getCardData = (cardName: string) => {
-    const cards = [];
-    for(const set of ReplicatedStorage.FindFirstChild("cards")!.GetChildren()) {
-        for(const card of set.GetChildren()) {
-            if(card.FindFirstChild("art")) {
-                cards.push(card);
-            }
+const cards: Record<string, Instance> = {};
+for(const set of ReplicatedStorage.FindFirstChild("cards")!.GetChildren()) {
+    for(const card of set.GetChildren()) {
+        if(card.FindFirstChild("art")) {
+            cards[card.Name] = card
         }
     }
-    return cards.find((c) => c.Name === cardName);
+}
+
+export const getCardData = (cardName: string) => {
+    return cards[cardName];
 }

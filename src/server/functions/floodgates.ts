@@ -83,6 +83,16 @@ export const addCardFloodgate = (card: CardFolder, floodgate: FloodgateCard) => 
     return () => removeCardFloodgate(card, floodgate.floodgateUid)
 }
 
+export const addCardFloodgateAsync = (card: CardFolder, floodgate: FloodgateCard) => {
+    new Promise((resolve) => {
+        const duel = card.controller.Value.Parent as DuelFolder
+        const floodgatesCard = getCardFloodgates(card)
+        floodgatesCard.push(floodgate)
+        duel.floodgates.Value = JSON.stringify(floodgatesCard)
+        resolve(() => removeCardFloodgate(card, floodgate.floodgateUid))
+    })
+}
+
 export const addCardFloodgates = (card: CardFolder, floodgateConfigs: FloodgateCard[]) => {
     const removeFunctions: (() => void)[] = [];
     for (const config of floodgateConfigs) {

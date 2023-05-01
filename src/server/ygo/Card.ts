@@ -1,6 +1,6 @@
 import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
-import { addCardFloodgate, removeCardFloodgate } from "server/functions/floodgates"
+import { addCardFloodgate, addCardFloodgateAsync, removeCardFloodgate } from "server/functions/floodgates"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
 import { getEmptyFieldZones, getFilteredCards, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
@@ -49,20 +49,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
     }
 
     const NormalSummon = (_location: MZone) => {
-        setAction(controller.Value, {
-            action: "Normal Summon",
-            summonedCards: [card]
-        })
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
-        addCardFloodgate(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
-            floodgateName: "disableChangePosition",
-            floodgateCause: "Mechanic",
-            floodgateFilter: {
-                uid: [card.uid.Value]
-            }
-        })
         Summon(_location)
     }
     ;(instance('BindableEvent', 'normalSummon', card) as BindableEvent).Event.Connect(NormalSummon)
@@ -70,6 +58,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
     const SpecialSummon = (_location: MZone, newPosition: Position) => {
         position.Value = newPosition
         controller.Value.canNormalSummon.Value = false
+        Summon(_location)
         addCardFloodgate(card, {
             floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
             floodgateName: "disableChangePosition",
@@ -78,18 +67,18 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 uid: [card.uid.Value]
             }
         })
-        Summon(_location)
     }
     createInstance('BindableEvent', 'specialSummon', card).Event.Connect(SpecialSummon)
 
     const Set = (_location: SZone | MZone) => {
         if (card.type.Value.match('Monster').size() > 0) {
+            position.Value = 'FaceDownDefense'
+            controller.Value.canNormalSummon.Value = false
+            location.Value = _location
             setAction(controller.Value, {
                 action: "Set Monster",
                 summonedCards: [card]
             })
-            position.Value = 'FaceDownDefense'
-            controller.Value.canNormalSummon.Value = false
             addCardFloodgate(card, {
                 floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
                 floodgateName: "disableChangePosition",
@@ -99,24 +88,24 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 }
             })
         } else {
-            setAction(controller.Value, {
-                action: "Set",
-                summonedCards: [card]
-            })
             position.Value = 'FaceDown'
             if(card["type"].Value.match("Trap").size() > 0 || card["type"].Value.match("Quick").size() > 0) {
                 canActivate.Value = false;
             }
+            location.Value = _location
+            setAction(controller.Value, {
+                action: "Set",
+                summonedCards: [card]
+            })
         }
-        location.Value = _location
     }
     ;(instance('BindableEvent', 'set', card) as BindableEvent).Event.Connect(Set)
 
     const toGraveyard = () => {
+        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
         controller.Value = _owner
         position.Value = 'FaceUp'
         location.Value = 'GZone'
-        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
     }
     ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
 
@@ -140,10 +129,10 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
     createInstance('BindableFunction', 'reveal', card).OnInvoke = reveal
 
     const banish = (newPosition: Position) => {
+        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
         controller.Value = _owner
         position.Value = newPosition
         location.Value = 'BZone'
-        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
     }
     createInstance('BindableEvent', 'banish', card).Event.Connect(banish)
 
@@ -357,8 +346,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                     uid: [card.uid.Value]
                 }
             })
-            duel.battleStep.Value = 'DAMAGE'
-            duel.damageStep.Value = 'START'
+            duel.battleStep.Value = 'DAMAGE';
+            duel.damageStep.Value = 'START';
             duel.handleResponses.Invoke(duel.turnPlayer.Value)
             //during damage step only effects
             //start of damage step effects
@@ -392,7 +381,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         }
 
         const damageCalculation = () => {
-            duel.damageStep.Value = 'DURING'
+            duel.damageStep.Value = 'DURING';
             //during damage calculation only effects immediately
             //during damage calculation effects
             duel.handleResponses.Invoke(duel.turnPlayer.Value)
@@ -431,6 +420,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
             //after damage calculation effects
             //battle damage effects
             //flip effects
+            duel.handleResponses.Invoke(duel.turnPlayer.Value)
             if(defenderIsFlip) {
                 const cost = defender.getCost.Invoke()
                 if(cost) {
@@ -461,6 +451,8 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 }
             }
             duel.battleStep.Value = 'BATTLE'
+            duel.attackingCard.Value = undefined
+            duel.defendingCard.Value = undefined
         }
         startOfDamageStep()
     }

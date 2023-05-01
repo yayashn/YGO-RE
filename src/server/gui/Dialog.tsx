@@ -28,13 +28,14 @@ export default withHooks<DialogProps>(({ message, options, handleInput, player }
         if (inputRef.getValue()) {
             const cardSearchScriptClone = cardSearchScript.Clone()
             cardSearchScriptClone.Parent = inputRef.getValue()
-            cardSearchInput.OnServerEvent.Connect((p, text) => {
+            const connection = cardSearchInput.OnServerEvent.Connect((p, text) => {
                 if (p !== player) return
                 setInput(text as string)
             })
 
             return () => {
                 cardSearchScriptClone.Destroy()
+                connection.Disconnect()
             }
         }
     }, [inputRef])
