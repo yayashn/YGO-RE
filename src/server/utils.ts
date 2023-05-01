@@ -90,6 +90,7 @@ export const setAction = (player: PlayerValue, action: Action) => {
     if(encodedAction.acivatedCard) {
         encodedAction.acivatedCard = stringifyCards(action.acivatedCards!)
     }
+    
     player.action.Value = JSON.stringify(encodedAction)
 }
 

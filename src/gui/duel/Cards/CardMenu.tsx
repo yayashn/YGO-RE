@@ -111,18 +111,6 @@ export default withHooks(
                 const connection = YGOPlayer.selectedZone.Changed.Connect((zone) => {
                     connection.Disconnect()
                     card.normalSummon.Fire(zone)
-                    setAction(YGOPlayer, {
-                        action: "Normal Summon",
-                        summonedCards: [card]
-                    })
-                    addCardFloodgateAsync(card, {
-                        floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
-                        floodgateName: "disableChangePosition",
-                        floodgateCause: "Mechanic",
-                        floodgateFilter: {
-                            uid: [card.uid.Value]
-                        }
-                    })
                 })
                 while (connection.Connected) {
                     await Promise.delay(0)

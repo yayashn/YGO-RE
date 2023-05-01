@@ -52,6 +52,19 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
         Summon(_location)
+        wait(1)
+        setAction(controller.Value, {
+            action: "Normal Summon",
+            summonedCards: [card]
+        })
+        addCardFloodgateAsync(card, {
+            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            floodgateName: "disableChangePosition",
+            floodgateCause: "Mechanic",
+            floodgateFilter: {
+                uid: [card.uid.Value]
+            }
+        })
     }
     ;(instance('BindableEvent', 'normalSummon', card) as BindableEvent).Event.Connect(NormalSummon)
 
@@ -59,6 +72,11 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         position.Value = newPosition
         controller.Value.canNormalSummon.Value = false
         Summon(_location)
+        wait(1)
+        setAction(controller.Value, {
+            action: "Special Summon",
+            summonedCards: [card]
+        })
         addCardFloodgate(card, {
             floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
             floodgateName: "disableChangePosition",
@@ -75,6 +93,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
             position.Value = 'FaceDownDefense'
             controller.Value.canNormalSummon.Value = false
             location.Value = _location
+            wait(1)
             setAction(controller.Value, {
                 action: "Set Monster",
                 summonedCards: [card]
@@ -93,6 +112,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 canActivate.Value = false;
             }
             location.Value = _location
+            wait(1)
             setAction(controller.Value, {
                 action: "Set",
                 summonedCards: [card]
@@ -154,10 +174,6 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
     )
 
     const tributeSummon = (_location: MZone) => {
-        setAction(controller.Value, {
-            action: "Tribute Summon",
-            summonedCards: [card]
-        })
         position.Value = 'FaceUpAttack'
         controller.Value.canNormalSummon.Value = false
         addCardFloodgate(card, {
@@ -169,6 +185,11 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
             }
         })
         Summon(_location)
+        wait(1)
+        setAction(controller.Value, {
+            action: "Tribute Summon",
+            summonedCards: [card]
+        })
     }
     ;(instance('BindableEvent', 'tributeSummon', card) as BindableEvent).Event.Connect(
         tributeSummon
