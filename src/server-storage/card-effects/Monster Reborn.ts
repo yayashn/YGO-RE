@@ -28,9 +28,9 @@ export default (card: CardFolder) => {
 
     const effect = async () => {
         const targets = getTargets(controller, card.targets.Value)
+        targets[0].controller.Value = controller
         const zone = await pickZone(controller);
         const position = await pickPosition(controller, targets[0]);
-        targets[0].controller.Value = controller
         targets[0].specialSummon.Fire(zone, position)
     }
 

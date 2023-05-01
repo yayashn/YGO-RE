@@ -327,6 +327,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0 || location.Value.match("FZone").size() > 0) {
                     position.Value = 'FaceUp'
                 }
+                wait(1)
                 setAction(card.controller.Value, {
                     action: "Activate Effect Spell",
                     summonedCards: [card]
@@ -334,12 +335,14 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
                 duel.addToChain.Fire(card, effect!)
             } else if(card.type.Value === "Trap Card") {
                 position.Value = 'FaceUp'
+                wait(1)
                 setAction(card.controller.Value, {
                     action: "Activate Effect Trap",
                     summonedCards: [card]
                 })
                 duel.addToChain.Fire(card, effect!)
             } else if(includes(card.type.Value, "Monster")) {
+                wait(1)
                 setAction(card.controller.Value, {
                     action: "Activate Effect Monster Flip",
                     summonedCards: [card]
