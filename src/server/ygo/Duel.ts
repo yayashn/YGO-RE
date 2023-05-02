@@ -183,14 +183,22 @@ export const Duel = (p1: Player, p2: Player) => {
                 lastCardInChain ? lastCardInChain.card.Name : '?'
             }" is activated. Chain another card or effect?`
 
+            print(numberOfResponses, actor.Value)
+
             if (numberOfResponses > 0) {
+                print(`if (numberOfResponses > 0) {`)
+                print("!",numberOfResponses >= 1
+                    ? chainStartMessage
+                    : chainResponseMessage || chainStartMessage)
                 const { endPrompt, response } = await prompt(
                     actor.Value,
                     numberOfResponses >= 1
                         ? chainStartMessage
                         : chainResponseMessage || chainStartMessage
                 )
+                print(`before endPrompt()`)
                 endPrompt()
+                print(`after endPrompt()`)
 
                 if (response === 'YES') {
                     passes = 0
@@ -204,10 +212,13 @@ export const Duel = (p1: Player, p2: Player) => {
             } else {
                 passes++
             }
+            print("end", passes)
 
             clearAction(opponent(actor.Value))
             if(passes < 2) {
                 actor.Value = opponent(actor.Value)
+            } else if(passes === 2) {
+                actor.Value = turnPlayer.Value
             }
         }
         handlingResponses = false
@@ -254,6 +265,8 @@ export const Duel = (p1: Player, p2: Player) => {
             clearAction(opponent(actor.Value))
             if(passes < 2) {
                 actor.Value = opponent(actor.Value)
+            } else if(passes === 2) {
+                actor.Value = turnPlayer.Value
             }
         }
         handlingResponses = false
@@ -421,6 +434,7 @@ export const Duel = (p1: Player, p2: Player) => {
                 actor.Value = turnPlayer.Value
             }
             phase.Value = p
+            await Promise.delay(1)
             turnPlayer.Value.canNormalSummon.Value = true
             if (turn.Value === 1) {
                 const thread = [player1, player2].map((player) =>
@@ -440,20 +454,25 @@ export const Duel = (p1: Player, p2: Player) => {
             await handlePhases('SP')
         } else if (p === 'SP') {
             phase.Value = p
+            await Promise.delay(1)
             await handleResponses(turnPlayer.Value)
             await handlePhases('MP1')
         } else if (p === 'MP1') {
             phase.Value = p
+            await Promise.delay(1)
         } else if (p === 'BP') {
             phase.Value = p
+            await Promise.delay(1)
             battleStep.Value = 'START'
             await handleResponses(turnPlayer.Value)
             battleStep.Value = 'BATTLE'
         } else if (p === 'MP2') {
             phase.Value = p
+            await Promise.delay(1)
         } else if (p === 'EP') {
             if (phase.Value === 'MP1' || phase.Value === 'MP2') {
                 phase.Value = p
+                await Promise.delay(1)
                 await handleResponses(turnPlayer.Value)
                 await handlePhases('DP')
             } else if (phase.Value === 'BP') {
