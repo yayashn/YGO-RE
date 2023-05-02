@@ -12,6 +12,12 @@ const playersFolder = ServerScriptService.FindFirstChild("instances")!.FindFirst
 export default (profile: Profile<ProfileTemplate>, player: Player) => {
     const playerFolder = playersFolder.WaitForChild(player.Name) as Folder;
 
+    const dp = createInstance("NumberValue", "dp", playerFolder);
+    dp.Value = profile.Data.dp;
+    dp.Changed.Connect(value => {
+        profile.Data.dp = value;
+    })
+
     const getDecksBf = createInstance("BindableFunction", "getDecks", player);
     getDecksBf.OnInvoke = () => {
         return getDecks(profile)
@@ -40,10 +46,9 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
     const buyCardsBf = createInstance("BindableFunction", "buyCards", player);
     buyCardsBf.OnInvoke =(pack: string) => {
         const packData = packs[pack];
-        const dp = profile.Data.dp
 
-        if(dp >= packData.price) {
-            setDPBe.Fire(dp - packData.price);
+        if(dp.Value >= packData.price) {
+            dp.Value -= packData.price;
             
             const cards = packData.getFullRandomPack();
             cards.forEach(card => {
@@ -79,21 +84,6 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
         avatar.Value = currentAvatar;
         return currentAvatar;
     }
-
-    const dp = createInstance("NumberValue", "dp", playerFolder);
-    const getDPBf = createInstance("BindableFunction", "getDP", player);
-    getDPBf.OnInvoke = () => {
-        const currentDP = getDP(profile);
-        dp.Value = currentDP;
-        return currentDP;
-    }
-    const setDPBe = createInstance("BindableEvent", "setDP", player);
-    setDPBe.Event.Connect((newDP: number) => {
-        profile.Data.dp = newDP;
-        dp.Value = newDP;
-    })
-    const currentDP = getDP(profile);
-    dp.Value = currentDP;
 
     const addDeckBe = createInstance("BindableEvent", "addDeck", player);
     addDeckBe.Event.Connect((deckName: string) => {

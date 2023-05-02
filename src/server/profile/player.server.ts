@@ -1,4 +1,4 @@
-import { instance } from "shared/utils";
+import { createInstance, instance } from "shared/utils";
 import { Players, ServerScriptService, ReplicatedStorage, HttpService } from "@rbxts/services"
 import ProfileService from "@rbxts/profileservice";
 import profileTemplate, { Card, ProfileTemplate } from "./profileTemplate";
@@ -24,7 +24,7 @@ Players.PlayerAdded.Connect((player) => {
 		if(player.IsDescendantOf(Players)) {
 			profiles[player.UserId] = profile;
 			initPlayer(player);
-			profile.Data = profileTemplate; // RESET DATA
+			profile.Data = {...profileTemplate}; // RESET DATA
 			initDataFunctions(profile, player);
 		} else {
 			profile.Release();
