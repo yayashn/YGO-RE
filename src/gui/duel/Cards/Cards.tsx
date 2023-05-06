@@ -18,6 +18,7 @@ import { cardInfoStore } from 'gui/duel/CardInfo'
 import { useGlobalState } from 'shared/useGlobalState'
 import { motion } from 'shared/motion'
 import HoverCard from 'server-storage/animations/HoverCard/HoverCard'
+import useLocation from 'gui/hooks/useLocation'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -100,7 +101,12 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const isTarget = useIsTarget(card)
     const isTargettable = useIsTargettable(card)
     const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
+    const [enlarged, setEnlarged] = useState(false)
+    const location = useLocation(card)
 
+    useEffect(() => {
+        setEnlarged(hover || card.location.Value !== "Hand")
+    }, [hover, location])
 
     useMount(
         () => {
@@ -240,7 +246,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     }}
                 >
                     <HoverCard
-                        playAnimation={(hover || card.location.Value !== "Hand")}
+                        playAnimation={enlarged}
                     />
                     {(isTargettable && !isTarget) && <motion.uistroke
                         Thickness={20}
@@ -285,7 +291,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     }}
                 >
                     <HoverCard
-                        playAnimation={(hover || card.location.Value !== "Hand")}
+                        playAnimation={enlarged}
                     />
                     {(isTargettable && !isTarget) && <motion.uistroke
                         Thickness={20}

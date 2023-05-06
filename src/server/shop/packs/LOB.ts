@@ -1,11 +1,11 @@
 import { PackCard } from "./packs";
 
 const rarities = {
-    rare: 0.839,
+    rare: 0.8389,
     super: 0.1,
-    ultra: .05,
-    secret: .01,
-    gold: 0.001,
+    ultra: 0.05,
+    secret: 0.01,
+    gold: 0.0001,
 }
 
 export const cards: PackCard[] = [

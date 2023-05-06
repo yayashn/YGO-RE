@@ -78,12 +78,10 @@ export default (profile: Profile<ProfileTemplate>, player: Player) => {
     }
 
     const avatar = createInstance("StringValue", "avatar", playerFolder);
-    const getAvatarBf = createInstance("BindableFunction", "getAvatar", player);
-    getAvatarBf.OnInvoke = () => {
-        const currentAvatar = avatars[profile.Data.equipped.avatar];
-        avatar.Value = currentAvatar;
-        return currentAvatar;
-    }
+    avatar.Value = profile.Data.equipped.avatar;
+    avatar.Changed.Connect(value => {
+        profile.Data.equipped.avatar = value;
+    })
 
     const addDeckBe = createInstance("BindableEvent", "addDeck", player);
     addDeckBe.Event.Connect((deckName: string) => {

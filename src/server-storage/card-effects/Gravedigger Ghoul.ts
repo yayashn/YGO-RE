@@ -1,4 +1,4 @@
-import { getCard, getFilteredCards, getTargets, pickTargets, setTargets, stringifyCards } from "server/utils";
+import { getCard, getFilteredCards, getOpponent, getTargets, pickTargets, setTargets, stringifyCards } from "server/utils";
 import type { CardFolder, DuelFolder, PlayerValue } from "server/types";
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
@@ -14,6 +14,7 @@ export default (card: CardFolder) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['GZone'],
             type: ['Monster'],
+            controller: [getOpponent(controller)]
         })
         return targettableCards.size() >= 2
     }
@@ -22,6 +23,7 @@ export default (card: CardFolder) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['GZone'],
             type: ['Monster'],
+            controller: [getOpponent(controller)]
         })
         card.targets.Value = pickTargets(controller, 2, stringifyCards(targettableCards))
     }

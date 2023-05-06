@@ -24,7 +24,7 @@ Players.PlayerAdded.Connect((player) => {
 		if(player.IsDescendantOf(Players)) {
 			profiles[player.UserId] = profile;
 			initPlayer(player);
-			profile.Data = {...profileTemplate}; // RESET DATA
+			//profile.Data = {...profileTemplate}; // RESET DATA
 			initDataFunctions(profile, player);
 		} else {
 			profile.Release();

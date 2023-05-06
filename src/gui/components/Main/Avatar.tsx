@@ -17,22 +17,6 @@ try {
 export default withHooks(() => {
     const [avatar, setAvatar] = useState<string>(avatars["Kuriboh"])
 
-    useEffect(() => {
-        if (!DEV && !player) {
-            return
-        }
-
-       const connection = avatarValue.Changed.Connect((newAvatar) => {
-            setAvatar(newAvatar)
-       })
-
-       setAvatar(avatarValue.Value)
-
-        return () => {
-            connection.Disconnect()
-        }
-    }, [avatar])
-
     return (
         <frame
             LayoutOrder={2}

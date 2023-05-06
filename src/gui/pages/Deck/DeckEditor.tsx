@@ -203,7 +203,6 @@ export default withHooks(() => {
                     {deck.map((card) => {
                         try {
                             const cardData = getCardData(card.name) as CardFolder
-                            print(cardData, card.name)
                             const art = cardData.art.Image
                             return (
                                 <imagebutton

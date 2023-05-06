@@ -15,6 +15,10 @@
         },
         {
             "ClassName": "RemoteEvent",
+            "Name": "attackCard3D.re"
+        },
+        {
+            "ClassName": "RemoteEvent",
             "Name": "cardSearchInput"
         }
     ]

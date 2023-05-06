@@ -27,7 +27,7 @@ import useCardStats from 'gui/hooks/useCardStats'
 import useLocation from 'gui/hooks/useLocation'
 import { includes } from 'shared/utils'
 import usePosition from 'gui/hooks/usePosition'
-import { addCardFloodgateAsync, hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'server/functions/floodgates'
+import { addCardFloodgate, addCardFloodgateAsync, hasCardFloodgate, hasCardStatChangeFloodgate, hasFloodgate } from 'server/functions/floodgates'
 import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 import useRace from 'gui/hooks/useRace'
@@ -172,12 +172,27 @@ export default withHooks(
                     YGOPlayer.selectedZone.Value = ''
                     YGOPlayer.selectableZones.Value = '[]'
                 }
-                
             },
             'Flip Summon': () => {
-                card.flipSummon.Fire()
+                card.flipSummon.Fire();
             },
-            Attack: async () => {
+            Attack: () => {
+                addCardFloodgate(card, {
+                    floodgateUid: `disableChangePositionAfterAttack-${card.uid.Value}`,
+                    floodgateName: "disableChangePosition",
+                    floodgateCause: "Mechanic",
+                    floodgateFilter: {
+                        uid: [card.uid.Value]
+                    }
+                })
+                addCardFloodgate(card, {
+                    floodgateName: 'disableAttack',
+                    floodgateUid: `disableAttackAfterAttack-${card.uid.Value}`,
+                    floodgateCause: "Mechanic",
+                    floodgateFilter: {
+                        uid: [card.uid.Value]
+                    }
+                })
                 const monstersOnOpponentField = getFilteredCards(duel!, {
                     location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                     controller: [YGOOpponent]
@@ -191,14 +206,15 @@ export default withHooks(
                             controller: [YGOOpponent]
                         }))
                     ))
-                    
                     duel!.attackingCard.Value = card
                     duel!.defendingCard.Value = getTargets(YGOPlayer)[0]
                     
                     duel!.handleResponsesSync.Invoke(YGOPlayer)
                 } else {
                     duel!.attackingCard.Value = card
+                    print(1)
                     duel!.handleResponsesSync.Invoke(YGOPlayer)
+                    print(2)
                 }
             },
             'Tribute Summon': async () => {
@@ -429,10 +445,13 @@ export default withHooks(
                                 BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
                                 BorderColor3={new Color3(26 / 255, 101 / 255, 110 / 255)}
                                 Event={{
-                                    MouseButton1Click: async () => {
+                                    MouseButton1Click: async (e) => {
                                         setShowMenu(false)
                                         if (!isCardActionEnabled(button)) return
                                         removeCardAction()
+                                        if(button === "Attack") {
+                                            wait(.1)
+                                        }
                                         cardActions[button]()
                                     }
                                 }}

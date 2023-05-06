@@ -94,7 +94,8 @@ export const Duel = (p1: Player, p2: Player) => {
         }
     )
 
-    const resolveChain = async () => {
+    const resolveChain = () => {
+        print(5)
         if (chainResolving.Value === true) return
         chainResolving.Value = true
         //from highest key to lowest key
@@ -103,7 +104,7 @@ export const Duel = (p1: Player, p2: Player) => {
             if (!negated && card.effectsNegated.Value === false) {
                 effect()
             }
-            await Promise.delay(3)
+            wait(3)
             card.chainLink.Value = 0
             if(!includes(card.race.Value, "Equip")) {
                 card.targets.Value = ''
@@ -128,11 +129,11 @@ export const Duel = (p1: Player, p2: Player) => {
         
         if(battleStep.Value === "BATTLE" && attackingCard.Value) {
             if(attackingCard.Value.attackNegated.Value === false) {
+                print(6)
                 attackingCard.Value.attack.Fire(defendingCard.Value || opponent(turnPlayer.Value))
             }
         }
         try {
-            //attackingCard.Value!.canAttack.Value = false
             addCardFloodgate(attackingCard.Value!, {
                 floodgateName: 'disableAttack',
                 floodgateUid: `disableAttackAfterAttack-${attackingCard.Value!.uid.Value}`,
@@ -147,6 +148,7 @@ export const Duel = (p1: Player, p2: Player) => {
         }
         attackingCard.Value = undefined
         defendingCard.Value = undefined
+        print('end')
     }
 
     const prompt = async (p: PlayerValue, msg: string) => {
@@ -183,36 +185,25 @@ export const Duel = (p1: Player, p2: Player) => {
                 lastCardInChain ? lastCardInChain.card.Name : '?'
             }" is activated. Chain another card or effect?`
 
-            print(numberOfResponses, actor.Value)
-
             if (numberOfResponses > 0) {
-                print(`if (numberOfResponses > 0) {`)
-                print("!",numberOfResponses >= 1
-                    ? chainStartMessage
-                    : chainResponseMessage || chainStartMessage)
                 const { endPrompt, response } = await prompt(
                     actor.Value,
                     numberOfResponses >= 1
                         ? chainStartMessage
                         : chainResponseMessage || chainStartMessage
                 )
-                print(`before endPrompt()`)
                 endPrompt()
-                print(`after endPrompt()`)
 
                 if (response === 'YES') {
                     passes = 0
-                    print("begin")
                     await changedOnce(actor.Value.action.Changed)
-                    print("changes")
-                    await Promise.delay(.25)
+                    await Promise.delay(.15)
                 } else if (response === 'NO') {
                     passes++
                 }
             } else {
                 passes++
             }
-            print("end", passes)
 
             clearAction(opponent(actor.Value))
             if(passes < 2) {
@@ -222,11 +213,12 @@ export const Duel = (p1: Player, p2: Player) => {
             }
         }
         handlingResponses = false
-        await resolveChain()
+        resolveChain()
     }
     createInstance('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
 
     const handleResponsesSync = (p: PlayerValue) => {
+        print(3)
         if(handlingResponses) return
         speedSpell.Value = 2
         handlingResponses = true
@@ -236,15 +228,15 @@ export const Duel = (p1: Player, p2: Player) => {
 
         while (passes < 2) {
             const numberOfResponses = responses[actor.Value.Name].size()
-            const lastCardInChain = chain[Object.keys(chain).size() - 1]
-            const chainStartMessage = `You have ${numberOfResponses} card/effect${
-                numberOfResponses > 1 ? 's' : ''
-            } that can be activated. Activate?`
-            const chainResponseMessage = `"${
-                lastCardInChain ? lastCardInChain.card.Name : '?'
-            }" is activated. Chain another card or effect?`
 
             if (numberOfResponses > 0) {
+                const lastCardInChain = chain[Object.keys(chain).size() - 1]
+                const chainStartMessage = `You have ${numberOfResponses} card/effect${
+                    numberOfResponses > 1 ? 's' : ''
+                } that can be activated. Activate?`
+                const chainResponseMessage = `"${
+                    lastCardInChain ? lastCardInChain.card.Name : '?'
+                }" is activated. Chain another card or effect?`
                 const response = promptSync(
                     actor.Value,
                     numberOfResponses >= 1
@@ -254,7 +246,6 @@ export const Duel = (p1: Player, p2: Player) => {
                 if (response === 'YES') {
                     passes = 0
                     changedOnceSync(actor.Value.action.Changed)
-                    wait(.25)
                 } else if (response === 'NO') {
                     passes++
                 }
@@ -270,6 +261,7 @@ export const Duel = (p1: Player, p2: Player) => {
             }
         }
         handlingResponses = false
+        print(4)
         resolveChain()
     }
     createInstance('BindableFunction', 'handleResponsesSync', folder).OnInvoke = handleResponsesSync
@@ -318,6 +310,12 @@ export const Duel = (p1: Player, p2: Player) => {
             canNormalSummon.Value = true
 
             lifePoints.Value = 8000
+
+            lifePoints.Changed.Connect((lp) => {
+                if (lp <= 0) {
+                    endDuel(opponent(player))
+                }
+            })
 
 
             const handleCardResponseF = (card: CardFolder) => {
@@ -434,7 +432,7 @@ export const Duel = (p1: Player, p2: Player) => {
                 actor.Value = turnPlayer.Value
             }
             phase.Value = p
-            await Promise.delay(1)
+            await Promise.delay(.15)
             turnPlayer.Value.canNormalSummon.Value = true
             if (turn.Value === 1) {
                 const thread = [player1, player2].map((player) =>
@@ -447,32 +445,31 @@ export const Duel = (p1: Player, p2: Player) => {
                 thread[0]()
                 thread[1]()
                 await Promise.delay(.25*5)
-                print('drew 5')
             } 
             turnPlayer.Value.draw.Invoke(1)
             await handleResponses(turnPlayer.Value) //1
             await handlePhases('SP')
         } else if (p === 'SP') {
             phase.Value = p
-            await Promise.delay(1)
+            await Promise.delay(.15)
             await handleResponses(turnPlayer.Value)
             await handlePhases('MP1')
         } else if (p === 'MP1') {
             phase.Value = p
-            await Promise.delay(1)
+            await Promise.delay(.15)
         } else if (p === 'BP') {
             phase.Value = p
-            await Promise.delay(1)
+            await Promise.delay(.15)
             battleStep.Value = 'START'
             await handleResponses(turnPlayer.Value)
             battleStep.Value = 'BATTLE'
         } else if (p === 'MP2') {
             phase.Value = p
-            await Promise.delay(1)
+            await Promise.delay(.15)
         } else if (p === 'EP') {
             if (phase.Value === 'MP1' || phase.Value === 'MP2') {
                 phase.Value = p
-                await Promise.delay(1)
+                await Promise.delay(.15)
                 await handleResponses(turnPlayer.Value)
                 await handlePhases('DP')
             } else if (phase.Value === 'BP') {

@@ -140,7 +140,6 @@ export const pickPositionSync = (player: PlayerValue, card: CardFolder) => {
     player.selectPositionCard.Value = card.uid.Value
     while (true) {
         if(player.selectedPosition.Value !== "") {
-            print(player.selectedPosition.Value, player.selectedPosition.Value !== "")
             const position = player.selectedPosition.Value
             player.selectedPosition.Value = ""
             player.selectPositionCard.Value = ""

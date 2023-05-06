@@ -2,7 +2,7 @@ import { ServerScriptService } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
 import { addCardFloodgate, addCardFloodgateAsync, removeCardFloodgate } from "server/functions/floodgates"
 import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
-import { getEmptyFieldZones, getFilteredCards, setAction } from "server/utils"
+import { getEmptyFieldZones, getFilteredCards, getOpponent, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
 import { createInstance, includes, instance } from "shared/utils"
 
@@ -10,6 +10,7 @@ const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('d
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const cards = replicatedStorage.WaitForChild('cards') as Folder
 const httpService = game.GetService('HttpService')
+const attackCard3D = replicatedStorage.FindFirstChild("remotes")!.FindFirstChild("attackCard3D.re") as RemoteEvent
 
 export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?: boolean) => {
     const duel = _owner.FindFirstAncestorWhichIsA('Folder') as DuelFolder
@@ -314,6 +315,11 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
             if(card.type.Value === "Spell Card") {
                 if(location.Value === "Hand" && !directActivationFromHand) {
                     if(includes(card.race.Value, "Field")) {
+                        //check if there's already a field spell on the field
+                        const fieldSpells = getFilteredCards(duel, {
+                            location: ["FZone"]
+                        })
+                        fieldSpells.forEach((fieldSpell) => fieldSpell.destroy_.Fire("Mechanic"))
                         location.Value = "FZone"
                         position.Value = 'FaceUp'
                     } else {
@@ -355,6 +361,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
     ;(instance('BindableFunction', 'activateEffect', card) as BindableFunction).OnInvoke = activateEffect
 
     const attack = (defender: CardFolder & PlayerValue) => {
+        print(7)
         const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
         const defenderLocation = isDirectAttack ? '' : defender.location.Value
         const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
@@ -362,16 +369,13 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         let defenderIsFlip = false;
 
         const startOfDamageStep = () => {
-            addCardFloodgate(card, {
-                floodgateUid: `disableChangePositionAfterAttack-${card.uid.Value}`,
-                floodgateName: "disableChangePosition",
-                floodgateCause: "Mechanic",
-                floodgateFilter: {
-                    uid: [card.uid.Value]
-                }
-            })
+            print(8)
             duel.battleStep.Value = 'DAMAGE';
             duel.damageStep.Value = 'START';
+
+            attackCard3D.FireClient(card.controller.Value.Value, false, location.Value, isDirectAttack ? undefined : defender.location.Value)
+            attackCard3D.FireClient(getOpponent(card.controller.Value).Value, true, location.Value, isDirectAttack ? undefined : defender.location.Value)
+            
             duel.handleResponses.Invoke(duel.turnPlayer.Value)
             //during damage step only effects
             //start of damage step effects
@@ -381,6 +385,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         }
         
         const beforeDamageCalculation = () => {
+            print(9)
             duel.damageStep.Value = 'BEFORE'
             if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {
                 defender.flip.Fire(true)
@@ -405,6 +410,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         }
 
         const damageCalculation = () => {
+            print(10)
             duel.damageStep.Value = 'DURING';
             //during damage calculation only effects immediately
             //during damage calculation effects
@@ -438,6 +444,7 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         }
 
         const afterDamageCalculation = () => {
+            print(11)
             print('after damage calculation')
             duel.damageStep.Value = 'AFTER'
             //self destruction continuous effects immediately

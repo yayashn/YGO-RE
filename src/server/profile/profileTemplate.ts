@@ -2,60 +2,6 @@ export type Card = {
     name: string
 }
 
-const defaultCardsDev = [
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-    { name: "Monster Reborn" },
-    { name: "Man-Eater Bug" },
-    { name: "Dragon Capture Jar" },
-]
 
 const defaultCards = [
     { name: "Skull Servant" },
@@ -107,12 +53,12 @@ const decks: {
     }
 } = {
     "default": {
-        deck: [...defaultCardsDev],
+        deck: [...defaultCards],
         extra: [],
     }
 }
 
-const cards: Card[] = [...defaultCardsDev]
+const cards: Card[] = [...defaultCards]
 
 const profileTemplate = {
     decks,
