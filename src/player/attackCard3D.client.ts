@@ -14,7 +14,7 @@ const field = game.Workspace.Field3D.Field;
 
 attackCard3D.OnClientEvent.Connect((opponent: boolean, zone1: MZone, zone2?: MZone, cleanup: boolean = false) => {
     const attacker = opponent ? "Opponent" : "Player"
-    const pointer = field[attacker].Attack[zone1]
+    const pointer = field[attacker].Attack[`${zone1}P`]
     const pointerGui = pointer.Gui
     const pointerOriginalPosition = pointer.FindFirstChild("OriginalPosition") as Vector3Value
 
@@ -33,7 +33,7 @@ attackCard3D.OnClientEvent.Connect((opponent: boolean, zone1: MZone, zone2?: MZo
         })
         tween.Play()
     } else {
-        const pointer2 = field[attacker].Attack[zone2]
+        const pointer2 = field[attacker].Attack[`${zone2}P`]
         const tween = TweenService.Create(pointer, new TweenInfo(0.5), {
             Position: pointer2.Position
         })

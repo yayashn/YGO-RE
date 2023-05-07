@@ -99,20 +99,24 @@ export const Duel = (p1: Player, p2: Player) => {
         if (chainResolving.Value === true) return
         chainResolving.Value = true
         //from highest key to lowest key
-        for (let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
-            const { card, effect, negated } = chain[chainNumber]
-            if (!negated && card.effectsNegated.Value === false) {
-                effect()
-            }
-            wait(3)
-            card.chainLink.Value = 0
-            if(!includes(card.race.Value, "Equip")) {
-                card.targets.Value = ''
+        const chainValues = Object.values(chain)
+        const chainSize = chainValues.size()
+        if(chainSize > 0) {
+            for (let chainNumber = chainSize - 1; chainNumber >= 0; chainNumber--) {
+                const { card, effect, negated } = chain[chainNumber]
+                if (!negated && card.effectsNegated.Value === false) {
+                    effect()
+                }
+                wait(3)
+                card.chainLink.Value = 0
+                if(!includes(card.race.Value, "Equip")) {
+                    card.targets.Value = ''
+                }
             }
         }
-
+        print(5.1)
         // Remove non-continuous spell/trap cards from SZone, and reset activated
-        Object.values(chain).forEach(({ card }) => {
+        chainValues.forEach(({ card }) => {
             if(card.continuous.Value === true || includes(card.race.Value, "Continuous") || includes(card.race.Value, "Equip") || includes(card.race.Value, "Field")) return;
             if (card.location.Value.match('SZone').size() > 0) {
                 card.toGraveyard.Fire()
@@ -126,13 +130,14 @@ export const Duel = (p1: Player, p2: Player) => {
         speedSpell.Value = 1
         player1.targets.Value = ''
         player2.targets.Value = ''
-        
+        print(5.2)
         if(battleStep.Value === "BATTLE" && attackingCard.Value) {
             if(attackingCard.Value.attackNegated.Value === false) {
                 print(6)
                 attackingCard.Value.attack.Fire(defendingCard.Value || opponent(turnPlayer.Value))
             }
         }
+        print(5.3)
         try {
             addCardFloodgate(attackingCard.Value!, {
                 floodgateName: 'disableAttack',
@@ -142,13 +147,14 @@ export const Duel = (p1: Player, p2: Player) => {
                     uid: [attackingCard.Value!.uid.Value]
                 }
             })
-
+            print(5.4)
         } catch {
             print("No attacking card")
+            print(5.44)
         }
         attackingCard.Value = undefined
         defendingCard.Value = undefined
-        print('end')
+        print(5.55)
     }
 
     const prompt = async (p: PlayerValue, msg: string) => {
@@ -168,52 +174,67 @@ export const Duel = (p1: Player, p2: Player) => {
 
     let handlingResponses = false
     const handleResponses = async (p: PlayerValue) => {
+        print(0)
         if(handlingResponses) return
-        speedSpell.Value = 2
+        speedSpell.Value = 2 
         handlingResponses = true
         gameState.Value = 'CLOSED'
         let passes = 0
         actor.Value = p
+        print(0.1)
 
-        while (passes < 2) {
-            const numberOfResponses = responses[actor.Value.Name].size()
-            const lastCardInChain = chain[Object.keys(chain).size() - 1]
-            const chainStartMessage = `You have ${numberOfResponses} card/effect${
-                numberOfResponses > 1 ? 's' : ''
-            } that can be activated. Activate?`
-            const chainResponseMessage = `"${
-                lastCardInChain ? lastCardInChain.card.Name : '?'
-            }" is activated. Chain another card or effect?`
-
-            if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(
-                    actor.Value,
-                    numberOfResponses >= 1
-                        ? chainStartMessage
-                        : chainResponseMessage || chainStartMessage
-                )
-                endPrompt()
-
-                if (response === 'YES') {
-                    passes = 0
-                    await changedOnce(actor.Value.action.Changed)
-                    await Promise.delay(.15)
-                } else if (response === 'NO') {
+        const actorNumberOfResponses = responses[actor.Value.Name].size()
+        const opponentNumberOfResponses = responses[opponent(actor.Value).Name].size()
+        if(!(actorNumberOfResponses === 0 && opponentNumberOfResponses === 0)) {
+            while (passes < 2) {
+                print(0.1)
+                const numberOfResponses = responses[actor.Value.Name].size()
+                if (numberOfResponses > 0) {
+                    print(0.3)
+                    const lastCardInChain = chain[Object.keys(chain).size() - 1]
+                    const chainStartMessage = `You have ${numberOfResponses} card/effect${
+                        numberOfResponses > 1 ? 's' : ''
+                    } that can be activated. Activate?`
+                    const chainResponseMessage = `"${
+                        lastCardInChain ? lastCardInChain.card.Name : '?'
+                    }" is activated. Chain another card or effect?`
+                    const { endPrompt, response } = await prompt(
+                        actor.Value,
+                        numberOfResponses >= 1
+                            ? chainStartMessage
+                            : chainResponseMessage || chainStartMessage
+                    )
+                    endPrompt()
+                        print(0.4)
+                    if (response === 'YES') {
+                        passes = 0
+                        await changedOnce(actor.Value.action.Changed)
+                        await Promise.delay(.15)
+                    } else if (response === 'NO') {
+                        passes++
+                    }
+                    print(0.5)
+                } else {
                     passes++
                 }
-            } else {
-                passes++
-            }
-
-            clearAction(opponent(actor.Value))
-            if(passes < 2) {
-                actor.Value = opponent(actor.Value)
-            } else if(passes === 2) {
-                actor.Value = turnPlayer.Value
+    print(0.6)
+                clearAction(opponent(actor.Value))
+                print(0.66)
+                if(passes < 2) {
+                    print(0.6666)
+                    actor.Value = opponent(actor.Value)
+                    print(0.66666)
+                } else if(passes === 2) {
+                    print(0.666666)
+                    actor.Value = turnPlayer.Value
+                    print(0.6666666)
+                }
             }
         }
+        print(0.7)
         handlingResponses = false
         resolveChain()
+        print(0.8)
     }
     createInstance('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
 
@@ -225,39 +246,51 @@ export const Duel = (p1: Player, p2: Player) => {
         gameState.Value = 'CLOSED'
         let passes = 0
         actor.Value = p
-
-        while (passes < 2) {
-            const numberOfResponses = responses[actor.Value.Name].size()
-
-            if (numberOfResponses > 0) {
-                const lastCardInChain = chain[Object.keys(chain).size() - 1]
-                const chainStartMessage = `You have ${numberOfResponses} card/effect${
-                    numberOfResponses > 1 ? 's' : ''
-                } that can be activated. Activate?`
-                const chainResponseMessage = `"${
-                    lastCardInChain ? lastCardInChain.card.Name : '?'
-                }" is activated. Chain another card or effect?`
-                const response = promptSync(
-                    actor.Value,
-                    numberOfResponses >= 1
-                        ? chainStartMessage
-                        : chainResponseMessage || chainStartMessage
-                )
-                if (response === 'YES') {
-                    passes = 0
-                    changedOnceSync(actor.Value.action.Changed)
-                } else if (response === 'NO') {
+        print(3.1)
+        const actorNumberOfResponses = responses[actor.Value.Name].size()
+        const opponentNumberOfResponses = responses[opponent(actor.Value).Name].size()
+        if(!(actorNumberOfResponses === 0 && opponentNumberOfResponses === 0)) {
+            while (passes < 2) {
+                const numberOfResponses = responses[actor.Value.Name].size()
+                const opponentValue = opponent(actor.Value)
+                print(3.2)
+                if (numberOfResponses > 0) {
+                    const lastCardInChain = chain[Object.keys(chain).size() - 1]
+                    const chainStartMessage = `You have ${numberOfResponses} card/effect${
+                        numberOfResponses > 1 ? 's' : ''
+                    } that can be activated. Activate?`
+                    const chainResponseMessage = `"${
+                        lastCardInChain ? lastCardInChain.card.Name : '?'
+                    }" is activated. Chain another card or effect?`
+                    const response = promptSync(
+                        actor.Value,
+                        numberOfResponses >= 1
+                            ? chainStartMessage
+                            : chainResponseMessage || chainStartMessage
+                    )
+                    if (response === 'YES') {
+                        passes = 0
+                        changedOnceSync(actor.Value.action.Changed)
+                    } else if (response === 'NO') {
+                        passes++
+                    }
+                } else {
                     passes++
+                    print(3.4)
                 }
-            } else {
-                passes++
-            }
-
-            clearAction(opponent(actor.Value))
-            if(passes < 2) {
-                actor.Value = opponent(actor.Value)
-            } else if(passes === 2) {
-                actor.Value = turnPlayer.Value
+                print(3.5)
+                clearAction(opponentValue)
+                print(3.6)
+                if(passes < 2) {
+                    actor.Value = opponentValue
+                    print(3.61)
+                    break
+                } else if(passes === 2) {
+                    actor.Value = turnPlayer.Value
+                    print(3.62)
+                    break
+                }
+                print(3.7)
             }
         }
         handlingResponses = false

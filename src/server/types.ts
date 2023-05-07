@@ -65,6 +65,10 @@ export interface DuelFolder extends Folder {
     defendingCard: CardValue
     floodgates: StringValue
     endDuel: BindableEvent
+    getChain: BindableFunction<() => Record<number, ChainedEffect>>
+    getResponses: BindableFunction<() => Record<'player1' | 'player2', CardFolder[]>>
+    handlingResponses: BoolValue
+    resolveChain: BindableEvent
 }
 
 export interface CardInventory {
