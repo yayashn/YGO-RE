@@ -42,14 +42,31 @@ export const Duel = (p1: Player, p2: Player) => {
     const player1 = createInstance('ObjectValue', 'player1', folder) as PlayerValue
     const player2 = createInstance('ObjectValue', 'player2', folder) as PlayerValue
     const opponent = (player: PlayerValue) => (player.Value === p1 ? player2 : player1)
-    const gameState = createInstance('StringValue', 'gameState', folder) as GameStateValue
-    const chainResolving = createInstance('BoolValue', 'chainResolving', folder)
     const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
     const attackingCard = createInstance('ObjectValue', 'attackingCard', folder) as CardValue
     const defendingCard = createInstance('ObjectValue', 'defendingCard', folder) as CardValue
     createInstance('StringValue', 'floodgates', folder).Value = '[]'
-    const speedSpell = createInstance('IntValue', 'speedSpell', folder)
-    speedSpell.Value = 1
+
+    let chainResolving = false;
+    const chainResolvingValue = createInstance("BoolValue", "chainResolvingValue", folder);
+    createInstance("BindableFunction", "chainResolving", folder).OnInvoke = () => {
+        chainResolvingValue.Value = chainResolving;
+        return chainResolving;
+    }
+
+    let speedSpell = 1;
+    const speedSpellValue = createInstance("IntValue", "speedSpellValue", folder);
+    createInstance("BindableFunction", "speedSpell", folder).OnInvoke = (value = speedSpell) => {
+        speedSpellValue.Value = value;
+        return value;
+    }
+
+    let gameState = 'OPEN';
+    const gameStateValue = createInstance("StringValue", "gameStateValue", folder);
+    createInstance("BindableFunction", "gameState", folder).OnInvoke = (value = gameState) => {
+        gameStateValue.Value = value;
+        return value;
+    }
 
     player1.Value = p1
     player2.Value = p2
@@ -57,7 +74,7 @@ export const Duel = (p1: Player, p2: Player) => {
     turnPlayer.Value = player1
     actor.Value = player1
     phase.Value = 'DP'
-    gameState.Value = 'OPEN'
+    gameState = 'OPEN'
     damageStep.Value = 'NONE'
 
     let chain: Record<number, ChainedEffect> = {}
@@ -75,7 +92,7 @@ export const Duel = (p1: Player, p2: Player) => {
     }
 
     const addToChain = (card: CardFolder, effect: Callback) => {
-        gameState.Value = 'CLOSED'
+        gameState = 'CLOSED'
         card.activated.Value = true
         const chainLink = Object.keys(chain).size() + 1
         card.chainLink.Value = chainLink
@@ -96,8 +113,9 @@ export const Duel = (p1: Player, p2: Player) => {
 
     const resolveChain = () => {
         print(5)
-        if (chainResolving.Value === true) return
-        chainResolving.Value = true
+        if (chainResolving === true) return
+        chainResolving = true
+        print(5.1)
         //from highest key to lowest key
         const chainValues = Object.values(chain)
         const chainSize = chainValues.size()
@@ -124,10 +142,10 @@ export const Duel = (p1: Player, p2: Player) => {
             card.activated.Value = false
         })
         chain = {}
-        gameState.Value = 'OPEN'
-        chainResolving.Value = false
+        gameState = 'OPEN'
+        chainResolving = false
         actor.Value = turnPlayer.Value
-        speedSpell.Value = 1
+        speedSpell = 1
         player1.targets.Value = ''
         player2.targets.Value = ''
         print(5.2)
@@ -176,9 +194,9 @@ export const Duel = (p1: Player, p2: Player) => {
     const handleResponses = async (p: PlayerValue) => {
         print(0)
         if(handlingResponses) return
-        speedSpell.Value = 2 
+        speedSpell = 2 
         handlingResponses = true
-        gameState.Value = 'CLOSED'
+        gameState = 'CLOSED'
         let passes = 0
         actor.Value = p
         print(0.1)
@@ -241,9 +259,9 @@ export const Duel = (p1: Player, p2: Player) => {
     const handleResponsesSync = (p: PlayerValue) => {
         print(3)
         if(handlingResponses) return
-        speedSpell.Value = 2
+        speedSpell = 2
         handlingResponses = true
-        gameState.Value = 'CLOSED'
+        gameState = 'CLOSED'
         let passes = 0
         actor.Value = p
         print(3.1)
@@ -435,7 +453,7 @@ export const Duel = (p1: Player, p2: Player) => {
     thread[1]()
 
     const handlePhases = async (p: Phase) => {
-        gameState.Value = 'OPEN'
+        gameState = 'OPEN'
         if (p === 'DP') {
             turn.Value++
             const cardsInSZone = getFilteredCards(folder, {

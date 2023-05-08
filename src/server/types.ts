@@ -55,12 +55,15 @@ export interface DuelFolder extends Folder {
     handlePhases: BindableEvent<(phase: Phase) => void>
     turnPlayer: ControllerValue
     addToChain: BindableEvent<(card: CardFolder, effect: Callback) => void>
-    gameState: GameStateValue
-    chainResolving: BoolValue
+    gameState: BindableFunction<() => "OPEN" | "CLOSED">
+    gameStateValue: GameStateValue
+    chainResolving: BindableFunction<() => Boolean>
+    chainResolvingValue: BoolValue
     actor: ControllerValue
     handleResponses: BindableFunction<(p: PlayerValue) => Promise<void>>
     handleResponsesSync: BindableFunction<(p: PlayerValue) => void>
-    speedSpell: IntValue
+    speedSpell: BindableFunction<(n?: number) => number>
+    speedSpellValue: IntValue
     attackingCard: CardValue
     defendingCard: CardValue
     floodgates: StringValue

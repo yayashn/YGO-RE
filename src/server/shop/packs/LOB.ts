@@ -107,7 +107,6 @@ export const cards: PackCard[] = [
     //{ name: "Typhone", rarity: "rare" },
     { name: "Beaver Warrior", rarity: "rare" },
     { name: "Uraby", rarity: "ultra" },
-    { name: "Mystical Phantom", rarity: "super" },
     { name: "Larvas", rarity: "common" },
     { name: "Hard Armor", rarity: "common" },
     { name: "Man Eater", rarity: "common" },

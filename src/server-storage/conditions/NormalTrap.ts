@@ -6,7 +6,7 @@ export default (card: CardFolder) => {
     const controller = card.controller.Value
     const duel = controller.FindFirstAncestorWhichIsA('Folder') as DuelFolder
 
-    const isSpeedSpell2 = duel.speedSpell.Value <= 2;
+    const isSpeedSpell2 = duel.speedSpell.Invoke() <= 2;
     const isDamageStep = duel.battleStep.Value === 'DAMAGE'
 
     return Trap(card) && isSpeedSpell2 && !isDamageStep

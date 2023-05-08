@@ -5,7 +5,6 @@ import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, Po
 import { getEmptyFieldZones, getFilteredCards, getOpponent, setAction } from "server/utils"
 import changedOnce from "shared/lib/changedOnce"
 import { createInstance, includes, instance } from "shared/utils"
-import handleResponses from "./handleResponses"
 
 const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')

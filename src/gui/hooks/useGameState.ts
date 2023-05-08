@@ -8,9 +8,9 @@ export default function useGameState() {
     useEffect(() => {
         if (duel === undefined) return
 
-        setGameState(duel.gameState.Value)
+        setGameState(duel.gameStateValue.Value)
 
-        const connection = duel.gameState.Changed.Connect((newState) => {
+        const connection = duel.gameStateValue.Changed.Connect((newState) => {
             setGameState(newState as "CLOSED" | "OPEN")
         })
 
