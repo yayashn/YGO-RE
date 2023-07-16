@@ -1,11 +1,11 @@
 import { useEffect, useState } from "@rbxts/roact-hooked"
-import { CardFolder } from "server/types"
+import { Card } from "server/ygo/Card"
 
-export default (card: CardFolder) => {
+export default (card: Card) => {
     const [chainLink, setChainLink] = useState(0)
 
     useEffect(() => {
-            const connection = card.chainLink.Changed.Connect((value) => {
+            const connection = card.chainLink.event.Connect((value) => {
                 setChainLink(value)
             })
             

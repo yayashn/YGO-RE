@@ -5,11 +5,11 @@ import { getCardInfo } from 'server/utils'
 import { createGlobalState, useGlobalState } from 'shared/useGlobalState'
 import { includes } from 'shared/utils'
 
-export const cardInfoStore = createGlobalState<CardFolder | undefined>(undefined)
+export const cardInfoStore = createGlobalState<string>('')
 
 export default withHooks(() => {
     const [currentCard, setCurrentCard] = useGlobalState(cardInfoStore)
-    const cardInfo = getCardInfo(currentCard?.Name ?? '')
+    const cardInfo = getCardInfo(currentCard)
 
     const cardColour = cardInfo ? includes(cardInfo.type.Value, 'Monster')
         ? Color3.fromRGB(255, 124, 16)

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
 import useDuel from "./useDuel";
-import type { CardFolder } from "server/types";
+import { Card } from "server/ygo/Card";
 
 type CardValue = "location" | "controller"
 
 export default (player: Player) => {
     const duel = useDuel()
-    const [cards, setCards] = useState<CardFolder[]>([]);
+    const [cards, setCards] = useState<Card[]>([]);
 
     useEffect(() => {
         if(!duel) {
@@ -14,15 +14,15 @@ export default (player: Player) => {
             return;
         };
 
-        const playerValue = [duel.player1, duel.player2].find((p) => p.Value === player)!;
-        setCards(playerValue.WaitForChild("cards").GetChildren() as CardFolder[])
+        const playerValue = [duel.player1, duel.player2].find((p) => p.player === player)!;
+        setCards(playerValue.cards.get())
 
         const connections: RBXScriptConnection[] = [];
         const values: CardValue[] = ["location", "controller"];
 
         cards!.forEach((card) => {
             values.forEach((v) => {
-                connections.push(card[v].Changed.Connect(() => {
+                connections.push(card[v].event.Connect(() => {
                     setCards([...cards!]);
                 }))
             })

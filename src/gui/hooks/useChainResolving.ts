@@ -8,7 +8,7 @@ export default function usechainResolving() {
     useEffect(() => {
         if (duel === undefined) return
 
-        const connection = duel.chainResolving.Changed.Connect((newState) => {
+        const connection = duel.chainResolving.event.Connect((newState) => {
             setChainResolving(newState)
         })
 

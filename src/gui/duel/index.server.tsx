@@ -5,7 +5,6 @@ import Cards from "./Cards/Cards";
 import { Field } from "./Field";
 import { Hand } from "./Hand";
 import { Zone } from "./Zone";
-import type { PlayerValue } from "server/types";
 import Phases from "./Phases";
 import Prompt from "./Prompt";
 import CardInfo from "./CardInfo";
@@ -14,6 +13,7 @@ import { createInstance, includes } from "shared/utils";
 import CardPopup from "./CardPopup";
 import useTargettables from "gui/hooks/useTargettables";
 import PositionPopup from "./PositionPopup";
+import { YPlayer } from "server/ygo/Player";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -25,19 +25,19 @@ const App = withHooks(() => {
 	const YGOOpponent = useYGOPlayer(true);
 	const targettables = useTargettables();
 	const showCardPopup = targettables.size() > 0 && !targettables.every((card) => {
-		const location = card.location.Value;
+		const location = card.location.get();
 		return ["FZone", "MZone", "SZone", "Hand"].some((zone) => includes(location, zone));
 	})
 
 	useEffect(() => {
 		if(!duel) return;
-		const connection = duel.Destroying.Connect(() => {
-			Roact.unmount(mounted);
-			connection.Disconnect();
-		})
+		//const connection = duel.Destroying.Connect(() => {
+		//	Roact.unmount(mounted);
+		//	connection.Disconnect();
+		//})
 
 		return () => {
-			connection.Disconnect();
+		//	connection.Disconnect();
 		}
 	}, [duel])
 
@@ -65,7 +65,7 @@ const App = withHooks(() => {
 	}
 })
 
-const Player = withHooks(({playerValue}: {playerValue: PlayerValue}) => {
+const Player = withHooks(({playerValue}: {playerValue: YPlayer}) => {
 	const YGOPlayer = useYGOPlayer();
 	const playerType = playerValue === YGOPlayer ? "Player" : "Opponent";
 

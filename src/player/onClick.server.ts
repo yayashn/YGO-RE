@@ -52,7 +52,10 @@ clickDetector.MouseClick.Connect(async (opponent) => {
     if(confirmDuel === "YES") {
         (player.WaitForChild("mount") as BindableEvent).Fire();
         (opponent.WaitForChild("mount") as BindableEvent).Fire();
-        Duel(player, opponent);
+        const duel = new Duel(player, opponent);
+        duel.player1.initCards();
+        duel.player2.initCards();
+        duel.handlePhases("DP")
         showFieldRe.FireClient(player, true);
         const showFieldReOpponent = opponent.WaitForChild("showField.re") as RemoteEvent;
         showFieldReOpponent.FireClient(opponent, true);

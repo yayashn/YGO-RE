@@ -1,308 +1,290 @@
-import { ServerScriptService } from "@rbxts/services"
+import { ServerScriptService, ServerStorage } from "@rbxts/services"
 import cardEffects from "server-storage/card-effects"
 import { addCardFloodgate, addCardFloodgateAsync, removeCardFloodgate } from "server/functions/floodgates"
-import { PlayerValue, DuelFolder, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
-import { getEmptyFieldZones, getFilteredCards, getOpponent, setAction } from "server/utils"
+import { PlayerValue, CardFolder, ControllerValue, LocationValue, PositionValue, MZone, SZone, Zone, Position } from "server/types"
 import changedOnce from "shared/lib/changedOnce"
 import { createInstance, includes, instance } from "shared/utils"
+import { Location } from "shared/types"
+import { getEmptyFieldZones, getFilteredCards } from "./utils"
+import { YEvent } from "./Event"
+import { YPlayer } from "./Player"
 
-const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const cards = replicatedStorage.WaitForChild('cards') as Folder
 const httpService = game.GetService('HttpService')
 const attackCard3D = replicatedStorage.FindFirstChild("remotes")!.FindFirstChild("attackCard3D.re") as RemoteEvent
 
-export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?: boolean) => {
-    const duel = _owner.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+export class Card {
+    name: string
+    owner: YPlayer
+    order: YEvent<number>
+    extra: boolean
+    uid = httpService.GenerateGUID(false)
+    art = ""
+    controller: YEvent<YPlayer>
+    location: YEvent<Zone>
+    position = new YEvent<Position>('FaceDown')
+    status = new YEvent<string>('')
+    effectsNegated = new YEvent<boolean>(false)
+    activated = new YEvent<boolean>(false)
+    canActivate = new YEvent<boolean>(true)
+    attackNegated = new YEvent<boolean>(false)
+    targets = new YEvent<Card[]>([])
+    preventDestruction = new YEvent<boolean>(false)
+    continuous = new YEvent<boolean>(false)
+    chainLink = new YEvent<number>(0)
+    "type": YEvent<string>;
+    race = new YEvent<string>('');
+    atk = new YEvent<number>(0);
+    def = new YEvent<number>(0);
+    level = new YEvent<number>(0);
+    cardButton = createInstance('ObjectValue', 'cardButton', ServerStorage)
 
-    const cardDataFolder = cards.FindFirstChild(_name, true)
-    const card = cardDataFolder!.Clone() as CardFolder
-    card.art.Image = 'rbxassetid://3955072236'
-    card.Name = _name
-    card.Parent = _owner.cards
-    const uid = instance('StringValue', 'uid', card) as StringValue
-    const controller = instance('ObjectValue', 'controller', card) as ControllerValue
-    const location = instance('StringValue', 'location', card) as LocationValue
-    const order = instance('IntValue', 'order', card) as IntValue
-    const position = instance('StringValue', 'position', card) as PositionValue
-    instance('ObjectValue', 'cardButton', card) as ObjectValue
-    instance('BoolValue', 'targettable', card) as BoolValue
-    const status = instance('StringValue', 'status', card) as StringValue
-    //const canAttack = instance('BoolValue', 'canAttack', card) as BoolValue
-    const effectsNegated = instance('BoolValue', 'effectsNegated', card) as BoolValue
-    const activated = instance('BoolValue', 'activated', card) as BoolValue
-    const canActivate = createInstance('BoolValue', 'canActivate', card)
-    const attackNegated = createInstance('BoolValue', 'attackNegated', card)
-    const targets = createInstance('StringValue', 'targets', card)
-    const preventDestruction = createInstance('BoolValue', 'preventDestruction', card)
-    const continuous = createInstance('BoolValue', 'continuous', card)
-    const chainLink = createInstance('IntValue', 'chainLink', card)
-
-    order.Value = _order
-    controller.Value = _owner
-    location.Value = extra ? "EZone" : 'Deck'
-    position.Value = 'FaceDown'
-    uid.Value = httpService.GenerateGUID(false)
-    canActivate.Value = true
-
-    const Summon = (_location: MZone) => {
-        location.Value = _location
+    constructor(name: string, owner: YPlayer, order: number, extra?: boolean) {
+        this.name = name
+        this.owner = owner
+        this.order = new YEvent<number>(order)
+        this.extra = extra || false
+        this.controller = new YEvent<YPlayer>(this.owner)
+        this.location = new YEvent<Zone>(this.extra ? 'EZone' : 'Deck')
     }
 
-    const NormalSummon = (_location: MZone) => {
-        position.Value = 'FaceUpAttack'
-        controller.Value.canNormalSummon.Value = false
-        Summon(_location)
+    duel() {
+        return this.controller.get().getDuel()
+    }
+
+    Summon(location: MZone) {
+        this.location.set(location)
+    }
+
+    NormalSummon(location: MZone) {
+        this.position.set('FaceUpAttack')
+        this.controller.get().canNormalSummon.set(false)
+        this.Summon(location)
         wait(1)
-        setAction(controller.Value, {
+        this.controller.get().action.set({
             action: "Normal Summon",
-            summonedCards: [card]
+            summonedCards: [this]
         })
-        addCardFloodgateAsync(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+        addCardFloodgateAsync(this, {
+            floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
             floodgateName: "disableChangePosition",
             floodgateCause: "Mechanic",
             floodgateFilter: {
-                uid: [card.uid.Value]
+                uid: [this.uid]
             }
         })
     }
-    ;(instance('BindableEvent', 'normalSummon', card) as BindableEvent).Event.Connect(NormalSummon)
 
-    const SpecialSummon = (_location: MZone, newPosition: Position) => {
-        position.Value = newPosition
-        controller.Value.canNormalSummon.Value = false
-        Summon(_location)
+    SpecialSummon(location: MZone, newPosition: Position) {
+        this.position.set(newPosition)
+        this.controller.get().canNormalSummon.set(false)
+        this.Summon(location)
         wait(1)
-        setAction(controller.Value, {
+        this.controller.get().action.set({
             action: "Special Summon",
-            summonedCards: [card]
+            summonedCards: [this]
         })
-        addCardFloodgate(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+        addCardFloodgate(this, {
+            floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
             floodgateName: "disableChangePosition",
             floodgateCause: "Mechanic",
             floodgateFilter: {
-                uid: [card.uid.Value]
+                uid: [this.uid]
             }
         })
     }
-    createInstance('BindableEvent', 'specialSummon', card).Event.Connect(SpecialSummon)
 
-    const Set = (_location: SZone | MZone) => {
-        if (card.type.Value.match('Monster').size() > 0) {
-            position.Value = 'FaceDownDefense'
-            controller.Value.canNormalSummon.Value = false
-            location.Value = _location
+    Set(location: SZone | MZone | "FZone") {
+        if (this.type.get().match('Monster').size() > 0) {
+            this.position.set('FaceDownDefense')
+            this.controller.get().canNormalSummon.set(false)
+            this.location.set(location)
             wait(1)
-            setAction(controller.Value, {
+            this.controller.get().action.set({
                 action: "Set Monster",
-                summonedCards: [card]
+                summonedCards: [this]
             })
-            addCardFloodgate(card, {
-                floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+            addCardFloodgate(this, {
+                floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
                 floodgateName: "disableChangePosition",
                 floodgateCause: "Mechanic",
                 floodgateFilter: {
-                    uid: [card.uid.Value]
+                    uid: [this.uid]
                 }
             })
         } else {
-            position.Value = 'FaceDown'
-            if(card["type"].Value.match("Trap").size() > 0 || card["type"].Value.match("Quick").size() > 0) {
-                canActivate.Value = false;
+            this.position.set('FaceDown')
+            if(this["type"].get().match("Trap").size() > 0 || this["type"].get().match("Quick").size() > 0) {
+                this.canActivate.set(false);
             }
-            location.Value = _location
+            this.location.set(location)
             wait(1)
-            setAction(controller.Value, {
+            this.controller.get().action.set({
                 action: "Set",
-                summonedCards: [card]
+                summonedCards: [this]
             })
         }
     }
-    ;(instance('BindableEvent', 'set', card) as BindableEvent).Event.Connect(Set)
 
-    const toGraveyard = () => {
-        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
-        controller.Value = _owner
-        position.Value = 'FaceUp'
-        location.Value = 'GZone'
+    ToGraveyard() {
+        removeCardFloodgate(this, `disableAttackAfterAttack-${this.uid}`)
+        this.controller.set(this.owner)
+        this.position.set('FaceUp')
+        this.location.set('GZone')
     }
-    ;(instance('BindableEvent', 'toGraveyard', card) as BindableEvent).Event.Connect(toGraveyard)
 
-    const toHand = () => {
-        controller.Value = _owner
-        position.Value = "FaceDown"
-        if(includes(card.type.Value, "Fusion")) {
-            location.Value = 'EZone'
+    ToHand() {
+        this.controller.set(this.owner)
+        this.position.set("FaceDown")
+        if(includes(this["type"].get(), "Fusion")) {
+            this.location.set('EZone')
         } else {
-            location.Value = 'Hand'
+            this.location.set('Hand')
         }
     }
-    createInstance('BindableEvent', 'toHand', card).Event.Connect(toHand)
 
-    const reveal = () => {
-        const oldPosition = position.Value
-        position.Value = 'FaceUp'
+    Reveal() {
+        const oldPosition = this.position.get()
+        this.position.set('FaceUp')
         wait(3)
-        position.Value = oldPosition
+        this.position.set(oldPosition)   
     }
-    createInstance('BindableFunction', 'reveal', card).OnInvoke = reveal
 
-    const banish = (newPosition: Position) => {
-        removeCardFloodgate(card, `disableAttackAfterAttack-${uid.Value}`)
-        controller.Value = _owner
-        position.Value = newPosition
-        location.Value = 'BZone'
+    Banish(newPosition: Position) {
+        removeCardFloodgate(this, `disableAttackAfterAttack-${this.uid}`)
+        this.controller.set(this.owner)
+        this.position.set(newPosition)
+        this.location.set('BZone')
     }
-    createInstance('BindableEvent', 'banish', card).Event.Connect(banish)
 
-    const tribute = () => {
-        toGraveyard()
+    Tribute() {
+        this.ToGraveyard()
     }
-    ;(instance('BindableEvent', 'tribute', card) as BindableEvent).Event.Connect(tribute)
 
-    const destroy = (cause: string) => {
-        if(preventDestruction.Value === true) return;
-        status.Value = `destroyedBy${cause}`
+    Destroy(cause: string) {
+        if(this.preventDestruction.get() === true) return;
+        this.status.set(`destroyedBy${cause}`)
         if(!includes(cause, "Battle")) {
-            toGraveyard()
+            this.ToGraveyard()
         }
-        print(card, `destroyed by ${cause}`)
     }
-    ;(instance('BindableEvent', 'destroy_', card) as BindableEvent).Event.Connect((cause) =>
-        destroy(cause)
-    )
 
-    const tributeSummon = (_location: MZone) => {
-        position.Value = 'FaceUpAttack'
-        controller.Value.canNormalSummon.Value = false
-        addCardFloodgate(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+    TributeSummon(location: MZone) {
+        this.position.set('FaceUpAttack')
+        this.controller.get().canNormalSummon.set(false)
+        addCardFloodgate(this, {
+            floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
             floodgateName: "disableChangePosition",
             floodgateCause: "Mechanic",
             floodgateFilter: {
-                uid: [card.uid.Value]
+                uid: [this.uid]
             }
         })
-        Summon(_location)
+        this.Summon(location)
         wait(1)
-        setAction(controller.Value, {
+        this.controller.get().action.set({
             action: "Tribute Summon",
-            summonedCards: [card]
+            summonedCards: [this]
         })
     }
-    ;(instance('BindableEvent', 'tributeSummon', card) as BindableEvent).Event.Connect(
-        tributeSummon
-    )
 
-    const tributeSet = (_location: MZone) => {
-        Set(_location)
+    TributeSet(location: MZone | SZone) {
+        this.Set(location)
     }
-    ;(instance('BindableEvent', 'tributeSet', card) as BindableEvent).Event.Connect(
-        tributeSet
-    )
 
-    const changePosition = (forcePosition?: Position) => {
+    ChangePosition(forcePosition?: Position) {
         if(forcePosition) {
-            position.Value = forcePosition
+            this.position.set(forcePosition)
             return;
         }
-        addCardFloodgate(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+        addCardFloodgate(this, {
+            floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
             floodgateName: "disableChangePosition",
             floodgateCause: "Mechanic",
             floodgateFilter: {
-                uid: [card.uid.Value]
+                uid: [this.uid]
             }
         })
-        if (position.Value === 'FaceUpAttack') {
-            position.Value = 'FaceUpDefense'
+        if (this.position.get() === 'FaceUpAttack') {
+            this.position.set('FaceUpDefense')
         } else {
-            position.Value = 'FaceUpAttack'
+            this.position.set('FaceUpAttack')
         }
     }
-    ;(instance('BindableEvent', 'changePosition', card) as BindableEvent).Event.Connect(
-        changePosition
-    )
 
-    const flip = (inBattle?: boolean) => {
-        position.Value = 'FaceUpDefense'
-        if(!inBattle && includes(card.type.Value, "Flip")) {
-            const cost = getCost()
+    Flip(inBattle?: boolean) {
+        this.position.set('FaceUpDefense')
+        if(!inBattle && includes(this["type"].get(), "Flip")) {
+            const cost = this.getCost()
             if(cost) {
                 cost()
             }
-            const target = getTarget()
+            const target = this.getTarget()
             if(target) {
                 target()
             }
-            activateEffect()
+            this.activateEffect()
         }
     }
-    ;(instance('BindableEvent', 'flip', card) as BindableEvent).Event.Connect(flip)
 
-    const flipSummon = () => {
-        addCardFloodgate(card, {
-            floodgateUid: `disableChangePositionAfterPlacement-${card.uid.Value}`,
+    FlipSummon() {
+        addCardFloodgate(this, {
+            floodgateUid: `disableChangePositionAfterPlacement-${this.uid}`,
             floodgateName: "disableChangePosition",
             floodgateCause: "Mechanic",
             floodgateFilter: {
-                uid: [card.uid.Value]
+                uid: [this.uid]
             }
         })
-        position.Value = 'FaceUpAttack'
-        if(includes(card.type.Value, "Flip")) {
-            const cost = getCost()
+        this.position.set('FaceUpAttack')
+        if(includes(this['type'].get(), "Flip")) {
+            const cost = this.getCost()
             if(cost) {
                 cost()
             }
-            const target = getTarget()
+            const target = this.getTarget()
             if(target) {
                 target()
             }
-            activateEffect()
+            this.activateEffect()
         } else {
-            setAction(controller.Value, {
+            this.controller.get().action.set({
                 action: "Flip Summon",
-                summonedCards: [card]
+                summonedCards: [this]
             })
-        }
+        }   
     }
-    ;(instance('BindableEvent', 'flipSummon', card) as BindableEvent).Event.Connect(flipSummon)
 
-    const getCost = () => {
-        if(cardEffects[card.Name] === undefined) return false
-        const effects = cardEffects[card.Name](card)
+    getCost() {
+        if(cardEffects[this.name] === undefined) return false
+        const effects = cardEffects[this.name](this)
         if(effects.size() === 1) {
             return effects[0].cost
         }
         return false;
     }
-    createInstance('BindableFunction', 'getCost', card).OnInvoke = getCost
-    
-    const getTarget = () => {
-        if(cardEffects[card.Name] === undefined) return false
-        const effects = cardEffects[card.Name](card)
+
+    getTarget() {
+        if(cardEffects[this.name] === undefined) return false
+        const effects = cardEffects[this.name](this)
         if(effects.size() === 1) {
             return effects[0].target
         }
         return false;
     }
-    createInstance('BindableFunction', 'getTarget', card).OnInvoke = getTarget
 
-    const checkEffectConditions = () => {
-        if(cardEffects[card.Name] === undefined) return false
-        const effects = cardEffects[card.Name](card)
+    checkEffectConditions() {
+        if(cardEffects[this.name] === undefined) return false
+        const effects = cardEffects[this.name](this)
         return effects.some(({condition}) => {
             if(!condition) return false;
             return condition() === true
         })
     }
-    ;(instance('BindableFunction', 'checkEffectConditions', card) as BindableFunction).OnInvoke = checkEffectConditions
 
-    const activateEffect = async () => {
-        const effects = cardEffects[card.Name](card)
+    async activateEffect() {
+        const effects = cardEffects[this.name](this)
         const ifMoreThanOneEffect = effects.map(({condition}) => {
             return condition ? condition() : false;
         }).size() > 1
@@ -312,71 +294,70 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         } else {
             const { location: locationCondition, effect } = effects[0]
             const directActivationFromHand = locationCondition?.includes("Hand")
-            if(card.type.Value === "Spell Card") {
-                if(location.Value === "Hand" && !directActivationFromHand) {
-                    if(includes(card.race.Value, "Field")) {
+            if(this["type"].get() === "Spell Card") {
+                if(this.location.get() === "Hand" && !directActivationFromHand) {
+                    if(includes(this.race.get(), "Field")) {
                         //check if there's already a field spell on the field
-                        const fieldSpells = getFilteredCards(duel, {
+                        const fieldSpells = getFilteredCards(this.duel(), {
                             location: ["FZone"]
                         })
-                        fieldSpells.forEach((fieldSpell) => fieldSpell.destroy_.Fire("Mechanic"))
-                        location.Value = "FZone"
-                        position.Value = 'FaceUp'
+                        fieldSpells.forEach((fieldSpell) => fieldSpell.Destroy("Mechanic"))
+                        this.location.set("FZone")
+                        this.position.set('FaceUp')
                     } else {
-                        controller.Value.selectableZones.Value = getEmptyFieldZones('SZone', controller.Value, "Player")
-                        const zone = await changedOnce(controller.Value.selectedZone.Changed)
-                        location.Value = zone as Zone
-                        position.Value = 'FaceUp'
-                        controller.Value.selectedZone.Value = ''
-                        controller.Value.selectableZones.Value = '[]'
+                        this.controller.get().selectableZones.set(getEmptyFieldZones('SZone', this.controller.get(), "Player"))
+                        const zone = this.controller.get().selectedZone.changedOnce()
+                        this.location.set(zone as Zone)
+                        this.position.set('FaceUp')
+                        this.controller.get().selectedZone.set('')
+                        this.controller.get().selectableZones.set([])
                     }
-                } else if(location.Value.match("SZone").size() > 0 || location.Value.match("MZone").size() > 0 || location.Value.match("FZone").size() > 0) {
-                    position.Value = 'FaceUp'
+                } else if(this.location.get().match("SZone").size() > 0 || this.location.get().match("MZone").size() > 0 || this.location.get().match("FZone").size() > 0) {
+                    this.position.set('FaceUp')
                 }
                 wait(1)
-                setAction(card.controller.Value, {
+                this.controller.get().action.set({
                     action: "Activate Effect Spell",
-                    summonedCards: [card]
+                    summonedCards: [this]
                 })
-                duel.addToChain.Fire(card, effect!)
-            } else if(card.type.Value === "Trap Card") {
-                position.Value = 'FaceUp'
+                this.duel().addToChain.get()(this, effect!)
+            } else if(this['type'].get() === "Trap Card") {
+                this.position.set('FaceUp')
                 wait(1)
-                setAction(card.controller.Value, {
+                this.controller.get().action.set({
                     action: "Activate Effect Trap",
-                    summonedCards: [card]
+                    summonedCards: [this]
                 })
-                duel.addToChain.Fire(card, effect!)
-            } else if(includes(card.type.Value, "Monster")) {
+                this.duel().addToChain.get()(this, effect!)
+            } else if(includes(this['type'].get(), "Monster")) {
                 wait(1)
-                setAction(card.controller.Value, {
+                this.controller.get().action.set({
                     action: "Activate Effect Monster Flip",
-                    summonedCards: [card]
+                    summonedCards: [this]
                 })
-                duel.addToChain.Fire(card, effect!)
+                this.duel().addToChain.get()(this, effect!)
             }
         }
-        activated.Value = true
+        this.activated.set(true)
     }
-    ;(instance('BindableFunction', 'activateEffect', card) as BindableFunction).OnInvoke = activateEffect
 
-    const attack = (defender: CardFolder & PlayerValue) => {
+    Attack(defender: Card & PlayerValue) {
         print(7)
         const isDirectAttack = ['player1', 'player2'].includes(defender.Name)
-        const defenderLocation = isDirectAttack ? '' : defender.location.Value
-        const defenderAtk = isDirectAttack ? 0 : defender.atk.Value
+        const defenderLocation = isDirectAttack ? '' : defender.location.get()
+        const defenderAtk = isDirectAttack ? 0 : defender.Value
 
         let defenderIsFlip = false;
 
         const startOfDamageStep = () => {
             print(8)
-            duel.battleStep.Value = 'DAMAGE';
-            duel.damageStep.Value = 'START';
+            this.duel().battleStep.set('DAMAGE');
+            this.duel().damageStep.set('START');
 
-            attackCard3D.FireClient(card.controller.Value.Value, false, location.Value, isDirectAttack ? undefined : defender.location.Value)
-            attackCard3D.FireClient(getOpponent(card.controller.Value).Value, true, location.Value, isDirectAttack ? undefined : defender.location.Value)
+            attackCard3D.FireClient(this.controller.get().player, false, this.location.get(), isDirectAttack ? undefined : defender.location.get())
+            attackCard3D.FireClient(this.duel().opponent(this.controller.get()).player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get())
             
-            duel.handleResponses.Invoke(duel.turnPlayer.Value)
+            this.duel().handleResponses(this.duel().turnPlayer.get())
             //during damage step only effects
             //start of damage step effects
             //ATK/DEF change effects
@@ -386,15 +367,15 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         
         const beforeDamageCalculation = () => {
             print(9)
-            duel.damageStep.Value = 'BEFORE'
-            if (!isDirectAttack && defender.position.Value === 'FaceDownDefense') {
-                defender.flip.Fire(true)
-                if(includes(defender.type.Value, "Flip")) {
+            this.duel().damageStep.set('BEFORE')
+            if (!isDirectAttack && defender.position.get() === 'FaceDownDefense') {
+                defender.Flip(true)
+                if(includes(defender.type.get(), "Flip")) {
                     defenderIsFlip = true;
                 }
                 wait(1)
             }
-            duel.handleResponses.Invoke(duel.turnPlayer.Value)
+            this.duel().handleResponses(this.duel().turnPlayer.get())
             //ATK/DEF change effects
             //before damage calculation effects
             //check if players finished effects
@@ -411,32 +392,32 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
 
         const damageCalculation = () => {
             print(10)
-            duel.damageStep.Value = 'DURING';
+            this.duel().damageStep.set('DURING');
             //during damage calculation only effects immediately
             //during damage calculation effects
-            duel.handleResponses.Invoke(duel.turnPlayer.Value)
+            this.duel().handleResponses(this.duel().turnPlayer.get())
             if (isDirectAttack) {
-                defender.updateLP.Fire(-card.atk.Value)
+                defender.updateLP.Fire(-this.atk.get())
             } else {
-                if (defender.position.Value === 'FaceUpAttack') {
-                    if (card.atk.Value > defenderAtk) {
-                        defender.destroy_.Fire('Battle')
-                        const calculation = card.atk.Value - defenderAtk
-                        defender.controller.Value.updateLP.Fire(-calculation)
-                    } else if (card.atk.Value < defenderAtk) {
-                        destroy('Battle')
-                        const calculation = defenderAtk - card.atk.Value
-                        controller.Value.updateLP.Fire(-calculation)
-                    } else if (card.atk.Value === defenderAtk && card.atk.Value !== 0) {
-                        defender.destroy_.Fire('Battle')
-                        destroy('Battle')
+                if (defender.position.get() === 'FaceUpAttack') {
+                    if (this.atk.get() > (defenderAtk as number)) {
+                        defender.Destroy('Battle')
+                        const calculation = this.atk.get() - (defenderAtk as number)
+                        defender.controller.get().updateLP(-calculation)
+                    } else if (this.atk.get() < (defenderAtk as number)) {
+                        this.Destroy('Battle')
+                        const calculation = (defenderAtk as number) - this.atk.get()
+                        this.controller.get().updateLP(-calculation)
+                    } else if (this.atk.get() === (defenderAtk as number) && this.atk.get() !== 0) {
+                        defender.Destroy('Battle')
+                        this.Destroy('Battle')
                     }
                 } else {
-                    if (card.atk.Value > defender.def.Value) {
-                        defender.destroy_.Fire('Battle')
-                    } else if (card.atk.Value < defender.def.Value) {
-                        const calculation = defender.def.Value - card.atk.Value
-                        controller.Value.updateLP.Fire(-calculation)
+                    if (this.atk.get() > defender.def.get()) {
+                        defender.Destroy('Battle')
+                    } else if (this.atk.get() < defender.def.get()) {
+                        const calculation = defender.def.get() - this.atk.get()
+                        this.controller.get().updateLP(-calculation)
                     }
                 }
             }
@@ -446,46 +427,45 @@ export const Card = (_name: string, _owner: PlayerValue, _order: number, extra?:
         const afterDamageCalculation = () => {
             print(11)
             print('after damage calculation')
-            duel.damageStep.Value = 'AFTER'
-            //self destruction continuous effects immediately
+            this.duel().damageStep.set('AFTER'
+)            //self destruction continuous effects immediately
             //after damage calculation effects
             //battle damage effects
             //flip effects
-            duel.handleResponses.Invoke(duel.turnPlayer.Value)
+            this.duel().handleResponses(this.duel().turnPlayer.get())
             if(defenderIsFlip) {
-                const cost = defender.getCost.Invoke()
+                const cost = defender.getCost()
                 if(cost) {
                     cost()
                 }
-                const target = defender.getTarget.Invoke()
+                const target = defender.getTarget()
                 if(target) {
                     target()
                 }
-                defender.activateEffect.Invoke()
+                defender.activateEffect()
             } else {
-                duel.handleResponses.Invoke(duel.turnPlayer.Value)
+                this.duel().handleResponses(this.duel().turnPlayer.get())
             }
             endOfDamageStep()
         }
 
         const endOfDamageStep = () => {
             print('end of damage step')
-            duel.damageStep.Value = 'END'
+            this.duel().damageStep.set('END');
             if (!isDirectAttack) {
-                if (defender.status.Value === 'destroyedByBattle') {
-                    defender.toGraveyard.Fire()
-                    defender.status.Value = ''
+                if (defender.status.get() === 'destroyedByBattle') {
+                    defender.ToGraveyard()
+                    defender.status.set('')
                 }
-                if (status.Value === 'destroyedByBattle') {
-                    toGraveyard()
-                    status.Value = ''
+                if (this.status.get() === 'destroyedByBattle') {
+                    this.ToGraveyard()
+                    this.status.set('')
                 }
             }
-            duel.battleStep.Value = 'BATTLE'
-            duel.attackingCard.Value = undefined
-            duel.defendingCard.Value = undefined
+            this.duel().battleStep.set('BATTLE')
+            this.duel().attackingCard.set(undefined)
+            this.duel().defendingCard.set(undefined)
         }
         startOfDamageStep()
     }
-    ;(instance('BindableEvent', 'attack', card) as BindableEvent).Event.Connect(attack)
 }

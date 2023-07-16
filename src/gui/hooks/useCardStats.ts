@@ -1,20 +1,21 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { CardFolder } from "server/types";
+import { every } from "@rbxts/sift/out/Array";
+import { Card } from "server/ygo/Card";
 import { includes } from "shared/utils";
 
-export default (card: CardFolder) => {
+export default (card: Card) => {
     const [atk, setAtk] = useState<number>(undefined);
     const [def, setDef] = useState<number>(undefined);
 
     useEffect(() => {
         if(!card) return;
-        if(!includes(card.type.Value, "Monster")) return;
+        if(!includes(card["type"].get(), "Monster")) return;
 
-        setAtk(card.atk.Value);
-        setDef(card.def.Value);
+        setAtk(card.atk.get());
+        setDef(card.def.get());
 
-        const atkConn = card.atk.Changed.Connect((newAtk) => setAtk(newAtk));
-        const defConn = card.def.Changed.Connect((newDef) => setDef(newDef));
+        const atkConn = card.atk.event.Connect((newAtk) => setAtk(newAtk));
+        const defConn = card.def.event.Connect((newDef) => setDef(newDef));
 
         return () => {
             atkConn.Disconnect();

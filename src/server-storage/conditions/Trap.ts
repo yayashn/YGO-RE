@@ -1,13 +1,13 @@
-import type { CardFolder, DuelFolder } from 'server/types'
+import { Card } from 'server/ygo/Card'
 
-export default (card: CardFolder) => {
-    const controller = card.controller.Value
-    const duel = controller.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+export default (card: Card) => {
+    const controller = card.controller.get()
+    const duel = controller.getDuel()
 
-    const inBottomRow = ["SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].includes(card.location.Value)
-    const activated = card.activated.Value
-    const isActor = duel.actor.Value === controller
-    const canActivate = card.canActivate.Value
+    const inBottomRow = ["SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].includes(card.location.get())
+    const activated = card.activated.get()
+    const isActor = duel.actor.get() === controller
+    const canActivate = card.canActivate.get()
 
     return isActor && inBottomRow && !activated && canActivate
 }

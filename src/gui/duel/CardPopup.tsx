@@ -4,14 +4,15 @@ import useIsTarget from 'gui/hooks/useIsTarget'
 import useIsTargettable from 'gui/hooks/useIsTargettable'
 import useTargettables from 'gui/hooks/useTargettables'
 import useYGOPlayer from 'gui/hooks/useYGOPlayer'
-import { CardFolder, PlayerValue } from 'server/types'
-import { getTargets, removeTarget, addTarget, getCardInfo, getTargettables } from 'server/utils'
+import { addTarget, getCardInfo } from 'server/utils'
 import { useGlobalState } from 'shared/useGlobalState'
 import { cardInfoStore } from './CardInfo'
+import { Card } from 'server/ygo/Card'
+import { YPlayer } from 'server/ygo/Player'
 
-export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player: PlayerValue }) => {
+export const CardFrame = withHooks(({ card, player }: { card: Card, player: YPlayer }) => {
     const isTarget = useIsTarget(card)
-    const cardInfo = getCardInfo(card.Name)
+    const cardInfo = getCardInfo(card.name)
     const [currentCardInfo, setCurrentCardInfo] = useGlobalState(cardInfoStore)
 
     return (
@@ -22,15 +23,15 @@ export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player
                 ImageTransparency={isTarget ? 0.5 : 0}
                 Event={{
                     MouseButton1Click: () => {
-                        const targets = getTargets(player)
+                        const targets = player.targets.get()
                         if (targets.includes(card)) {
-                            removeTarget(player, card)
+                            player.targets.set(targets.filter((c) => c !== card))
                         } else {
                             addTarget(player, card)
                         }
                     },
                     MouseEnter: () => {
-                        setCurrentCardInfo(cardInfo)
+                        setCurrentCardInfo(card.name)
                     }
                 }}
                 Size={new UDim2(1, 0, 1, -20)}
@@ -40,7 +41,7 @@ export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player
                 BackgroundTransparency={1}
                 Position={new UDim2(0, 0, 1, 0)}
                 Size={new UDim2(1, 0, 0, 20)}
-                Text={card.location.Value}
+                Text={card.location.get()}
                 TextColor3={new Color3(1, 1, 1)}
                 TextScaled
                 TextXAlignment="Center"
@@ -55,11 +56,11 @@ export const CardFrame = withHooks(({ card, player }: { card: CardFolder, player
 export default withHooks(() => {
     const player = useYGOPlayer()!
     const targettables = useTargettables()
-    const [targettablesHack, setTargettablesHack] = useState<CardFolder[]>([])
+    const [targettablesHack, setTargettablesHack] = useState<Card[]>([])
 
     useEffect(() => {
         if(!player) return
-        setTargettablesHack(getTargettables(player, player.targettableCards.Value))
+        setTargettablesHack(player.targettableCards.get())
 
     }, [targettables, player])
 

@@ -1,17 +1,16 @@
 import { useEffect, useState } from "@rbxts/roact-hooked"
-import type { CardFolder, DuelFolder } from "server/types"
 import useYGOPlayer from "./useYGOPlayer"
-import { getTargettables } from "server/utils"
+import { Card } from "server/ygo/Card"
 
 export default () => {
     const YGOPlayer = useYGOPlayer()
-    const [targettables, setTargettables] = useState<CardFolder[]>([])
+    const [targettables, setTargettables] = useState<Card[]>([])
 
     useEffect(() => {
         if(!YGOPlayer) return
 
-        const connection = YGOPlayer.targettableCards.Changed.Connect((newTargettables) => {
-            setTargettables(getTargettables(YGOPlayer, newTargettables))
+        const connection = YGOPlayer.targettableCards.event.Connect((newTargettables) => {
+            setTargettables(newTargettables as unknown as Card[])
         })
 
         return () => connection.Disconnect()

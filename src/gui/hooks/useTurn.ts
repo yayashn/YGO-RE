@@ -3,10 +3,10 @@ import useDuel from "./useDuel"
 
 export default () => {
     const duel = useDuel();
-    const [turn, setTurn] = useState(duel?.turn.Value);
+    const [turn, setTurn] = useState(duel?.turn.get());
 
     useEffect(() => {
-        const connection = duel?.turn.Changed.Connect((newTurn) => {
+        const connection = duel?.turn.event.Connect((newTurn) => {
             setTurn(newTurn as number);
         })
 

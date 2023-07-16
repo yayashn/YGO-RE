@@ -6,10 +6,10 @@ const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default () => {
     const [duel] = getDuel(player)!;
-    const [phase, setPhase] = useState(duel.phase.Value);
+    const [phase, setPhase] = useState(duel.phase.get());
 
     useEffect(() => {
-        const connection = duel.phase.Changed.Connect((newPhase: unknown) => {
+        const connection = duel.phase.event.Connect((newPhase: unknown) => {
             setPhase(newPhase as Phase);
         });
 

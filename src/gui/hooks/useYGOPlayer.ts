@@ -1,12 +1,12 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import type { PlayerValue } from "server/types";
 import useDuel from "./useDuel";
+import { YPlayer } from "server/ygo/Player";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default (isOpponent?: boolean) => {
     const duel = useDuel();
-    const [YGOPlayer, setYGOPlayer] = useState<PlayerValue>();
+    const [YGOPlayer, setYGOPlayer] = useState<YPlayer>();
 
     useEffect(() => {
         if(!duel) {
@@ -14,11 +14,8 @@ export default (isOpponent?: boolean) => {
             return;
         };
         
-        duel.WaitForChild("player1");
-        duel.WaitForChild("player2");
-        
-        const opponentValue = player === duel.player1.Value ? duel.player2 : duel.player1;
-        const playerValue = player === duel.player1.Value ? duel.player1 : duel.player2;
+        const opponentValue = player === duel.player1.player ? duel.player2 : duel.player1;
+        const playerValue = player === duel.player1.player ? duel.player1 : duel.player2;
 
         if(isOpponent) {
             setYGOPlayer(opponentValue);

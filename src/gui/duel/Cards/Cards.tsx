@@ -5,7 +5,6 @@ import useMount from 'gui/hooks/useMount'
 import useShowArt from 'gui/hooks/useShowArt'
 import useYGOPlayer from 'gui/hooks/useYGOPlayer'
 import { getCardInfo } from 'server/utils'
-import type { PlayerValue, CardFolder, DuelFolder } from 'server/types'
 import { instance } from 'shared/utils'
 import isTargettableF from 'gui/functions/isTargettable'
 import isTargetF from 'gui/functions/isTarget'
@@ -19,6 +18,8 @@ import { useGlobalState } from 'shared/useGlobalState'
 import { motion } from 'shared/motion'
 import HoverCard from 'server-storage/animations/HoverCard/HoverCard'
 import useLocation from 'gui/hooks/useLocation'
+import { YPlayer } from 'server/ygo/Player'
+import { Card } from 'server/ygo/Card'
 
 const replicatedStorage = game.GetService('ReplicatedStorage')
 const player = script.FindFirstAncestorWhichIsA('Player')!
@@ -27,13 +28,13 @@ const createCard3D = replicatedStorage.FindFirstChild('createCard3D.re', true) a
 const moveCard3D = replicatedStorage.FindFirstChild('moveCard3D.re', true) as RemoteEvent
 const tweenService = game.GetService('TweenService')
 
-export default withHooks(({ PlayerValue }: { PlayerValue: PlayerValue }) => {
-    const cards = useCards(PlayerValue.Value)
+export default withHooks(({ PlayerValue }: { PlayerValue: YPlayer }) => {
+    const cards = useCards(PlayerValue.player)
     const [showMenu, setShowMenu] = useState<string | false>(false)
-    const duel = PlayerValue.Parent as DuelFolder
+    const duel = PlayerValue.getDuel()
 
     useEffect(() => {
-        const connection = duel.phase.Changed.Connect((value) => {
+        const connection = duel.phase.event.Connect((value) => {
             setShowMenu(false)
         })
 
@@ -52,7 +53,7 @@ export default withHooks(({ PlayerValue }: { PlayerValue: PlayerValue }) => {
 })
 
 export type CardButton = {
-    card: CardFolder
+    card: Card
     getPosition?: RemoteFunction
     card3D?: ObjectValue
     getOrder?: RemoteFunction
@@ -105,7 +106,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
     const location = useLocation(card)
 
     useEffect(() => {
-        setEnlarged(hover || card.location.Value !== "Hand")
+        setEnlarged(hover || card.location.get() !== "Hand")
     }, [hover, location])
 
     useMount(
@@ -132,18 +133,18 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                         addTarget(YGOPlayer, card)
                     }
                 } else {
-                    setShowMenu((state) => state !== card.uid.Value ? card.uid.Value : false)
+                    setShowMenu((state) => state !== card.uid ? card.uid : false)
                 }
             }
             connections.push(onCardClick.OnServerEvent.Connect(clicked))
 
-            const isOpponent = () => card.controller.Value.Value !== player
+            const isOpponent = () => card.controller.get().player !== YGOPlayer.player
 
             createCard3D.FireClient(
                 player,
                 cardRef.getValue(),
                 {
-                    location: card.location.Value,
+                    location: card.location.get(),
                 },
                 isOpponent(),
             )
@@ -151,18 +152,18 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
             const cardLocationChanged = () => {
                 if (!isOpponent()) {
                     cardRef.getValue()!.Parent = duelGui.Field.Player.FindFirstChild(
-                        card.location.Value,
+                        card.location.get(),
                         true,
                     )
                 } else {
                     cardRef.getValue()!.Parent = duelGui.Field.Opponent.FindFirstChild(
-                        card.location.Value,
+                        card.location.get(),
                         true,
                     )
                 }
-                moveCard3D.FireClient(player, cardRef.getValue(), card.location.Value, isOpponent())
+                moveCard3D.FireClient(player, cardRef.getValue(), card.location.get(), isOpponent())
             }
-            connections.push(card.location.Changed.Connect(cardLocationChanged))
+            connections.push(card.location.event.Connect(cardLocationChanged))
             cardLocationChanged()
 
             const positionChanged = instance(
@@ -170,8 +171,8 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 'positionChanged',
                 cardRef.getValue(),
             ) as RemoteEvent
-            connections.push(card.position.Changed.Connect(() => {
-                positionChanged.FireClient(player, card.position.Value)
+            connections.push(card.position.event.Connect(() => {
+                positionChanged.FireClient(player, card.position.get())
             }))
 
             const getLocationFromClient = instance(
@@ -180,7 +181,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 cardRef.getValue(),
             ) as RemoteFunction;
             getLocationFromClient.OnServerInvoke = () => {
-                return card.location.Value
+                return card.location.get()
             }
 
             const getPositionFromClient = instance(
@@ -189,7 +190,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 cardRef.getValue(),
             ) as RemoteFunction
             getPositionFromClient.OnServerInvoke = () => {
-                return card.position.Value
+                return card.position.get()
             }
 
             const getOrderFromClient = instance(
@@ -198,7 +199,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 cardRef.getValue(),
             ) as RemoteFunction
             getOrderFromClient.OnServerInvoke = () => {
-                return card.order.Value
+                return card.order.get()
             }
 
             const getUidFromClient = instance(
@@ -207,7 +208,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                 cardRef.getValue(),
             ) as RemoteFunction
             getUidFromClient.OnServerInvoke = () => {
-                return card.uid.Value
+                return card.uid
             }
 
             return () => {
@@ -220,7 +221,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
 
     return (
         <surfacegui Ref={cardRef} Key="Card">
-            <CardMenu card={card} useShowMenu={[showMenu === card.uid.Value, setShowMenu]} />
+            <CardMenu card={card} useShowMenu={[showMenu === card.uid, setShowMenu]} />
             <surfacegui Key="Art" Face="Bottom">
                 <imagelabel
                     ImageTransparency={0}
@@ -230,14 +231,14 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     Position={new UDim2(0.5, 0, 0.5, 0)}
                     Image={
                         showArt
-                            ? (getCardInfo(card.Name).FindFirstChild('art') as ImageButton).Image
+                            ? (getCardInfo(card.name).FindFirstChild('art') as ImageButton).Image
                             : ''
                     }
                     Event={{
                         MouseEnter: () => {
                             setHover(true)
                             if(showArt) {
-                                setCurrentCardInfo(card)
+                                setCurrentCardInfo(card.name)
                             }
                         },
                         MouseLeave: () => {
@@ -274,7 +275,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                     Size={new UDim2(1, 0, 1, 0)}
                     BackgroundTransparency={1}
                     Image={
-                        (card.controller.Value.Value.FindFirstChild('sleeve') as StringValue).Value
+                        (card.controller.get().player.FindFirstChild('sleeve') as StringValue).Value
                     }
                     AnchorPoint={new Vector2(0.5, 0.5)}
                     Position={new UDim2(0.5, 0, 0.5, 0)}
@@ -282,7 +283,7 @@ export const CardButton = withHooks(({ card, useShowMenu }: CardButton) => {
                         MouseEnter: () => {
                             setHover(true)
                             if(showArt) {
-                                setCurrentCardInfo(card)
+                                setCurrentCardInfo(card.name)
                             }
                         },
                         MouseLeave: () => {

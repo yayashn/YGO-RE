@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@rbxts/beacon': ^2.1.1
   '@rbxts/compiler-types': ^2.0.4-types.0
   '@rbxts/flipper': ^2.0.1
   '@rbxts/motion': 0.0.1-d
@@ -10,6 +11,8 @@ specifiers:
   '@rbxts/roact-flipper': ^2.1.0-ts.5
   '@rbxts/roact-hooked': 2.1.2
   '@rbxts/services': ^1.5.1
+  '@rbxts/sift': ^0.0.6
+  '@rbxts/signal': ^1.1.1
   '@rbxts/types': ^1.0.646
   '@typescript-eslint/eslint-plugin': ^5.42.0
   '@typescript-eslint/parser': ^5.44.0
@@ -23,6 +26,7 @@ specifiers:
   typescript: ^4.8.4
 
 dependencies:
+  '@rbxts/beacon': 2.1.1
   '@rbxts/flipper': 2.0.1
   '@rbxts/motion': 0.0.1-d
   '@rbxts/object-utils': 1.0.4
@@ -30,6 +34,8 @@ dependencies:
   '@rbxts/roact-flipper': 2.1.0-ts.5
   '@rbxts/roact-hooked': 2.1.2_@rbxts+roact@1.4.4-ts.0
   '@rbxts/services': 1.5.1
+  '@rbxts/sift': 0.0.6
+  '@rbxts/signal': 1.1.1
   patch-package: 6.5.1
 
 devDependencies:
@@ -126,6 +132,10 @@ packages:
       fastq: 1.15.0
     dev: true
 
+  /@rbxts/beacon/2.1.1:
+    resolution: {integrity: sha512-QeFMSGj+Iijp+tHcV9eyqVyeKZ/9zp7GqRJ/hecKiHmoTu4yFcyGnUQAaX7OdQKBCgLvWMJ9wK/FXMECjFA2Kg==}
+    dev: false
+
   /@rbxts/compiler-types/2.0.4-types.1:
     resolution: {integrity: sha512-sLFiyMH9j8kcCd07lt6R+WgneksCGqYUFKu7qX02ufUU7r9eR2dXoOt2A9Nxh3unTuCu5mYyO0M6JYb82fOHxA==}
     dev: true
@@ -176,6 +186,14 @@ packages:
 
   /@rbxts/services/1.5.1:
     resolution: {integrity: sha512-SRtfIjga0K4YYSXRpK+eH3kcTq7ZXo9OHOt0jszaOOoEOIJloMGlyuRPqesPHyhveh2AMXAZr3TYbRMSD+u+kQ==}
+    dev: false
+
+  /@rbxts/sift/0.0.6:
+    resolution: {integrity: sha512-P9roA24mM36RJcmTAcMhm8Gi0fZDQjoOGp26PkZC3FgoOFaEJnKZgJggJ7zMFQIV309ZxTZJOfgMoJ8sVwypkQ==}
+    dev: false
+
+  /@rbxts/signal/1.1.1:
+    resolution: {integrity: sha512-WX+ONE+ld4pG9PvRkR8OgDld9NpaV1RfXyUIw+Q2oXP/5rehkYzvt20NWtrLAP3NhMc5inYInLd+hnufey6nFw==}
     dev: false
 
   /@rbxts/types/1.0.667:

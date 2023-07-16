@@ -1,12 +1,12 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import type { CardFolder } from "server/types";
+import { Card } from "server/ygo/Card";
 
-export default (card: CardFolder) => {
+export default (card: Card) => {
     const [changed, setChanged] = useState<unknown>()
 
     useEffect(() => {
         const connections = [card.location, card.position, card.controller].map((value) => {
-            return value.Changed.Connect(() => {
+            return value.event.Connect(() => {
                 setChanged(value)
             })
         })

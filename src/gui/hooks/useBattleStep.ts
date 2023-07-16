@@ -7,7 +7,7 @@ export default () => {
 
     useEffect(() => {
         if (duel) {
-            const connection = duel.battleStep.Changed.Connect((value) => {
+            const connection = duel.battleStep.event.Connect((value) => {
                 setBattleStep(value)
             })
             return () => {

@@ -1,8 +1,8 @@
 import Roact from "@rbxts/roact";
 import Dialog from "./Dialog";
-import { PlayerValue } from "server/types";
+import { YPlayer } from "server/ygo/Player";
 
-export default (player: PlayerValue, message: string) => {
+export default (player: YPlayer, message: string) => {
     let inputReceived: boolean = false;
     let receivedInput: string = "";
 
@@ -15,7 +15,7 @@ export default (player: PlayerValue, message: string) => {
         <screengui Key="Dialog" IgnoreGuiInset>
             <Dialog
                 message={message}
-                player={player.Value}
+                player={player.player}
                 handleInput={handleInput}
                 options={[
                     {
@@ -36,7 +36,7 @@ export default (player: PlayerValue, message: string) => {
                 ]}
             />
         </screengui>,
-        player.FindFirstChildWhichIsA("PlayerGui")
+        player.player.FindFirstChildWhichIsA("PlayerGui")
     );
 
     while (inputReceived) {

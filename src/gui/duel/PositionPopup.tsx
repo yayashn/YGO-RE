@@ -1,19 +1,19 @@
 import Roact from "@rbxts/roact"
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked"
 import useYGOPlayer from "gui/hooks/useYGOPlayer"
-import { CardFolder, DuelFolder } from "server/types"
 import { getCard, getCardInfo } from "server/utils"
+import { Card } from "server/ygo/Card"
 
 export default withHooks(() => {
     const player = useYGOPlayer();
-    const [card, setCard] = useState<CardFolder | undefined>(undefined);
-    const cardInfo = card && getCardInfo(card.Name);
+    const [card, setCard] = useState<Card | undefined>(undefined);
+    const cardInfo = card && getCardInfo(card.name);
 
     useEffect(() => {
         if(!player) return;
 
-        const duel = player.Parent as DuelFolder;
-        const connection = player.selectPositionCard.Changed.Connect((cardUid) => {
+        const duel = player.getDuel();
+        const connection = player.selectPositionCard.event.Connect((cardUid) => {
             try {
                 if(cardUid === "") {
                     setCard(undefined)
@@ -46,10 +46,10 @@ export default withHooks(() => {
         <imagebutton
             Event={{
                 MouseButton1Click: () => {
-                    card.controller.Value.selectedPosition.Value = "FaceUpAttack"
+                    card.controller.get().selectedPosition.set("FaceUpAttack")
                 }
             }}
-            Image={cardInfo.art.Image}
+            Image={cardInfo.art.Image as string}
             Position={new UDim2(0, 70, 0, 0)}
             AnchorPoint={new Vector2(0.5, 0.5)}
             Size={new UDim2(0, 140 * 0.7, 0, 140)}
@@ -57,10 +57,10 @@ export default withHooks(() => {
         <imagebutton
             Event={{
                 MouseButton1Click: () => {
-                    card.controller.Value.selectedPosition.Value = "FaceUpDefense"
+                    card.controller.get().selectedPosition.set("FaceUpDefense")
                 }
             }}
-            Image={cardInfo.art.Image}
+            Image={cardInfo.art.Image as string}
             Position={new UDim2(0, 220, 0, 0)}
             Rotation={90}
             AnchorPoint={new Vector2(0.5, 0.5)}

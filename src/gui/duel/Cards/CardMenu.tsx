@@ -15,7 +15,7 @@ import useYGOPlayer from 'gui/hooks/useYGOPlayer'
 import type { CardFolder } from 'server/types'
 import { HttpService } from '@rbxts/services'
 import { Button, Text } from 'shared/rowindcss/index'
-import { getEmptyFieldZones, getFilteredCards, getTargets, pickTargets, setAction, stringifyCards } from 'server/utils'
+import { getEmptyFieldZones, getFilteredCards, pickTargets, stringifyCards } from 'server/utils'
 import useGameState from 'gui/hooks/useGameState'
 import useChainResolving from 'gui/hooks/useChainResolving'
 import useActor from 'gui/hooks/useActor'
@@ -32,6 +32,8 @@ import useFloodgates from 'gui/hooks/useFloodgates'
 import useCardFloodgates from 'gui/hooks/useCardFloodgates.ts'
 import useRace from 'gui/hooks/useRace'
 import useChainLink from 'gui/hooks/useChainLink'
+import { Card } from 'server/ygo/Card'
+import { MZone, SZone } from 'shared/types'
 
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
@@ -50,7 +52,7 @@ export default withHooks(
         card,
         useShowMenu
     }: {
-        card: CardFolder
+        card: Card
         useShowMenu: [boolean, Dispatch<SetStateAction<string | false>>]
     }) => {
         const { getCardsIn } = useAllCards()
@@ -94,103 +96,103 @@ export default withHooks(
 
         const cardActions = {
             Activate: () => {
-                const cost = card.getCost.Invoke()
-                const target_ = card.getTarget.Invoke()
+                const cost = card.getCost()
+                const target_ = card.getTarget()
                 if(cost) {
                    cost()
                 }
                 if(target_) {
                     target_()
                 }
-                card.activateEffect.Invoke()
+                card.activateEffect()
             },
             'Normal Summon': async () => {
-                YGOPlayer.canNormalSummon.Value = false
-                YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
+                YGOPlayer.canNormalSummon.set(false)
+                YGOPlayer.selectableZones.set(getEmptyFieldZones('MZone', YGOPlayer, 'Player'))
                 
-                const connection = YGOPlayer.selectedZone.Changed.Connect((zone) => {
+                const connection = YGOPlayer.selectedZone.event.Connect((zone) => {
                     connection.Disconnect()
-                    card.normalSummon.Fire(zone)
+                    card.NormalSummon(zone as MZone)
                 })
                 while (connection.Connected) {
                     await Promise.delay(0)
                 }
-                YGOPlayer.selectedZone.Value = ''
-                YGOPlayer.selectableZones.Value = '[]'
+                YGOPlayer.selectedZone.set('')
+                YGOPlayer.selectableZones.set([])
             },
             'Special Summon': () => {},
             Set: async () => {
-                if (card.type.Value.match('Monster').size() > 0) {
-                    YGOPlayer.canNormalSummon.Value = false
-                    if (card.level.Value <= 4) {
-                        YGOPlayer.selectableZones.Value = getEmptyFieldZones(
+                if (card.type.get().match('Monster').size() > 0) {
+                    YGOPlayer.canNormalSummon.set(false)
+                    if (card.level.get() <= 4) {
+                        YGOPlayer.selectableZones.set(getEmptyFieldZones(
                             'MZone',
                             YGOPlayer,
                             'Player'
-                        )
+                        ))
                     } else {
-                        const tributesRequired = card.level.Value <= 6 ? 1 : 2
+                        const tributesRequired = card.level.get() <= 6 ? 1 : 2
 
-                        YGOPlayer.targets.Value = pickTargets(
+                        YGOPlayer.targets.set(pickTargets(
                             YGOPlayer,
                             tributesRequired,
-                            stringifyCards(getFilteredCards(duel!, {
+                            getFilteredCards(duel!, {
                                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                                 controller: [YGOPlayer]
-                            }))
-                        )
-                        getTargets(YGOPlayer).forEach((target) => {
-                            target.tribute.Fire()
+                            })
+                        ))
+                        YGOPlayer.targets.get().forEach((target) => {
+                            target.Tribute()
                         })
 
-                        YGOPlayer.canNormalSummon.Value = false
-                        YGOPlayer.selectableZones.Value = getEmptyFieldZones(
+                        YGOPlayer.canNormalSummon.set(false)
+                        YGOPlayer.selectableZones.set(getEmptyFieldZones(
                             'MZone',
                             YGOPlayer,
                             'Player'
-                        )
-                        const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
-                        card.tributeSet.Fire(zone)
+                        ))
+                        const zone = YGOPlayer.selectedZone.changedOnce()
+                        card.TributeSet(zone as MZone | SZone)
 
-                        YGOPlayer.selectedZone.Value = ''
-                        YGOPlayer.selectableZones.Value = '[]'
+                        YGOPlayer.selectedZone.set('')
+                        YGOPlayer.selectableZones.set([])
     
                         return
                     }
                 } else {
-                    YGOPlayer.selectableZones.Value = getEmptyFieldZones(
+                    YGOPlayer.selectableZones.set(getEmptyFieldZones(
                         'SZone',
                         YGOPlayer,
                         'Player'
-                    )
+                    ))
                 }
-                if(includes(card.race.Value, "Field")) {
-                    card.set.Fire("FZone")
+                if(includes(card.race.get(), "Field")) {
+                    card.Set("FZone")
                 } else {
-                    const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
-                    card.set.Fire(zone)
-                    YGOPlayer.selectedZone.Value = ''
-                    YGOPlayer.selectableZones.Value = '[]'
+                    const zone = YGOPlayer.selectedZone.changedOnce()
+                    card.Set(zone as MZone | SZone | "FZone")
+                    YGOPlayer.selectedZone.set('')
+                    YGOPlayer.selectableZones.set([])
                 }
             },
             'Flip Summon': () => {
-                card.flipSummon.Fire();
+                card.FlipSummon();
             },
             Attack: () => {
                 addCardFloodgate(card, {
-                    floodgateUid: `disableChangePositionAfterAttack-${card.uid.Value}`,
+                    floodgateUid: `disableChangePositionAfterAttack-${card.uid}`,
                     floodgateName: "disableChangePosition",
                     floodgateCause: "Mechanic",
                     floodgateFilter: {
-                        uid: [card.uid.Value]
+                        uid: [card.uid]
                     }
                 })
                 addCardFloodgate(card, {
                     floodgateName: 'disableAttack',
-                    floodgateUid: `disableAttackAfterAttack-${card.uid.Value}`,
+                    floodgateUid: `disableAttackAfterAttack-${card.uid}`,
                     floodgateCause: "Mechanic",
                     floodgateFilter: {
-                        uid: [card.uid.Value]
+                        uid: [card.uid]
                     }
                 })
                 const monstersOnOpponentField = getFilteredCards(duel!, {
@@ -198,84 +200,85 @@ export default withHooks(
                     controller: [YGOOpponent]
                 })
                 if (monstersOnOpponentField.size() > 0) {
-                    getTargets(YGOPlayer, pickTargets(
+                    const targets = pickTargets(
                         YGOPlayer,
                         1,
-                        stringifyCards(getFilteredCards(duel!, {
+                        getFilteredCards(duel!, {
                             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                             controller: [YGOOpponent]
-                        }))
-                    ))
-                    duel!.attackingCard.Value = card
-                    duel!.defendingCard.Value = getTargets(YGOPlayer)[0]
+                        })
+                    )
                     
-                    duel!.handleResponsesSync.Invoke(YGOPlayer)
+                    duel!.attackingCard.set(card)
+                    duel!.defendingCard.set(targets[0])
+                    
+                    duel!.handleResponses(YGOPlayer)
                 } else {
-                    duel!.attackingCard.Value = card
+                    duel!.attackingCard.set(card)
                     print(1)
-                    duel!.handleResponsesSync.Invoke(YGOPlayer)
+                    duel!.handleResponses(YGOPlayer)
                     print(2)
                 }
             },
             'Tribute Summon': async () => {
-                const tributesRequired = card.level.Value <= 6 ? 1 : 2
-                YGOPlayer.targets.Value = pickTargets(YGOPlayer, tributesRequired, 
-                    stringifyCards(getFilteredCards(duel!, {
+                const tributesRequired = card.level.get() <= 6 ? 1 : 2
+                YGOPlayer.targets.set(pickTargets(YGOPlayer, tributesRequired, 
+                    getFilteredCards(duel!, {
                         location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                         controller: [YGOPlayer]
-                    }))
-                )
-                getTargets(YGOPlayer).forEach((target) => {
-                    target.tribute.Fire()
+                    })
+                ))
+                YGOPlayer.targets.get().forEach((target) => {
+                    target.Tribute()
                 })
 
-                YGOPlayer.canNormalSummon.Value = false
-                YGOPlayer.selectableZones.Value = getEmptyFieldZones('MZone', YGOPlayer, 'Player')
+                YGOPlayer.canNormalSummon.set(false)
+                YGOPlayer.selectableZones.set(getEmptyFieldZones('MZone', YGOPlayer, 'Player'))
 
-                const zone = await changedOnce(YGOPlayer.selectedZone.Changed)
-                card.tributeSummon.Fire(zone)
-                YGOPlayer.selectedZone.Value = ''
-                YGOPlayer.selectableZones.Value = '[]'
+                const zone = YGOPlayer.selectedZone.changedOnce()
+                card.TributeSummon(zone as MZone)
+                YGOPlayer.selectedZone.set('')
+                YGOPlayer.selectableZones.set([])
                 
             },
             'Change Position': () => {
-                card.changePosition.Fire()
+                card.ChangePosition()
             }
         }
 
         useEffect(() => {
-            card.controller.Value.handleCardResponse.Fire(card)
+            card.controller.get().handleCardResponses(card)
 
-            const isMonster = card.type.Value.match('Monster').size() > 0
+            const isMonster = card.type.get().match('Monster').size() > 0
             const isSpellTrap = !isMonster
-            const inHand = card.location.Value === 'Hand'
+            const inHand = card.location.get() === 'Hand'
             const isMainPhase = phase === 'MP1' || phase === 'MP2'
-            const isTurnPlayer = duel?.turnPlayer.Value.Value === player
+            const isTurnPlayer = duel?.turnPlayer.get().player === player
             const isSelecting =
-                YGOPlayer.selectableZones.Value !== '[]' || YGOPlayer.targettableCards.Value !== ''
-            const conditionMet = card.checkEffectConditions.Invoke()
+                YGOPlayer.selectableZones.get().size() !== 0 || YGOPlayer.targettableCards.get().size() !== 0
+            const conditionMet = card.checkEffectConditions()
             const promptHidden = prompt === ''
 
             if (
                 !chainResolving &&
                 !isSelecting &&
                 actor === YGOPlayer &&
-                card.controller.Value.Value === player &&
+                card.controller.get().player === player &&
                 promptHidden
             ) {
                 //Hand Logic
                 if (inHand && isTurnPlayer && isMainPhase && gameState === 'OPEN') {
                     if (isMonster) {
                         if (canNormalSummon) {
-                            if (card.level.Value <= 4) {
+                            if (card.level.get() <= 4) {
                                 addCardAction('Normal Summon')
                                 addCardAction('Set')
-                            } else if (card.level.Value === 5 || card.level.Value === 6) {
+                            } else if (card.level.get() === 5 || card.level.get() === 6) {
                                 if (getCardsIn('MZone').size() >= 1) {
                                     addCardAction('Tribute Summon')
                                     addCardAction('Set')
                                 }
-                            } else if (card.level.Value >= 7) {
+                            } else if (card.level.get() >= 7) {
                                 if (getCardsIn('MZone').size() >= 2) {
                                     addCardAction('Tribute Summon')
                                     addCardAction('Set')
@@ -294,9 +297,9 @@ export default withHooks(
                     removeCardAction('Set')
                 }
 
-                const inMZone = card.location.Value.match('MZone').size() > 0
+                const inMZone = card.location.get().match('MZone').size() > 0
                 const canChangePosition = !hasCardFloodgate(card, "disableChangePosition")
-                const isFacedownDefense = card.position.Value === 'FaceDownDefense'
+                const isFacedownDefense = card.position.get() === 'FaceDownDefense'
                 // Monster Zone Logic
                 if (inMZone && isTurnPlayer && isMainPhase && gameState === 'OPEN') {
                     if (isFacedownDefense && canChangePosition) {
@@ -315,7 +318,7 @@ export default withHooks(
                 }
 
                 // Battle Phase Logic
-                const inAttackPosition = card.position.Value === 'FaceUpAttack'
+                const inAttackPosition = card.position.get() === 'FaceUpAttack'
                 if (
                     !hasFloodgate(YGOPlayer, "disableAttack") &&
                     inMZone &&
@@ -347,12 +350,12 @@ export default withHooks(
 
             const forceFaceUpDefensePosition = () => {
                 if(hasCardFloodgate(card, "forceFaceUpDefensePosition")) {
-                    card.position.Value = 'FaceUpDefense'
+                    card.position.set('FaceUpDefense')
                 }
             }
 
             const checkExodia = () => {
-                if(card.Name === "Exodia the Forbidden One") {
+                if(card.name === "Exodia the Forbidden One") {
                     const pieces = [
                         "Exodia the Forbidden One",
                         "Right Leg of the Forbidden One",
@@ -366,11 +369,11 @@ export default withHooks(
                     })
                     const winCondition = pieces.every((piece) => {
                         return cardsInHand.some((card) => {
-                            return card.Name === piece
+                            return card.name === piece
                         })
                     })
                     if(winCondition) {
-                        duel!.endDuel.Fire(YGOPlayer)
+                        duel!.endDuel(YGOPlayer)
                     }
                 }
             }
@@ -378,16 +381,16 @@ export default withHooks(
             continuousEffects()
 
             const connections: RBXScriptConnection[] = [
-                addToChain?.Event.Connect(() => {
-                    card.controller.Value.handleCardResponse.Fire(card)
+                addToChain?.event.Connect(() => {
+                    card.controller.get().handleCardResponses(card)
                     continuousEffects()
                 }),
-                YGOPlayer.action.Changed.Connect(() => {
-                    card.controller.Value.handleCardResponse.Fire(card)
+                YGOPlayer.action.event.Connect(() => {
+                    card.controller.get().handleCardResponses(card)
                     continuousEffects()
                 }),
-                YGOOpponent.action.Changed.Connect(() => {
-                    card.controller.Value.handleCardResponse.Fire(card)
+                YGOOpponent.action.event.Connect(() => {
+                    card.controller.get().handleCardResponses(card)
                     continuousEffects()
                 })
             ] as RBXScriptConnection[]
@@ -401,8 +404,8 @@ export default withHooks(
             canNormalSummon,
             phase,
             location,
-            YGOPlayer.selectableZones.Value,
-            YGOPlayer.targettableCards.Value,
+            YGOPlayer.selectableZones.get(),
+            YGOPlayer.targettableCards.get(),
             chainResolving,
             gameState,
             actor,
@@ -470,8 +473,8 @@ export default withHooks(
                     BackgroundTransparency={1}
                     TextColor3={Color3.fromRGB(255,255,255)}
                     Size={new UDim2(1,0,0,17)}
-                    Position={card.controller.Value === YGOPlayer ? new UDim2(0,0,1,0) : new UDim2(0,0,0,0)}
-                    AnchorPoint={card.controller.Value === YGOPlayer ? new Vector2(0,1) : new Vector2(0,0)}
+                    Position={card.controller.get() === YGOPlayer ? new UDim2(0,0,1,0) : new UDim2(0,0,0,0)}
+                    AnchorPoint={card.controller.get() === YGOPlayer ? new Vector2(0,1) : new Vector2(0,0)}
                     Text={`${atk || 0}/${def || 0}`}
                     TextStrokeColor3={Color3.fromRGB(0,0,0)}
                     TextStrokeTransparency={0}
@@ -501,7 +504,7 @@ export default withHooks(
                                 </textlabel>
                         </imagelabel>
                     }
-                    {card.checkEffectConditions.Invoke() && card.controller.Value === YGOPlayer &&
+                    {card.checkEffectConditions() && card.controller.get() === YGOPlayer &&
                         <imagelabel
                             Size={new UDim2(1,0,0,50)}
                             BackgroundTransparency={1}

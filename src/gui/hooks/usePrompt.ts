@@ -1,16 +1,15 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import useYGOPlayer from "./useYGOPlayer";
-import { PlayerValue } from "server/types";
+import { YPlayer } from "server/ygo/Player";
 
 export const waitingText = "Waiting for opponent to respond...";
 
-export default function usePrompt(player: PlayerValue) {
+export default function usePrompt(player: YPlayer) {
     const [prompt, setPrompt] = useState<string>("")
 
     useEffect(() => {
         if (player === undefined) return
 
-        const connection = player.promptMessage.Changed.Connect((newPrompt) => {
+        const connection = player.promptMessage.event.Connect((newPrompt) => {
             setPrompt(newPrompt)
         })
 

@@ -1,193 +1,179 @@
-import { createInstance, getCardData, includes, instance } from 'shared/utils'
-import { ServerScriptService } from '@rbxts/services'
-import { clearAction, getAction, getFilteredCards } from '../utils'
+import { createInstance, includes } from 'shared/utils'
+import { ServerStorage } from '@rbxts/services'
 import Object from '@rbxts/object-utils'
 import {
-    DuelFolder,
-    PlayerValue,
-    GameStateValue,
-    ActorValue,
-    CardFolder,
     ChainedEffect,
-    ResponseValue,
-    CardInventory,
     Phase,
-    ControllerValue,
-    LocationValue,
-    PositionValue,
-    MZone,
-    SZone,
-    Zone,
-    BattleStepValue,
-    PhaseValue,
-    DamageStepValue,
-    CardValue
+    BattleStep,
+    DamageStep,
 } from '../types'
-import { Card } from './Card'
-import changedOnce from 'shared/lib/changedOnce'
-import { addCardFloodgate, addFloodgate, hasCardFloodgate, removeCardFloodgate, removeFloodgate } from 'server/functions/floodgates'
-import promptSync from 'server/gui/promptSync'
-import changedOnceSync from 'shared/lib/changedOnceSync'
+import {
+    FloodgateCard,
+    addCardFloodgate,
+    removeCardFloodgate,
+} from 'server/functions/floodgates'
+import { getFilteredCards } from './utils'
+import { YEvent } from './Event'
+import { YPlayer } from './Player'
+import { Duels } from './Duels'
+import { Card } from './Card';
 
-const duels = ServerScriptService.FindFirstChild('instances')!.FindFirstChild('duels') as Folder
-const replicatedStorage = game.GetService('ReplicatedStorage')
+export const duelAdded = createInstance("BindableEvent", "duelAdded", ServerStorage)
 
-export const Duel = (p1: Player, p2: Player) => {
-    const folder = createInstance('Folder', `${p1.Name}|${p2.Name}`, duels) as DuelFolder
-    const turn = createInstance('IntValue', 'turn', folder)
-    const phase = createInstance('StringValue', 'phase', folder) as PhaseValue
-    const battleStep = createInstance('StringValue', 'battleStep', folder) as BattleStepValue
-    const damageStep = createInstance('StringValue', 'damageStep', folder) as DamageStepValue
-    const turnPlayer = createInstance('ObjectValue', 'turnPlayer', folder) as ControllerValue
-    const player1 = createInstance('ObjectValue', 'player1', folder) as PlayerValue
-    const player2 = createInstance('ObjectValue', 'player2', folder) as PlayerValue
-    const opponent = (player: PlayerValue) => (player.Value === p1 ? player2 : player1)
-    const gameState = createInstance('StringValue', 'gameState', folder) as GameStateValue
-    const chainResolving = createInstance('BoolValue', 'chainResolving', folder)
-    const actor = createInstance('ObjectValue', 'actor', folder) as ControllerValue
-    const attackingCard = createInstance('ObjectValue', 'attackingCard', folder) as CardValue
-    const defendingCard = createInstance('ObjectValue', 'defendingCard', folder) as CardValue
-    createInstance('StringValue', 'floodgates', folder).Value = '[]'
-    const speedSpell = createInstance('IntValue', 'speedSpell', folder)
-    speedSpell.Value = 1
-
-    player1.Value = p1
-    player2.Value = p2
-    turn.Value = 0
-    turnPlayer.Value = player1
-    actor.Value = player1
-    phase.Value = 'DP'
-    gameState.Value = 'OPEN'
-    damageStep.Value = 'NONE'
-
-    let chain: Record<number, ChainedEffect> = {}
-
-    const endDuel = (winner: PlayerValue) => {
-        (player1.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player1.Value, false);
-        (player2.Value.FindFirstChild("showField.re") as RemoteEvent).FireClient(player2.Value, false);
-        folder.Destroy()
-    }
-    createInstance('BindableEvent', 'endDuel', folder).Event.Connect(endDuel)
-    
-    const responses: Record<'player1' | 'player2', CardFolder[]> = {
+export class Duel {
+    turn: YEvent<number> = new YEvent(0)
+    phase: YEvent<Phase> = new YEvent('DP')
+    battleStep: YEvent<BattleStep> = new YEvent('BATTLE')
+    damageStep: YEvent<DamageStep> = new YEvent('NONE')
+    turnPlayer: YEvent<YPlayer>;
+    player1: YPlayer
+    player2: YPlayer
+    gameState: YEvent<"CLOSED" | "OPEN"> = new YEvent('OPEN')
+    chainResolving: YEvent<boolean> = new YEvent(false)
+    actor: YEvent<YPlayer>;
+    attackingCard: YEvent<Card | undefined>
+    defendingCard: YEvent<Card | undefined>
+    speedSpell: YEvent<number> = new YEvent(0)
+    chain: Record<number, ChainedEffect> = {}
+    responses: Record<'player1' | 'player2', Card[]> = {
         player1: [],
         player2: []
     }
-
-    const addToChain = (card: CardFolder, effect: Callback) => {
-        gameState.Value = 'CLOSED'
-        card.activated.Value = true
-        const chainLink = Object.keys(chain).size() + 1
-        card.chainLink.Value = chainLink
-        chain[chainLink - 1] = {
+    handlingResponses = new YEvent(false)
+    floodgates: YEvent<FloodgateCard[]> = new YEvent([])
+    addToChain = new YEvent((card: Card, effect: Callback) => {
+        this.gameState.set('CLOSED')
+        card.activated.set(true)
+        const chainLink = Object.keys(this.chain).size() + 1
+        card.chainLink.set(chainLink)
+        this.chain[chainLink] = {
             card,
             effect,
             negated: false
         }
-        
-        opponent(card.controller.Value).targets.Value = ''
-        handleResponses(opponent(card.controller.Value))
-    }
-    ;(instance('BindableEvent', 'addToChain', folder) as BindableEvent).Event.Connect(
-        (card, effect) => {
-            addToChain(card as CardFolder, effect as Callback)
-        }
-    )
+    })
 
-    const resolveChain = () => {
-        print(5)
-        if (chainResolving.Value === true) return
-        chainResolving.Value = true
+    constructor(p1: Player, p2: Player) {
+        Duels.set(`${p1.Name}|${p2.Name}`, this)
+        this.player1 = new YPlayer(p1, "player1")
+        this.player2 = new YPlayer(p2, "player2")
+        this.turnPlayer = new YEvent(this.player1)
+        this.actor = new YEvent(this.player1)
+        this.attackingCard = new YEvent(undefined)
+        this.defendingCard = new YEvent(undefined)
+    }
+ 
+    endDuel(winner: YPlayer) {
+        ;(this.player1.player.FindFirstChild('showField.re') as RemoteEvent).FireClient(
+            this.player1.player,
+            false
+        )
+        ;(this.player2.player.FindFirstChild('showField.re') as RemoteEvent).FireClient(
+            this.player2.player,
+            false
+        )
+        Duels.delete(`${this.player1.player.Name}|${this.player2.player.Name}`)
+    }
+
+    opponent(player: YPlayer) {
+        return player === this.player1 ? this.player2 : this.player1
+    }
+
+    resolveChain() {
+        if (this.chainResolving.get() === true) return
+        this.chainResolving.set(true)
         //from highest key to lowest key
-        for (let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
-            const { card, effect, negated } = chain[chainNumber]
-            if (!negated && card.effectsNegated.Value === false) {
+        for (let chainNumber = Object.keys(this.chain).size() - 1; chainNumber >= 0; chainNumber--) {
+            const { card, effect, negated } = this.chain[chainNumber]
+            if (!negated && card.effectsNegated.get() === false) {
                 effect()
             }
             wait(3)
-            card.chainLink.Value = 0
-            if(!includes(card.race.Value, "Equip")) {
-                card.targets.Value = ''
+            card.chainLink.set(0)
+            if (!includes(card.race.get(), 'Equip')) {
+                card.targets.set([])
             }
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
-        Object.values(chain).forEach(({ card }) => {
-            if(card.continuous.Value === true || includes(card.race.Value, "Continuous") || includes(card.race.Value, "Equip") || includes(card.race.Value, "Field")) return;
-            if (card.location.Value.match('SZone').size() > 0) {
-                card.toGraveyard.Fire()
+        Object.values(this.chain).forEach(({ card }) => {
+            if (
+                card.continuous.get() === true ||
+                includes(card.race.get(), 'Continuous') ||
+                includes(card.race.get(), 'Equip') ||
+                includes(card.race.get(), 'Field')
+            )
+                return
+            if (card.location.get().match('SZone').size() > 0) {
+                card.ToGraveyard()
             }
-            card.activated.Value = false
+            card.activated.set(false)
         })
-        chain = {}
-        gameState.Value = 'OPEN'
-        chainResolving.Value = false
-        actor.Value = turnPlayer.Value
-        speedSpell.Value = 1
-        player1.targets.Value = ''
-        player2.targets.Value = ''
-        
-        if(battleStep.Value === "BATTLE" && attackingCard.Value) {
-            if(attackingCard.Value.attackNegated.Value === false) {
-                print(6)
-                attackingCard.Value.attack.Fire(defendingCard.Value || opponent(turnPlayer.Value))
+        this.chain = {}
+        this.gameState.set('OPEN')
+        this.chainResolving.set(false)
+        this.actor.set(this.turnPlayer.get())
+        this.speedSpell.set(1)
+        this.player1.targets.set([])
+        this.player2.targets.set([])
+
+        if (this.battleStep.get() === 'BATTLE' && this.attackingCard.get()) {
+            if (this.attackingCard.get()?.attackNegated.get() === false) {
+                //this.attackingCard.attack.Fire(this.defendingCard || this.opponent(turnPlayer))
             }
         }
         try {
-            addCardFloodgate(attackingCard.Value!, {
+            addCardFloodgate(this.attackingCard.get()!, {
                 floodgateName: 'disableAttack',
-                floodgateUid: `disableAttackAfterAttack-${attackingCard.Value!.uid.Value}`,
-                floodgateCause: "Mechanic",
+                floodgateUid: `disableAttackAfterAttack-${this.attackingCard.get()}`,
+                floodgateCause: 'Mechanic',
                 floodgateFilter: {
-                    uid: [attackingCard.Value!.uid.Value]
+                    uid: [this.attackingCard.get()!.uid]
                 }
             })
-
         } catch {
-            print("No attacking card")
+            print('No attacking card')
         }
-        attackingCard.Value = undefined
-        defendingCard.Value = undefined
-        print('end')
+        this.attackingCard.set(undefined)
+        this.defendingCard.set(undefined)
     }
-
-    const prompt = async (p: PlayerValue, msg: string) => {
-        p.promptMessage.Value = msg
+    
+    async prompt(p: YPlayer, msg: string) {
+        p.promptMessage.set(msg)
         const res = new Promise<{
             endPrompt: () => void
             response: 'YES' | 'NO'
         }>((resolve) => {
-            p.promptResponse.Changed.Wait()
+            p.promptResponse.event.Wait()
             resolve({
-                endPrompt: () => (p.promptResponse.Value = ''),
-                response: p.promptResponse.Value as 'YES' | 'NO'
+                endPrompt: () => (p.promptResponse.set('')),
+                response: p.promptResponse.get() as 'YES' | 'NO'
             })
         })
         return res
     }
 
-    let handlingResponses = false
-    const handleResponses = async (p: PlayerValue) => {
-        if(handlingResponses) return
-        speedSpell.Value = 2
-        handlingResponses = true
-        gameState.Value = 'CLOSED'
+    async handleResponses(p: YPlayer) {
+        if (this.handlingResponses.get()) return
+        this.speedSpell.set(2)
+        this.gameState.set('CLOSED')
+        this.handlingResponses.set(true)
         let passes = 0
-        actor.Value = p
+        this.actor.set(p)
 
         while (passes < 2) {
-            const numberOfResponses = responses[actor.Value.Name].size()
-            const lastCardInChain = chain[Object.keys(chain).size() - 1]
+            const numberOfResponses = this.responses[this.actor.get().name].size()
+            const lastCardInChain = this.chain[Object.keys(this.chain).size() - 1]
             const chainStartMessage = `You have ${numberOfResponses} card/effect${
                 numberOfResponses > 1 ? 's' : ''
             } that can be activated. Activate?`
             const chainResponseMessage = `"${
-                lastCardInChain ? lastCardInChain.card.Name : '?'
+                lastCardInChain ? lastCardInChain.card.name : '?'
             }" is activated. Chain another card or effect?`
 
             if (numberOfResponses > 0) {
-                const { endPrompt, response } = await prompt(
-                    actor.Value,
+                const { endPrompt, response } = await this.prompt(
+                    this.actor.get(),
                     numberOfResponses >= 1
                         ? chainStartMessage
                         : chainResponseMessage || chainStartMessage
@@ -196,8 +182,8 @@ export const Duel = (p1: Player, p2: Player) => {
 
                 if (response === 'YES') {
                     passes = 0
-                    await changedOnce(actor.Value.action.Changed)
-                    await Promise.delay(.15)
+                    this.actor.get().action.event.Wait()
+                    await Promise.delay(0.15)
                 } else if (response === 'NO') {
                     passes++
                 }
@@ -205,283 +191,113 @@ export const Duel = (p1: Player, p2: Player) => {
                 passes++
             }
 
-            clearAction(opponent(actor.Value))
-            if(passes < 2) {
-                actor.Value = opponent(actor.Value)
-            } else if(passes === 2) {
-                actor.Value = turnPlayer.Value
+            //clearAction(this.opponent(actor.player))
+            if (passes < 2) {
+                this.actor.set(this.opponent(this.actor.get()))
+            } else if (passes === 2) {
+                this.actor.set(this.turnPlayer.get())
             }
         }
-        handlingResponses = false
-        resolveChain()
+        this.handlingResponses.set(false)
+        this.resolveChain()
     }
-    createInstance('BindableFunction', 'handleResponses', folder).OnInvoke = handleResponses
 
-    const handleResponsesSync = (p: PlayerValue) => {
-        print(3)
-        if(handlingResponses) return
-        speedSpell.Value = 2
-        handlingResponses = true
-        gameState.Value = 'CLOSED'
-        let passes = 0
-        actor.Value = p
-
-        while (passes < 2) {
-            const numberOfResponses = responses[actor.Value.Name].size()
-
-            if (numberOfResponses > 0) {
-                const lastCardInChain = chain[Object.keys(chain).size() - 1]
-                const chainStartMessage = `You have ${numberOfResponses} card/effect${
-                    numberOfResponses > 1 ? 's' : ''
-                } that can be activated. Activate?`
-                const chainResponseMessage = `"${
-                    lastCardInChain ? lastCardInChain.card.Name : '?'
-                }" is activated. Chain another card or effect?`
-                const response = promptSync(
-                    actor.Value,
-                    numberOfResponses >= 1
-                        ? chainStartMessage
-                        : chainResponseMessage || chainStartMessage
-                )
-                if (response === 'YES') {
-                    passes = 0
-                    changedOnceSync(actor.Value.action.Changed)
-                } else if (response === 'NO') {
-                    passes++
-                }
-            } else {
-                passes++
-            }
-
-            clearAction(opponent(actor.Value))
-            if(passes < 2) {
-                actor.Value = opponent(actor.Value)
-            } else if(passes === 2) {
-                actor.Value = turnPlayer.Value
-            }
-        }
-        handlingResponses = false
-        print(4)
-        resolveChain()
-    }
-    createInstance('BindableFunction', 'handleResponsesSync', folder).OnInvoke = handleResponsesSync
-
-    const thread = [player1, player2].map((player) =>
-        coroutine.wrap(() => {
-            const lifePoints = instance('NumberValue', 'lifePoints', player) as NumberValue
-            const cards = instance('Folder', 'cards', player) as Folder
-            const responseWindow = instance('BoolValue', 'responseWindow', player) as BoolValue
-            //const canAttack = createInstance('StringValue', 'canAttack', player)
-            const selectableZones = instance(
-                'StringValue',
-                'selectableZones',
-                player
-            ) as StringValue
-            const selectedZone = instance('StringValue', 'selectedZone', player) as StringValue
-            const selectablePositions = createInstance('StringValue', 'selectablePositions', player)
-            const selectedPosition = createInstance("StringValue", "selectedPosition", player)
-            const selectPositionCard = createInstance("StringValue", "selectPositionCard", player)
-            const targettableCards = instance(
-                'StringValue',
-                'targettableCards',
-                player
-            ) as StringValue
-            const targets = instance('StringValue', 'targets', player) as StringValue
-            const canNormalSummon = instance('BoolValue', 'canNormalSummon', player) as BoolValue
-            const handleCardResponse = instance(
-                'BindableEvent',
-                'handleCardResponse',
-                player
-            ) as BindableEvent
-            const promptMessage = instance('StringValue', 'promptMessage', player) as StringValue
-            const promptResponse = instance(
-                'StringValue',
-                'promptResponse',
-                player
-            ) as ResponseValue
-            const action = createInstance('StringValue', 'action', player)
-            const summonedCards = createInstance('StringValue', 'summonedCards', player)
-            const floodgates = createInstance('StringValue', 'floodgates', player)
-            
-            floodgates.Value = `[]`
-            
-            selectableZones.Value = `[]`
-
-            canNormalSummon.Value = true
-
-            lifePoints.Value = 8000
-
-            lifePoints.Changed.Connect((lp) => {
-                if (lp <= 0) {
-                    endDuel(opponent(player))
-                }
-            })
-
-
-            const handleCardResponseF = (card: CardFolder) => {
-                const isInResponses = responses[player.Name].find((c) => c === (card as CardFolder))
-                const conditionMet = (card as CardFolder).checkEffectConditions.Invoke()
-                if (conditionMet) {
-                    if (!isInResponses) {
-                        responses[player.Name].push(card as CardFolder)
-                    }
-                } else {
-                    if (isInResponses) {
-                        responses[player.Name] = responses[player.Name].filter(
-                            (c) => c.uid !== card.uid
-                        )
-                    }
-                }
-            }
-            handleCardResponse.Event.Connect(handleCardResponseF)
-            action.Changed.Connect((encodedAction) => {
-                const decodedAction = getAction(player, encodedAction)
-                if(includes(decodedAction.action, "Activate")) return;
-                handleResponses(turnPlayer.Value)
-            });
-            
-            let o = 0
-            for (const card of (
-                player.Value.WaitForChild('getDeck') as BindableFunction
-            ).Invoke().deck) {
-                Card((card as CardInventory).name, player, o)
-                o++
-            }
-
-            for(const card of (
-                player.Value.WaitForChild('getDeck') as BindableFunction
-            ).Invoke().extra) {
-                Card((card as CardInventory).name, player, o, true)
-            }
-
-            const shuffle = () => {
-                const deck = (cards.GetChildren() as CardFolder[]).filter(
-                    (card) => card.location.Value === 'Deck'
-                )
-                for (let i = deck.size() - 1; i > 0; i--) {
-                    const ran = new Random().NextNumber()
-                    const j = math.floor(ran * (i + 1))
-                    ;[deck[i], deck[j]] = [deck[j], deck[i]]
-                }
-                for (let i = 0; i < deck.size(); i++) {
-                    deck[i].order.Value = i
-                }
-            }
-            ;(instance('BindableEvent', 'shuffle', player) as BindableEvent).Event.Connect(shuffle)
-
-            const draw = (n: number) => {
-                for (let i = 0; i < n; i++) {
-                    let deck = (cards.GetChildren() as CardFolder[]).filter(
-                        (card) => card.location.Value === 'Deck'
-                    )
-                    const topCard = deck.find((card) => card.order.Value === 0)
-                    if (!topCard) {
-                        endDuel(opponent(player))
-                        return;
-                    }
-                    topCard.location.Value = 'Hand'
-                    if (!topCard.cardButton.Value) {
-                        while (!topCard.cardButton.Value) wait()
-                    }
-                    deck = (cards.GetChildren() as CardFolder[]).filter(
-                        (card) => card.location.Value === 'Deck'
-                    )
-                    deck.forEach((_, x) => {
-                        deck[x].order.Value -= 1
-                    })
-                    wait(0.3)
-                }
-            }
-            createInstance('BindableFunction', 'draw', player).OnInvoke = draw
-            createInstance('BindableEvent', 'updateLP', player).Event.Connect((lp: number) => {
-                lifePoints.Value += lp
-            })
-        })
-    )
-    thread[0]()
-    thread[1]()
-
-    const handlePhases = async (p: Phase) => {
-        gameState.Value = 'OPEN'
+    async handlePhases(p: Phase) {
+        print(1)
+        this.gameState.set('OPEN')
+        print(2)
         if (p === 'DP') {
-            turn.Value++
-            const cardsInSZone = getFilteredCards(folder, {
-                location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+            print(3)
+            this.turn.set(this.turn.get() + 1)
+            print(4)
+            const cardsInSZone = getFilteredCards(this, {
+                location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
             })
+            print(5)
             cardsInSZone.forEach((card) => {
-                card.canActivate.Value = true
+                card.canActivate.set(true)
             })
-            
-            const cardsInHand = getFilteredCards(folder, {
-                location: ['Hand'],
+            print(6)
+            const cardsInHand = getFilteredCards(this, {
+                location: ['Hand']
             })
+            print(7)
             cardsInHand.forEach((card) => {
-                card.canActivate.Value = true
+                card.canActivate.set(true)
+            }) 
+            print(8)
+            const cardsInMZone = getFilteredCards(this, {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
             })
-
-            const cardsInMZone = getFilteredCards(folder, {
-                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-            })
+            print(9)
             for (const card of cardsInMZone) {
-                removeCardFloodgate(card, `disableAttackAfterAttack-${card.uid.Value}`)
-                removeCardFloodgate(card, `disableChangePositionAfterPlacement-${card.uid.Value}`)
-                removeCardFloodgate(card, `disableChangePositionAfterAttack-${card.uid.Value}`)
+                removeCardFloodgate(card, `disableAttackAfterAttack-${card.uid}`)
+                removeCardFloodgate(card, `disableChangePositionAfterPlacement-${card.uid}`)
+                removeCardFloodgate(card, `disableChangePositionAfterAttack-${card.uid}`)
             }
-            if (turn.Value >= 2) {
-                turnPlayer.Value = opponent(turnPlayer.Value)
-                actor.Value = turnPlayer.Value
+            print(10)
+            if (this.turn.get() >= 2) {
+                this.turnPlayer.set(this.opponent(this.turnPlayer.get()))
+                this.actor.set(this.turnPlayer.get())
             }
-            phase.Value = p
-            await Promise.delay(.15)
-            turnPlayer.Value.canNormalSummon.Value = true
-            if (turn.Value === 1) {
-                const thread = [player1, player2].map((player) =>
+            print(11)
+            this.phase.set(p)
+            print(12)
+            await Promise.delay(0.15)
+            print(13)
+            this.turnPlayer.get().canNormalSummon.set(true)
+            if (this.turn.get() === 1) {
+                const thread = [this.player1, this.player2].map((player) =>
                     coroutine.wrap(() => {
-                        player.shuffle.Fire()
-                        wait(player.cards.GetChildren().size() * 0.03)
-                        player.draw.Invoke(5)
+                        player.shuffle()
+                        wait(player.cards.get().size() * 0.03)
+                        player.draw(5)
                     })
                 )
                 thread[0]()
                 thread[1]()
-                await Promise.delay(.25*5)
-            } 
-            turnPlayer.Value.draw.Invoke(1)
-            await handleResponses(turnPlayer.Value) //1
-            await handlePhases('SP')
+                await Promise.delay(0.25 * 5)
+            }
+            print(14)
+            this.turnPlayer.get().draw(1)
+            print(15)
+            await this.handleResponses(this.turnPlayer.get()) //1
+            print(16)
+            await this.handlePhases('SP')
+            print(17)
         } else if (p === 'SP') {
-            phase.Value = p
-            await Promise.delay(.15)
-            await handleResponses(turnPlayer.Value)
-            await handlePhases('MP1')
+            this.phase.set(p)
+            await Promise.delay(0.15)
+            await this.handleResponses(this.turnPlayer.get())
+            await this.handlePhases('MP1')
         } else if (p === 'MP1') {
-            phase.Value = p
-            await Promise.delay(.15)
+            this.phase.set(p)
+            await Promise.delay(0.15)
         } else if (p === 'BP') {
-            phase.Value = p
-            await Promise.delay(.15)
-            battleStep.Value = 'START'
-            await handleResponses(turnPlayer.Value)
-            battleStep.Value = 'BATTLE'
+            this.phase.set(p)
+            await Promise.delay(0.15)
+            this.battleStep.set('START')
+            await this.handleResponses(this.turnPlayer.get())
+            this.battleStep.set('BATTLE')
         } else if (p === 'MP2') {
-            phase.Value = p
-            await Promise.delay(.15)
+            this.phase.set(p)
+            await Promise.delay(0.15)
         } else if (p === 'EP') {
-            if (phase.Value === 'MP1' || phase.Value === 'MP2') {
-                phase.Value = p
-                await Promise.delay(.15)
-                await handleResponses(turnPlayer.Value)
-                await handlePhases('DP')
-            } else if (phase.Value === 'BP') {
-                await handleResponses(turnPlayer.Value)
-                await handlePhases('MP2')
+            if (this.phase.get() === 'MP1' || this.phase.get() === 'MP2') {
+                this.phase.set(p)
+                await Promise.delay(0.15)
+                await this.handleResponses(this.turnPlayer.get())
+                await this.handlePhases('DP')
+            } else if (this.phase.get() === 'BP') {
+                await this.handleResponses(this.turnPlayer.get())
+                await this.handlePhases('MP2')
             }
         }
     }
-    ;(async () => {
-        await handlePhases('DP')
-    })()
-    ;(instance('BindableEvent', 'handlePhases', folder) as BindableEvent).Event.Connect(
-        handlePhases
-    )
+}
+
+export const getCards = (duel: Duel) => {
+    const cards1 = duel.player1.cards.get()
+    const cards2 = duel.player2.cards.get()
+    return [...cards1, ...cards2]
 }

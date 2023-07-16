@@ -12,12 +12,12 @@ export default () => {
     useEffect(() => {
         if(!YGOPlayer || !YGOOpponent) return;
         const connections = [
-            YGOPlayer.lifePoints.Changed.Connect(() => {
-                playersLP.playerLP = YGOPlayer.lifePoints.Value
+            YGOPlayer.lifePoints.event.Connect(() => {
+                playersLP.playerLP = YGOPlayer.lifePoints.get()
                 setLP(playersLP)
             }),
-            YGOOpponent.lifePoints.Changed.Connect(() => {
-                playersLP.opponentLP = YGOOpponent.lifePoints.Value
+            YGOOpponent.lifePoints.event.Connect(() => {
+                playersLP.opponentLP = YGOOpponent.lifePoints.get()
                 setLP(playersLP)
             })
         ]

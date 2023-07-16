@@ -1,27 +1,26 @@
 import { useState, useEffect } from "@rbxts/roact-hooked";
-import type { DuelFolder } from "server/types";
-import { ServerScriptService } from "@rbxts/services";
+import { Duel } from "server/ygo/Duel";
+import { duelAdded } from "server/ygo/Duel";
+import { Duels } from "server/ygo/Duels";
 
-
-const duels = ServerScriptService.FindFirstChild("instances")!.FindFirstChild("duels") as Folder;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default () => {
-    const [duel, setDuel] = useState<DuelFolder>()
+    const [duel, setDuel] = useState<Duel>()
 
     useEffect(() => {
         const duelChanged = () => {
             let duelFound;
-            for(const d of duels.GetChildren() as DuelFolder[]) {
-                if(string.match(d.Name, `|${player.Name}`) || string.match(d.Name, `${player.Name}|`)) {
-                    duelFound = d;
+            for(const [duelName, duelGame] of Duels) {
+                if(string.match(duelName, `|${player.Name}`) || string.match(duelName, `${player.Name}|`)) {
+                    duelFound = duelGame;
                     break;
                 }
             }
             setDuel(duelFound);
         }
 
-        const connections = [duels.ChildAdded.Connect(duelChanged), duels.ChildRemoved.Connect(duelChanged)];
+        const connections = [duelAdded.Event.Connect(duelChanged)];
         duelChanged()
 
         return () => {

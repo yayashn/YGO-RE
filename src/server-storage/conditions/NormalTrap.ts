@@ -1,13 +1,13 @@
-import type { CardFolder, DuelFolder } from 'server/types'
-import { getFilteredCards } from 'server/utils'
+import type { CardFolder } from 'server/types'
 import Trap from './Trap'
+import { Card } from 'server/ygo/Card'
 
-export default (card: CardFolder) => {
-    const controller = card.controller.Value
-    const duel = controller.FindFirstAncestorWhichIsA('Folder') as DuelFolder
+export default (card: Card) => {
+    const controller = card.controller.get()
+    const duel = controller.getDuel()
 
-    const isSpeedSpell2 = duel.speedSpell.Value <= 2;
-    const isDamageStep = duel.battleStep.Value === 'DAMAGE'
+    const isSpeedSpell2 = duel.speedSpell.get() <= 2;
+    const isDamageStep = duel.battleStep.get() === 'DAMAGE'
 
     return Trap(card) && isSpeedSpell2 && !isDamageStep
 }

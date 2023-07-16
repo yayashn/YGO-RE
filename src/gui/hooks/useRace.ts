@@ -1,15 +1,15 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
-import { CardFolder } from "server/types";
+import { Card } from "server/ygo/Card";
 
-export default (card: CardFolder) => {
+export default (card: Card) => {
     const [race, setRace] = useState<string>(undefined);
 
     useEffect(() => {
         if(!card) return;
 
-        setRace(card.race.Value);
+        setRace(card.race.get());
 
-        const connection = card.race.Changed.Connect((newPosition: string) => setRace(newPosition));
+        const connection = card.race.event.Connect((newPosition: string) => setRace(newPosition));
 
         return () => {
             connection.Disconnect();

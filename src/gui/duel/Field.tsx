@@ -50,7 +50,7 @@ const FieldZoneButton = withHooks(
 				Event={{
 					MouseButton1Click: () => {
 						if(includesZone(zoneName, playerType)) {
-							YGOPlayer!.selectedZone.Value = zoneName;
+							YGOPlayer!.selectedZone.set(zoneName);
 						}
 					},
 					MouseEnter: () => {

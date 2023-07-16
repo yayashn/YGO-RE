@@ -1,10 +1,10 @@
 import { getCard } from "server/utils";
-import type { DuelFolder, PlayerValue } from "server/types";
+import { YPlayer } from "server/ygo/Player";
 
-export default (YGOPlayer: PlayerValue) => {
-    const duel = YGOPlayer.FindFirstAncestorWhichIsA("Folder") as DuelFolder;
+export default (YGOPlayer: YPlayer) => {
+    const duel = YGOPlayer.getDuel()
 
-    return YGOPlayer.targets.Value.split(",").map(uid => {
-        return getCard(duel, uid)!
+    return YGOPlayer.targets.get().map(card => {
+        return getCard(duel, card.uid)!
     })
 }

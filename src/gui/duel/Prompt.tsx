@@ -19,15 +19,15 @@ export default withHooks(() => {
                         {
                             text: 'NO',
                             MouseButton1Click: () => {
-                                YGOPlayer!.promptResponse.Value = 'NO'
-                                YGOPlayer!.promptMessage.Value = ''
+                                YGOPlayer!.promptResponse.set('NO')
+                                YGOPlayer!.promptMessage.set('')
                             }
                         },
                         {
                             text: 'YES',
                             MouseButton1Click: () => {
-                                YGOPlayer!.promptResponse.Value = 'YES'
-                                YGOPlayer!.promptMessage.Value = ''
+                                YGOPlayer!.promptResponse.set('YES')
+                                YGOPlayer!.promptMessage.set('')
                             }
                         }
                     ]}

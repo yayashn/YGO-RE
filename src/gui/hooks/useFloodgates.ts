@@ -1,5 +1,5 @@
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
-import { FloodgatePlayer, getFloodgates } from "server/functions/floodgates";
+import { FloodgatePlayer } from "server/functions/floodgates";
 import useYGOPlayer from "./useYGOPlayer";
 
 export default () => {
@@ -9,11 +9,11 @@ export default () => {
     useEffect(() => {
         if(!player) return;
 
-        const connection = player.floodgates.Changed.Connect((value) => {
-            setFloodgates(getFloodgates(player, value))
+        const connection = player.floodgates.event.Connect((value) => {
+            setFloodgates(value as unknown as FloodgatePlayer[])
         })
 
-        setFloodgates(getFloodgates(player))
+        setFloodgates(player.floodgates.get())
 
         return () => {
             connection.Disconnect()

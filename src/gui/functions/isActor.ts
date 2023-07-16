@@ -1,8 +1,8 @@
-import { DuelFolder, PlayerValue } from "server/types";
+import { YPlayer } from "server/ygo/Player";
 
-export default (player: PlayerValue) => {
-    const duel = player.FindFirstAncestorWhichIsA('Folder') as DuelFolder
-    const actor = duel.actor.Value
+export default (player: YPlayer) => {
+    const duel = player.getDuel()
+    const actor = duel.actor.get()
 
     return player === actor
 }

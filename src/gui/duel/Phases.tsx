@@ -17,16 +17,16 @@ export default withHooks(() => {
     useEffect(() => {
         if(!YGOPlayer || !YGOOpponent) return;
         const connections = [
-            YGOPlayer.lifePoints.Changed.Connect((newLp) => {
+            YGOPlayer.lifePoints.event.Connect((newLp) => {
                 setPlayerLp(newLp)
             }),
-            YGOOpponent.lifePoints.Changed.Connect((newLp) => {
+            YGOOpponent.lifePoints.event.Connect((newLp) => {
                 setOpponentLp(newLp)
             })
         ]
 
-        setPlayerLp(YGOPlayer.lifePoints.Value)
-        setOpponentLp(YGOOpponent.lifePoints.Value)
+        setPlayerLp(YGOPlayer.lifePoints.get())
+        setOpponentLp(YGOOpponent.lifePoints.get())
 
         return () => {
             connections.forEach((connection) => connection.Disconnect())
@@ -55,31 +55,31 @@ export default withHooks(() => {
                     return (
                         <textbutton 
                         BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
-                        TextColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.Value ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : Color3.fromRGB(255,255,255)}
+                        TextColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.get() ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : Color3.fromRGB(255,255,255)}
                         Size={new UDim2(0, 50, 1, 0)}
                         LayoutOrder={i}
-                        BorderColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.Value ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
+                        BorderColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.get() ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254,17,14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
                         Event={{
                             MouseButton1Click: () => {
-                                if(duel!.turnPlayer.Value !== YGOPlayer) return;
-                                if(duel.gameState.Value !== "OPEN") return;
-                                if(duel.battleStep.Value === "DAMAGE") return;
+                                if(duel!.turnPlayer.get() !== YGOPlayer) return;
+                                if(duel.gameState.get() !== "OPEN") return;
+                                if(duel.battleStep.get() === "DAMAGE") return;
                                 if(phase === "MP1") {
                                     if(phaseName === "BP") {
-                                        if(duel!.turn.Value <= 1) {
+                                        if(duel!.turn.get() <= 1) {
                                             return
                                         }
-                                        duel!.handlePhases.Fire("BP")
+                                        duel!.handlePhases("BP")
                                     } else if(phaseName === "EP") {
-                                        duel!.handlePhases.Fire("EP")
+                                        duel!.handlePhases("EP")
                                     }
                                 } else if(phase === "MP2") {
                                     if(phaseName === "EP") {
-                                        duel!.handlePhases.Fire("EP")
+                                        duel!.handlePhases("EP")
                                     }
                                 } else if(phase === "BP") {
                                     if(phaseName === "EP" || phaseName === "MP2") {
-                                        duel!.handlePhases.Fire("MP2")
+                                        duel!.handlePhases("MP2")
                                     }
                                 }
                             }

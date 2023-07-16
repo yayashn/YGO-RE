@@ -47,27 +47,27 @@ interface Workspace extends Model {
 				FZone: Vector3Value;
 				BZone: Vector3Value;
 				Attack: Model & {
-					MZone4: Part & {
+					MZone1P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone2: Part & {
+					MZone4P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone5: Part & {
+					MZone5P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone1: Part & {
+					MZone3P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone3: Part & {
+					MZone2P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
@@ -99,27 +99,27 @@ interface Workspace extends Model {
 				FZone: Vector3Value;
 				BZone: Vector3Value;
 				Attack: Model & {
-					MZone4: Part & {
+					MZone1P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone2: Part & {
+					MZone4P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone5: Part & {
+					MZone5P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone1: Part & {
+					MZone3P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};
 					};
-					MZone3: Part & {
+					MZone2P: Part & {
 						Gui: SurfaceGui & {
 							Sword: ImageLabel;
 						};

@@ -1,5 +1,6 @@
 import { CardButton } from "gui/duel/Cards/Cards"
 import { Location } from "shared/types"
+import { Card } from "./ygo/Card"
 
 export type Phase = 'DP' | 'SP' | 'MP1' | 'BP' | 'MP2' | 'EP'
 export interface PhaseValue extends StringValue {
@@ -43,28 +44,6 @@ export interface ActorValue extends ObjectValue {
 
 export interface CardValue extends ObjectValue {
     Value: CardFolder | undefined
-}
-
-export interface DuelFolder extends Folder {
-    turn: IntValue
-    phase: PhaseValue
-    battleStep: BattleStepValue
-    damageStep: DamageStepValue
-    player1: PlayerValue
-    player2: PlayerValue
-    handlePhases: BindableEvent<(phase: Phase) => void>
-    turnPlayer: ControllerValue
-    addToChain: BindableEvent<(card: CardFolder, effect: Callback) => void>
-    gameState: GameStateValue
-    chainResolving: BoolValue
-    actor: ControllerValue
-    handleResponses: BindableFunction<(p: PlayerValue) => Promise<void>>
-    handleResponsesSync: BindableFunction<(p: PlayerValue) => void>
-    speedSpell: IntValue
-    attackingCard: CardValue
-    defendingCard: CardValue
-    floodgates: StringValue
-    endDuel: BindableEvent
 }
 
 export interface CardInventory {
@@ -165,5 +144,5 @@ export interface CardFolder extends Folder {
 export type ChainedEffect = {
     effect: Callback,
     negated: boolean,
-    card: CardFolder
+    card: Card
 }

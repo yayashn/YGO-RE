@@ -1,16 +1,18 @@
 import { useEffect, useState } from "@rbxts/roact-hooked";
 import type { ControllerValue } from "server/types";
+import { YPlayer } from "server/ygo/Player";
+import { YEvent } from "server/ygo/Event";
 
-export default (controllerValue: ControllerValue) => {
-    const [canNormalSummon, setCanNormalSummon] = useState(controllerValue.Value.canNormalSummon.Value);
+export default (controllerValue: YEvent<YPlayer>) => {
+    const [canNormalSummon, setCanNormalSummon] = useState(controllerValue.get().canNormalSummon.get());
 
     useEffect(() => {
-        let canNormalSummonConnection = controllerValue.Value.canNormalSummon.Changed.Connect((newValue) => {
+        let canNormalSummonConnection = controllerValue.get().canNormalSummon.event.Connect((newValue) => {
             setCanNormalSummon(newValue);
         });
-        const connection = controllerValue.Changed.Connect(() => {
+        const connection = controllerValue.event.Connect(() => {
             canNormalSummonConnection.Disconnect();
-            canNormalSummonConnection = controllerValue.Value.canNormalSummon.Changed.Connect((newValue) => {
+            canNormalSummonConnection = controllerValue.get().canNormalSummon.event.Connect((newValue) => {
                 setCanNormalSummon(newValue);
             })
         })
