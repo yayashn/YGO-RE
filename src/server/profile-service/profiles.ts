@@ -1,4 +1,5 @@
 import { Profile } from "@rbxts/profileservice/globals";
+import packs from "server/shop/packs";
 import { CardTemplate, PlayerData } from "server/types";
 import getCardData from "shared/utils";
 
@@ -42,4 +43,30 @@ export const removeCardFromDeck = (player: Player, card: CardTemplate, deckName:
         }
     }
     profileChanged(player);
+}
+
+export const changeDp = (player: Player, amount: number) => {
+    const profile = getProfile(player)
+    if (profile !== undefined) {
+        profile.Data.dp += amount;
+    }
+    profileChanged(player);
+}
+
+export const buyPack = (player: Player, pack: string) => {
+    const profile = getProfile(player)!;
+    const packData = packs[pack];
+
+    if(profile.Data.dp >= packData.price) {
+        profile.Data.dp -= packData.price;
+        
+        const cards = packData.getFullRandomPack();
+        cards.forEach(card => {
+            profile.Data.cards = [...profile.Data.cards, card]
+        })
+        profileChanged(player);
+        return cards;
+    } else {
+        return false
+    }
 }
