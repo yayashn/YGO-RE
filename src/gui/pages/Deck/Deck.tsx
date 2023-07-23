@@ -1,184 +1,208 @@
-import Roact from '@rbxts/roact'
-import { useEffect, useState, withHooks } from '@rbxts/roact-hooked'
-import { motion } from 'shared/motion'
-import { createGlobalState, useGlobalState } from 'shared/useGlobalState'
-import pageState from 'gui/store/pageState'
-import colours from 'shared/colours'
-import DeckList from './DeckList'
-import { deckStore, equippedDeckStore } from './Store'
-import DeckEditor from './DeckEditor'
-import { Players } from '@rbxts/services'
+import Roact from "@rbxts/roact";
+import { useState, withHooks } from "@rbxts/roact-hooked";
+import Flex from "gui/components/Flex";
+import Window from "gui/components/Window";
+import usePlayerData from "gui/hooks/usePlayerData";
+import theme from "shared/theme";
+import { useNavigate, useRoute } from "shared/libs/router";
+import { Dictionary as Object } from "@rbxts/sift";
+import getCardData from "shared/utils";
+import { addCardToDeck, removeCardFromDeck } from "server/profile-service/profiles";
+import { ReplicatedStorage, ServerStorage } from "@rbxts/services";
+import TextboxServer from "gui/components/TextboxServer";
 
-const deckList = [
-    'Deck1',
-    'Deck2',
-    'Deck3',
-    'Deck4',
-    'Deck5',
-    'Deck6',
-    'Deck7',
-    'Deck8',
-    'Deck9',
-    'Deck10',
-    'Deck11',
-    'Deck1',
-    'Deck2',
-    'Deck3',
-    'Deck4',
-    'Deck5',
-    'Deck6',
-    'Deck7',
-    'Deck8',
-    'Deck9',
-    'Deck10',
-    'Deck11'
-]
-
-
-const variants = {
-    open: {
-        Size: new UDim2(0.8, 0, 0.8, 0),
-        BackgroundTransparency: 0
-    },
-    closed: {
-        Size: new UDim2(0, 0, 0, 0),
-        BackgroundTransparency: 1
-    }
-}
-
-const player = script.FindFirstAncestorWhichIsA('Player')
-const getEquippedDeck = player?.WaitForChild('getEquippedDeck') as BindableFunction
-const setEquippedDeck = player?.WaitForChild('setEquippedDeck') as BindableEvent
-const DEV = Players.GetChildren().size() === 0
+const gap = 5;
+const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(() => {
-    const [page, setPage] = useGlobalState(pageState)
-    const [deck, setDeck] = useGlobalState(deckStore)
-    const [isEquipped, setIsEquipped] = useGlobalState(equippedDeckStore)
+    const navigate = useNavigate();
+    const playerData = usePlayerData();
+    const route = useRoute();
+    const decks = playerData ? Object.entries(playerData.decks) : [];
+    const deckName = route.split("/").pop();
+    const [search, setSearch] = useState("");
 
-    useEffect(() => {
-        if(page !== 'DECK') {
-            setDeck(undefined)
-        }
-    }, [page])
+    if (!deckName) {
+        return <Roact.Fragment />
+    }
 
-    useEffect(() => {
-        const connection = setEquippedDeck.Event.Connect((deckName: string) => {
-            setIsEquipped(deckName === deck)
-        })
-
-        setIsEquipped(deck === getEquippedDeck.Invoke())
-
-        return () => {
-            connection.Disconnect()
-        }
-    }, [deck])
+    const deck = decks.find(([name]) => name === deckName)![1];
+    const cards = playerData ? playerData.cards : [];
 
     return (
-        <motion.frame
-            Position={new UDim2(0.5, 0, 0.5, 0)}
-            AnchorPoint={new Vector2(0.5, 0.5)}
-            Size={new UDim2(0, 0, 0, 0)}
-            variants={variants}
-            animate={page === 'DECK' ? 'open' : 'closed'}
-            ClipsDescendants
-            BorderSizePixel={2}
-            BorderColor3={colours.outline}
-            BackgroundColor3={colours.background}
-            transition={{
-                duration: 0.25,
-                easingStyle: Enum.EasingStyle.Quad
-            }}
-        >
-            <uiaspectratioconstraint AspectRatio={800 / 580} />
-            <uisizeconstraint MaxSize={new Vector2(700, 500)} />
-            <uilistlayout />
-            <frame
-                Size={new UDim2(1, 0, 0.1, 0)}
-                BorderSizePixel={0}
-                BackgroundColor3={colours.outline}
-            >
-                <uisizeconstraint MaxSize={new Vector2(700, 50)} />
+        <Window title="DECK"
+            buttons={[
                 <textbutton
-                    Text="×"
-                    Size={new UDim2(0, 50, 1, 0)}
-                    Position={new UDim2(1, 0, 0, 0)}
-                    AnchorPoint={new Vector2(1, 0)}
-                    BackgroundTransparency={1}
-                    TextColor3={Color3.fromRGB(126, 0, 0)}
-                    TextScaled
-                    ZIndex={2}
                     Event={{
                         MouseButton1Click: () => {
-                            setPage(undefined)
+                            navigate("/decklist/");
                         }
                     }}
+                    Text="←"
+                    TextColor3={theme.colours.white}
+                    Font={Enum.Font.Code}
+                    BackgroundTransparency={1}
+                    TextScaled={true}
+                    AnchorPoint={new Vector2(0, 0)}
+                    Size={new UDim2(0, 50, 1, 0)}
+                    Position={new UDim2(0, 0, 0, 0)}
                 >
                     <uiaspectratioconstraint AspectRatio={1} />
                 </textbutton>
-                <textbutton
-                    Text="DECK EDITOR"
-                    Size={new UDim2(1, 0, .6, 0)}
-                    Position={new UDim2(.5, 0, .5, 0)}
-                    AnchorPoint={new Vector2(.5, .5)}
-                    BackgroundTransparency={1}
-                    TextColor3={Color3.fromRGB(255, 255, 255)}
-                    TextScaled
-                    Font={Enum.Font.SourceSansBold}
-                />
-                {deck !== undefined && (
-                    <frame
-                    Size={new UDim2(0, 200, 1, 0)}
-                    Position={new UDim2(0, 0, 0, 0)}
-                    BackgroundTransparency={1}
-                    >
-                        <uilistlayout
-                            FillDirection={Enum.FillDirection.Horizontal}
-                            SortOrder={Enum.SortOrder.LayoutOrder}
-                            VerticalAlignment={Enum.VerticalAlignment.Center}
-                            Padding={new UDim(0, -5)}
-                        />
-                        <textbutton
-                            Text="←"
-                            Font={Enum.Font.SourceSans}
-                            Size={new UDim2(1, 0, 1, 0)}
-                            Position={new UDim2(0, 0, 0, 0)}
-                            BackgroundTransparency={1}
-                            TextColor3={Color3.fromRGB(255, 255, 255)}
-                            TextScaled
-                            LineHeight={1.2}
+            ]}
+        >
+            <Flex gap={new UDim(0, gap)} />
+            <frame
+                BorderSizePixel={0}
+                BackgroundTransparency={1}
+                Size={new UDim2(.7, -gap, 1, 0)}>
+                <Flex flexDirection="column" gap={new UDim(0, gap)} />
+                <scrollingframe
+                    BorderSizePixel={0}
+                    ScrollBarThickness={1}
+                    BackgroundTransparency={.9}
+                    AutomaticCanvasSize={Enum.AutomaticSize.Y}
+                    Size={new UDim2(1, 0, 1, -gap - 83)}>
+                    <uigridlayout
+                        CellSize={new UDim2(0, 52.15, 0, 83)}
+                    />
+                    {deck.deck.map((card) => {
+                        const cardData = getCardData(card.name);
+
+                        return (
+                            <imagebutton 
                             Event={{
                                 MouseButton1Click: () => {
-                                    setDeck(undefined)
+                                    removeCardFromDeck(player, card, deckName)
                                 }
                             }}
-                        >
-                            <uiaspectratioconstraint AspectRatio={1} />
-                        </textbutton>
-                        <textbutton
-                            Text={isEquipped ? "✓" : ""}
-                            Font={Enum.Font.Arcade}
-                            Size={new UDim2(1, 0, .5, 0)}
-                            Position={new UDim2(0, 0, 0, 0)}
-                            BackgroundColor3={colours.outline}
-                            BorderSizePixel={1}
-                            BorderColor3={Color3.fromRGB(255, 255, 255)}
-                            TextColor3={Color3.fromRGB(255, 255, 255)}
-                            TextScaled
-                            LineHeight={1.1}
+                            Image={cardData?.art} />
+                        )
+                    })}
+                </scrollingframe>
+                <scrollingframe
+                    BorderSizePixel={0}
+                    AutomaticCanvasSize={Enum.AutomaticSize.Y}
+                    ScrollBarThickness={1}
+                    BackgroundTransparency={.9}
+                    Size={new UDim2(1, 0, 0, 83)}>
+                    <uigridlayout
+                        CellSize={new UDim2(0, 52.15, 0, 83)}
+                    />
+                    {deck.extra.map((card) => {
+                        const cardData = getCardData(card.name);
+
+                        return (
+                            <imagebutton 
                             Event={{
                                 MouseButton1Click: () => {
-                                    setEquippedDeck.Fire(deck)
+                                    removeCardFromDeck(player, card, deckName)
                                 }
                             }}
-                        >
-                            <uiaspectratioconstraint AspectRatio={1} />
-                        </textbutton>
-                    </frame>
-                )}
+                            Image={cardData?.art} />
+                        )
+                    })}
+                </scrollingframe>
             </frame>
-            {deck === undefined && <DeckList/>}
-            {deck !== undefined && <DeckEditor/>}
-        </motion.frame>
+
+            <frame
+                BorderSizePixel={0}
+                BackgroundTransparency={.9}
+                Size={new UDim2(.3, 0, 1, 0)}
+            >
+                <Flex flexDirection="column" />
+                <textbox 
+                BackgroundTransparency={1}
+                PlaceholderText={"Search"}
+                Text=""
+                TextColor3={theme.colours.white}
+                PlaceholderColor3={theme.colours.white}
+                Size={new UDim2(1,0,0,20)}>
+                    <TextboxServer setTextboxState={setSearch}/>
+                </textbox>
+                <scrollingframe
+                BorderSizePixel={0}
+                AutomaticCanvasSize={Enum.AutomaticSize.Y}
+                ScrollBarThickness={1}
+                BackgroundTransparency={1}
+                Size={new UDim2(1, 0, 1, -20)}>
+                <Flex flexDirection="column" gap={new UDim(0, gap)} />
+
+                {cards.map((card, i) => {
+                    const cardData = getCardData(card.name)!;
+                    const cardType = cardData.type;
+                    const numberOfCardsInDeck = deck.deck.filter((c) => c.name === card.name).size();
+                    const numberOfCardsInExtra = deck.extra.filter((c) => c.name === card.name).size();
+                    const numberOfCardsInCards = cards.filter((c) => c.name === card.name).size();
+                    const numberOfCardsAvailable = numberOfCardsInCards - (cardType.match("Fusion").size() > 0 ? numberOfCardsInExtra : numberOfCardsInDeck);
+
+                    for (let j = 0; j < i; j++) {
+                        const card2 = cards[j];
+                        if (card2.name === card.name) {
+                            return <Roact.Fragment />
+                        }
+                    }
+
+                    if (search !== "" && card.name.lower().match(search.lower()).size() === 0) {
+                        return <Roact.Fragment />
+                    }
+
+                    return (
+                        <textbutton
+                            Event={{
+                                MouseButton1Click: () => {
+                                    if(numberOfCardsAvailable > 0) {
+                                        addCardToDeck(player, card, deckName)
+                                    }
+                                }
+                            }}
+                            Text=""
+                            BackgroundTransparency={1}
+                            Size={new UDim2(1, 0, 0, 83)}>
+                            <Flex gap={new UDim(0, 5)} />
+                            <uisizeconstraint MaxSize={new Vector2(math.huge, 83)} />
+                            <imagelabel
+                                ImageTransparency={numberOfCardsAvailable > 0 ? 0 : .5}
+                                Size={new UDim2(0, 52.15, 0, 83)}
+                                Image={cardData?.art} />
+                            <frame
+                                BackgroundTransparency={1}
+                                Size={new UDim2(1, -52.15, 0, 83)}>
+                                <Flex flexDirection="column" />
+                                <textlabel
+                                    TextColor3={theme.colours.white}
+                                    BackgroundTransparency={1}
+                                    TextXAlignment={Enum.TextXAlignment.Left}
+                                    Size={new UDim2(1, 0, 0, 20)}
+                                    Text={cardData?.name} />
+                                {cardType.match("Monster").size() > 0 &&
+                                    <Roact.Fragment>
+                                        <textlabel
+                                            TextColor3={theme.colours.white}
+                                            BackgroundTransparency={1}
+                                            TextXAlignment={Enum.TextXAlignment.Left}
+                                            Size={new UDim2(1, 0, 0, 20)}
+                                            Text={`Lv: ${cardData?.level}`} />
+                                        <textlabel
+                                            TextColor3={theme.colours.white}
+                                            BackgroundTransparency={1}
+                                            TextXAlignment={Enum.TextXAlignment.Left}
+                                            Size={new UDim2(1, 0, 0, 20)}
+                                            Text={`${cardData?.atk}/${cardData?.def}`} />
+                                    </Roact.Fragment>
+                                }
+                                <textlabel
+                                    TextColor3={theme.colours.white}
+                                    BackgroundTransparency={1}
+                                    TextXAlignment={Enum.TextXAlignment.Left}
+                                    Size={new UDim2(1, 0, 0, 20)}
+                                    Text={`x${numberOfCardsAvailable}`} />
+                            </frame>
+                        </textbutton>
+                    )
+                })}
+            </scrollingframe>
+            </frame>
+        </Window>
     )
 })

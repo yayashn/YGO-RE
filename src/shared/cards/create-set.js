@@ -23,19 +23,19 @@ function createSetJson(setName) {
     }
 
     fs.mkdir(`./${setName}-images`, (error) => {
-        if (error && error.code !== 'EEXIST') {
-          console.error(`Error creating images directory: ${error}`);
-          return;
-        }
-      
-        cards.forEach((card) => {
-            const imageUrl = `https://images.ygoprodeck.com/images/cards/${card.id}.jpg`;
-            request(imageUrl)
-              .pipe(fs.createWriteStream(`./${setName}-images/card-${card.id}.jpg`))
-              .on('error', (error) => {
-                console.error(`Error saving image for card ${card.name}: ${error}`);
-              });
+      if (error && error.code !== 'EEXIST') {
+        console.error(`Error creating images directory: ${error}`);
+        return;
+      }
+
+      cards.forEach((card) => {
+        const imageUrl = `https://images.ygoprodeck.com/images/cards/${card.id}.jpg`;
+        request(imageUrl)
+          .pipe(fs.createWriteStream(`./${setName}-images/card-${card.id}.jpg`))
+          .on('error', (error) => {
+            console.error(`Error saving image for card ${card.name}: ${error}`);
           });
+      });
     });
 
     cards.forEach((card) => {
@@ -49,7 +49,7 @@ function createSetJson(setName) {
         ClassName: 'StringValue',
         Name: 'art',
         Properties: {
-            Value: `rbxgameasset://Images/card-${card.id}`
+          Value: `rbxgameasset://Images/card-${card.id}`
         }
       })
 
@@ -61,55 +61,55 @@ function createSetJson(setName) {
         }
         let statClass;
         switch (statName) {
-            case 'id':
-            case 'level':
-              statClass = 'IntValue';
-              statValue = parseInt(statValue); // convert the value to an integer
-              break;
-            case 'type':
-            case 'desc':
-            case 'race':
-            case 'attribute':
-              statClass = 'StringValue';
-              break;
-            case 'atk':
-            case 'def':
-              statClass = 'NumberValue';
-              statValue = Number(statValue); // convert the value to a number
-              break;
-            default:
-              wrongStat = true;
-              break;
-          }
-if (!wrongStat) {
-cardJson.Children.push({
-ClassName: statClass,
-Name: statName,
-Properties: {
-    Value: statValue
-  }
-});
-}
-});
+          case 'id':
+          case 'level':
+            statClass = 'IntValue';
+            statValue = parseInt(statValue); // convert the value to an integer
+            break;
+          case 'type':
+          case 'desc':
+          case 'race':
+          case 'attribute':
+            statClass = 'StringValue';
+            break;
+          case 'atk':
+          case 'def':
+            statClass = 'NumberValue';
+            statValue = Number(statValue); // convert the value to a number
+            break;
+          default:
+            wrongStat = true;
+            break;
+        }
+        if (!wrongStat) {
+          cardJson.Children.push({
+            ClassName: statClass,
+            Name: statName,
+            Properties: {
+              Value: statValue
+            }
+          });
+        }
+      });
 
-  // add the card object to the Children array of the set object
-  setJson.Children.push(cardJson);
-});
+      // add the card object to the Children array of the set object
+      setJson.Children.push(cardJson);
+    });
 
-// pretty-print the set object and write it to a file in the current directory
-fs.writeFile(`${setName}.model.json`, jsonPretty(setJson), (err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log(`${setName}.model.json created successfully`);
-});
-});
+    // pretty-print the set object and write it to a file in the current directory
+    fs.writeFile(`${setName}.model.json`, jsonPretty(setJson), (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(`${setName}.model.json created successfully`);
+    });
+  });
 }
 
 // the main function that will be called when the command is run
 function main(setName) {
-createSetJson(setName);
+  createSetJson(setName);
 }
 
 // run the main function with the set name passed as an argument

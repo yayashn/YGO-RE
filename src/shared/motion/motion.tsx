@@ -58,4 +58,5 @@ export const motion = {
   uistroke: withAnimation("UIStroke" as "uistroke"),
   textbox: withAnimation("TextBox" as "textbox"),
   imagelabel: withAnimation("ImageLabel" as "imagelabel"),
+  uiscale: withAnimation("UIScale" as "uiscale"),
 }

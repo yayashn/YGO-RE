@@ -1,6 +1,6 @@
 import { useState, useEffect } from "@rbxts/roact-hooked";
 
-type Global<T> = { init: T };
+export type Global<T> = { init: T };
 type GlobalState<T> = { value: T, listeners: Set<() => void> };
 
 export const createGlobalState = <T>(initialValue: T): Global<T> => ({ init: initialValue });
