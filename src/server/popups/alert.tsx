@@ -1,9 +1,7 @@
 import Roact from "@rbxts/roact"
-import Dialog from "gui/components/Dialog"
+import Dialog from "server/popups/Dialog"
 
-const plr = script.FindFirstAncestorWhichIsA("Player")!;
-
-export default async (message: string, player: Player = plr) => {
+export default async (message: string, player: Player) => {
     return new Promise<"OK">((resolve) => {
         const prompt = Roact.mount(
             <screengui Key="Dialog" IgnoreGuiInset>

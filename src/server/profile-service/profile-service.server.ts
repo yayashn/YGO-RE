@@ -3,7 +3,7 @@ import defaultPlayerData from "./default-data";
 import { Players } from "@rbxts/services";
 import { profiles } from "./profiles";
 
-const profileStore = ProfileService.GetProfileStore('PlayerData1', defaultPlayerData);
+const profileStore = ProfileService.GetProfileStore('PlayerData4', defaultPlayerData);
 
 Players.PlayerAdded.Connect(player => {
     const profile = profileStore.LoadProfileAsync(`player_${player.UserId}`);

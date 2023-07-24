@@ -14,7 +14,9 @@ const DataApp = withHooks(() => {
 })
 
 Roact.mount(
-    <screengui IgnoreGuiInset>
+    <screengui 
+    Key="App"
+    IgnoreGuiInset>
         <DataApp/>
     </screengui>,
     player?.FindFirstChildWhichIsA("PlayerGui"),

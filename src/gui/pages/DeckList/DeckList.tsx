@@ -4,12 +4,12 @@ import Flex from "gui/components/Flex";
 import Window from "gui/components/Window";
 import usePlayerData from "gui/hooks/usePlayerData";
 import theme from "shared/theme";
-import { useNavigate } from "shared/libs/router";
+import { useNavigate } from "gui/router";
 import { Dictionary as Object } from "@rbxts/sift";
 import Padding from "gui/components/Padding";
-import prompt from "gui/popups/prompt";
+import prompt from "server/popups/prompt";
 import { getProfile } from "server/profile-service/profiles";
-import alert from "gui/popups/alert";
+import alert from "server/popups/alert";
 
 const gap = 5;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -42,10 +42,10 @@ export default withHooks(() => {
                     TextScaled
                     Event={{
                         MouseButton1Click: async () => {
-                            const deckName = await prompt("Enter deck name");
+                            const deckName = await prompt("Enter deck name", player);
                             if(deckName === "***CANCEL***") return;
                             if(decks.find(([name]) => {return name === deckName;})) {
-                                await alert("Deck name already exists");
+                                await alert("Deck name already exists", player);
                                 return;
                             }
                             if(deckName === "") {

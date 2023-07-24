@@ -1,7 +1,7 @@
 import Roact from '@rbxts/roact'
-import { useEffect, useRef, useState, withHooks } from '@rbxts/roact-hooked'
-import { ReplicatedStorage, ServerStorage } from '@rbxts/services'
+import { useRef, useState, withHooks } from '@rbxts/roact-hooked'
 import theme from 'shared/theme'
+import TextboxServer from './TextboxServer'
 
 export interface DialogOption {
     text: string
@@ -15,31 +15,10 @@ export interface DialogProps {
     player?: Player;
 }
 
-const cardSearchInput = ReplicatedStorage.FindFirstChild('remotes')!.FindFirstChild(
-    'cardSearchInput'
-) as RemoteEvent
-const cardSearchScript = ServerStorage.FindFirstChild('cardSearch') as LocalScript
-
 export default withHooks<DialogProps>(({ message, options, handleInput, player }) => {
     const [input, setInput] = useState<string>('')
     const inputRef = useRef<TextBox>()
     const hasButtons = options && options.size() > 0
-
-    useEffect(() => {
-        if (inputRef.getValue()) {
-            const cardSearchScriptClone = cardSearchScript.Clone()
-            cardSearchScriptClone.Parent = inputRef.getValue()
-            const connection = cardSearchInput.OnServerEvent.Connect((p, text) => {
-                if (p !== player) return
-                setInput(text as string)
-            })
-
-            return () => {
-                cardSearchScriptClone.Destroy()
-                connection.Disconnect()
-            }
-        }
-    }, [inputRef])
 
     return (
         <textbutton {...Container}>
@@ -60,7 +39,9 @@ export default withHooks<DialogProps>(({ message, options, handleInput, player }
 
                 {!player && <textlabel {...MessageStyle} Text={message}/>}
                 {player && <textbox Ref={inputRef}
-                {...InputStyle} PlaceholderText={message} Text={input}/>}
+                {...InputStyle} PlaceholderText={message} Text={input}>
+                    <TextboxServer setTextboxState={setInput}/>    
+                </textbox>}
 
                 {hasButtons && (
                     <frame Size={new UDim2(1, 0, 0, 40)} BackgroundTransparency={1}>

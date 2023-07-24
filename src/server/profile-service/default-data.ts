@@ -52,14 +52,14 @@ export const defaultPlayerData: PlayerData = {
             extra: [],
         }
     },
-    sleeves: [],
+    sleeves: ['default'],
     avatars: [],
     disks: [],
     equipped: {
         avatar: '',
-        sleeve: '',
+        sleeve: 'default',
         disk: '',
-        deck: '',
+        deck: 'default',
     },
 }
 

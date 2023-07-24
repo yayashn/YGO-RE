@@ -1,15 +1,15 @@
 import Roact from "@rbxts/roact"
-import { withHooks } from "@rbxts/roact-hooked"
+import { useEffect, useRef, withHooks } from "@rbxts/roact-hooked"
 import { createGlobalState, useGlobalState } from "shared/useGlobalState"
 
-const routeState = createGlobalState("/")
+export const routeState = createGlobalState("/")
 
 interface RouteProps extends Roact.PropsWithChildren {
     path: string
 }
 
 export const Route = withHooks((props: RouteProps) => {
-    const [route] = useGlobalState(routeState)
+    const [route, setRoute] = useGlobalState(routeState);
 
     return (
         <Roact.Fragment>

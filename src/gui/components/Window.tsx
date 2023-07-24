@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import theme from "shared/theme";
 import Flex from "./Flex";
-import { useNavigate } from "shared/libs/router";
+import { useNavigate } from "gui/router";
 import { withHooks } from "@rbxts/roact-hooked";
 import Padding from "./Padding";
 

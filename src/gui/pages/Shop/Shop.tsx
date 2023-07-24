@@ -4,12 +4,12 @@ import Flex from "gui/components/Flex";
 import Window from "gui/components/Window";
 import usePlayerData from "gui/hooks/usePlayerData";
 import theme from "shared/theme";
-import { useNavigate } from "shared/libs/router";
+import { useNavigate } from "gui/router";
 import { Dictionary as Object } from "@rbxts/sift";
 import Padding from "gui/components/Padding";
-import prompt from "gui/popups/prompt";
+import prompt from "server/popups/prompt";
 import { buyPack, getProfile } from "server/profile-service/profiles";
-import alert from "gui/popups/alert";
+import alert from "server/popups/alert";
 import PackOpen, { showPackOpenStore } from "./PackOpen";
 import { useGlobalState } from "shared/useGlobalState";
 
@@ -52,7 +52,7 @@ export default withHooks(() => {
                                 if(newPack){
                                     setShowPackOpen(newPack);
                                 } else {
-                                    await alert("Cannot purchase pack.");
+                                    await alert("Cannot purchase pack.", player);
                                 }
                             }
                         }}

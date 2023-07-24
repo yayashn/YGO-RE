@@ -27,8 +27,6 @@ export default withHooks((props: Props) => {
     }, [ref])
 
     return (
-        <remoteevent
-            Ref={ref}
-        />
+        <remoteevent Ref={ref} />
     )
 })

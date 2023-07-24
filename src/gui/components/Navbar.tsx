@@ -4,16 +4,13 @@ import { motion } from "shared/motion";
 import { useState, withHooks } from "@rbxts/roact-hooked";
 import theme from "shared/theme";
 import Padding from "./Padding";
-import { useNavigate, useRoute } from "shared/libs/router";
+import { useNavigate } from "gui/router";
 import { useGlobalState } from "shared/useGlobalState";
 import { playerDataStore } from "gui/hooks/useInitPlayerData";
 
 export default withHooks(() => {
-    const route = useRoute()
     const navigate = useNavigate()
     const [playerData, setPlayerData] = useGlobalState(playerDataStore)
-
-    if(route.match("^/duel").size() > 0) return <Roact.Fragment />
 
     return (
         <frame

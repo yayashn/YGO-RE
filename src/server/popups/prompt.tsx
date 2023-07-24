@@ -1,10 +1,7 @@
 import Roact from "@rbxts/roact";
-import Dialog from "gui/components/Dialog";
+import Dialog from "server/popups/Dialog";
 
-const plr = script.FindFirstAncestorWhichIsA("Player")!;
-
-export default async (message: string, player: Player = plr) => {
-    print("Prompting player", message)
+export default async (message: string, player: Player) => {
     return new Promise<string>((resolve) => {
         const handleInput = (input: string) => {
             resolve(input);

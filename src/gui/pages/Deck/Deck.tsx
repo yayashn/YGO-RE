@@ -4,12 +4,11 @@ import Flex from "gui/components/Flex";
 import Window from "gui/components/Window";
 import usePlayerData from "gui/hooks/usePlayerData";
 import theme from "shared/theme";
-import { useNavigate, useRoute } from "shared/libs/router";
+import { useNavigate, useRoute } from "gui/router";
 import { Dictionary as Object } from "@rbxts/sift";
 import getCardData from "shared/utils";
 import { addCardToDeck, removeCardFromDeck } from "server/profile-service/profiles";
-import { ReplicatedStorage, ServerStorage } from "@rbxts/services";
-import TextboxServer from "gui/components/TextboxServer";
+import TextboxServer from "server/popups/TextboxServer";
 
 const gap = 5;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
