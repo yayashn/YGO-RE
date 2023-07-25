@@ -15,7 +15,7 @@ export default (player: Player) => {
         };
 
         const playerValue = [duel.player1, duel.player2].find((p) => p.player === player)!;
-        setCards(playerValue.cards)
+        setCards(playerValue.cards.get())
 
         const connections: RBXScriptConnection[] = [];
         const values: CardValue[] = ["location", "controller"];

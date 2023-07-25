@@ -1,8 +1,7 @@
 import Roact from "@rbxts/roact"
 import { withHooks } from "@rbxts/roact-hooked"
 import Cards from "./Cards"
-
-const player = script.FindFirstAncestorWhichIsA("Player")!;
+import Field from "./Field";
 
 export default withHooks(() => {
     return (
@@ -12,6 +11,7 @@ export default withHooks(() => {
             Size={new UDim2(1,0,1,0)}>
                 
             </frame>
+            <Field/>
             <Cards/>
         </Roact.Fragment>
     )

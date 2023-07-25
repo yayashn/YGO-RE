@@ -24,4 +24,8 @@ export class Subscribable<T> {
     changed(callback: Callback) {
         return this.event.Connect(callback)
     }
+
+    wait() {
+        return this.event.Wait()
+    }
 }

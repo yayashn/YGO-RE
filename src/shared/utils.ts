@@ -20,3 +20,8 @@ export const get3DZone = (location: Location, isOpponent?: boolean) => {
         return field.Player.FindFirstChild(location, true);
     }
 }
+
+export const includes = (str: string, substr: string) => {
+    return str.match(substr).size() > 0
+}
+

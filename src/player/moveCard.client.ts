@@ -1,4 +1,5 @@
 import { Location, Position } from 'server/duel/types';
+import debounce from 'shared/debounce';
 import Remotes from 'shared/net'
 import { get3DZone } from 'shared/utils'
 
@@ -47,40 +48,50 @@ const zoneOrientation = {
 }
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
-    // Stackable zone animations
-    ;['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
+    ['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
         const zone = playerField[zoneName as keyof typeof playerField] as Vector3Value
         const position = zone.Value
 
-        const stackCards = () => {
-            zone.GetChildren().forEach((card3D) => {
-                const cardButton = ((card3D as Part).WaitForChild('card2D') as ObjectValue)
-                    .Value as unknown as SurfaceGui
-                const order = (
-                    (cardButton as unknown as Instance).WaitForChild('getOrder') as RemoteFunction
-                ).InvokeServer() as number
-                const pos = (
-                    (cardButton as unknown as Instance).WaitForChild(
-                        'getPosition'
-                    ) as RemoteFunction
-                ).InvokeServer() as Position
-                const location = (
-                    (cardButton as unknown as Instance).WaitForChild(
-                        'getLocation'
-                    ) as RemoteFunction
-                ).InvokeServer() as Location
-                const tweenGoal = {
-                    Position: new Vector3(position.X, position.Y + order * 0.5, position.Z),
-                } as Partial<ExtractMembers<Instance, Tweenable>>
-                const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
-                Promise.defer(() => {
-                    if (location === zoneName) {
-                        (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][pos]
+        const stackCards = debounce(async () => {
+            const card3Ds = zone.GetChildren()
+            
+            const promises = card3Ds.map((card3D) => {
+                return new Promise(async (resolve) => {
+                    const card2D = card3D.WaitForChild('card2D') as ObjectValue
+                    while(!card2D.Value) {
+                        await Promise.delay(0)
+                    }
+                    while(card2D.Value.FindFirstChild('getOrder') === undefined) {
+                        await Promise.delay(0)
+                    }
+                    const cardButton = card2D.Value as SurfaceGui
+                    
+                    const [order, pos, location] =[
+                        (cardButton.FindFirstChild('getOrder') as RemoteFunction).InvokeServer(),
+                        (cardButton.WaitForChild('getPosition') as RemoteFunction).InvokeServer(),
+                        (cardButton.WaitForChild('getLocation') as RemoteFunction).InvokeServer()
+                    ]
+
+                    // Use type assertions here to ensure the types are what you expect.
+                    const typedOrder = order as number;
+                    const typedPos = pos as keyof typeof zoneOrientation["Player"];
+                    const typedLocation = location as string;
+
+                    const tweenGoal = {
+                        Position: new Vector3(position.X, position.Y + typedOrder * 0.5, position.Z),
+                    } as Partial<ExtractMembers<Instance, Tweenable>>
+
+                    const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
+                    if (typedLocation === zoneName) {
+                        (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][typedPos]
                         tween.Play()
                     }
+
+                    resolve('')
                 })
             })
-        }
+            await Promise.all(promises)
+        }, 100)
 
         zone.ChildAdded.Connect(stackCards)
         zone.ChildRemoved.Connect(stackCards)
