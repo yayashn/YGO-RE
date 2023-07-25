@@ -1,7 +1,8 @@
-import { getEquippedDeck, getProfile } from "server/profile-service/profiles";
+import { getEquippedDeck } from "server/profile-service/profiles";
 import { Card } from "./card";
 import { Subscribable } from "shared/Subscribable";
 import { HttpService } from "@rbxts/services";
+import { Location, SelectableZone } from "./types";
 
 export class YPlayer {
     player: Player;
@@ -9,8 +10,14 @@ export class YPlayer {
     floodgates = new Subscribable<string[]>([]);
     responses = new Subscribable<Card[]>([]);
     targets = new Subscribable<Card[]>([]);
-    action = new Subscribable<string | undefined>(undefined);
     lifePoints = new Subscribable(8000);
+    selectableZones = new Subscribable<SelectableZone[]>([]);
+    selectedZone = new Subscribable<Location | undefined>(undefined);
+    action = new Subscribable<{
+        action: string,
+    } | undefined>(undefined);
+    targettableCards = new Subscribable<Card[]>([]);
+    targettedCards = new Subscribable<Card[]>([]);
 
     constructor(player: Player) {
         const equippedDeck = getEquippedDeck(player);

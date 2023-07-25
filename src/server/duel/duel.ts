@@ -1,11 +1,11 @@
 import { Subscribable } from "shared/Subscribable";
-import { YPlayer } from "./player";
-import { ChainedEffect, Phase } from "./types";
+import type { YPlayer } from "./player";
+import { ChainedEffect, Location, MZone, Phase, SZone, SelectableZone } from "./types";
 import { Dictionary as Object } from "@rbxts/sift";
 import Remotes from "shared/net";
 import { getFilteredCards } from "./utils";
 import confirm from "server/popups/confirm";
-import { includes } from "shared/utils";
+import { getFieldZonePart, includes } from "shared/utils";
 import type { Card } from "./card";
 
 export let duels: Record<string, Duel> = {}
@@ -26,21 +26,24 @@ export class Duel {
     defendingCard = new Subscribable<Card | undefined>(undefined);
     handlingResponses = new Subscribable(false);
 
-    constructor(player1: Player, player2: Player) {
-        this.player1 = new YPlayer(player1);
-        this.player2 = new YPlayer(player2);
-        duels[`${player1.UserId}:${player2.UserId}`] = this;
+    constructor(player1: YPlayer, player2: YPlayer) {
+        this.player1 = player1;
+        this.player2 = player2;
+        duels[`${player1.player.UserId}:${player2.player.UserId}`] = this;
         this.turnPlayer = new Subscribable<YPlayer>(this.player1);
         this.actor = new Subscribable<YPlayer>(this.player1);
 
-        Remotes.Server.Get("showField").SendToPlayers([player1, player2], true);
+        Remotes.Server.Get("showField").SendToPlayers([player1.player, player2.player], true);
 
-        [player1, player2].forEach(player => {
-            const route = player.GetDescendants().find(descendant => descendant.IsA("StringValue") && descendant.Name === "route") as StringValue;
-            route.Value = "/duel/";
+        [player1, player2].forEach(async player => {
+            const route = () => player.player.GetDescendants().find(descendant => descendant.IsA("StringValue") && descendant.Name === "route") as StringValue | undefined;
+            while (route() === undefined) {
+                await Promise.delay(0);
+            }
+            route()!.Value = "/duel/";
         })
 
-        this.turnPlayer.get().addFloodgate("CANNOT_NORMAL_SUMMON_FIRST_TURN");
+        this.turnPlayer.get().addFloodgate("CANNOT_ATTACK_FIRST_TURN");
         this.handlePhase("DP");
     }
 
@@ -52,7 +55,7 @@ export class Duel {
     getOpponent(player: Player) {
         return player === this.player1.player ? this.player2 : this.player1;
     }
-    
+
     getPlayer(player: Player) {
         return player === this.player1.player ? this.player1 : this.player2;
     }
@@ -152,6 +155,19 @@ export class Duel {
         this.defendingCard.set(undefined)
     }
 
+    addToChain(card: Card, effect: Callback) {
+        this.gameState.set('CLOSED')
+        card.activated.set(true)
+        const chainLink = Object.keys(this.chain).size() + 1
+        card.chainLink.set(chainLink)
+        this.chain.get()[chainLink] = {
+            card,
+            effect,
+            negated: false
+        }
+        this.chain.set({...this.chain.get()})
+    }
+
     async handlePhase(p: Phase) {
         this.gameState.set('OPEN')
         if (p === 'DP') {
@@ -176,7 +192,6 @@ export class Duel {
             }
             this.phase.set(p)
             await Promise.delay(0.15)
-            this.turnPlayer.get().removeFloodgate("CANNOT_NORMAL_SUMMON_FIRST_TURN")
             if (this.turn.get() === 1) {
                 const thread = [this.player1, this.player2].map((player) =>
                     coroutine.wrap(() => {
@@ -188,9 +203,11 @@ export class Duel {
                 thread[0]()
                 thread[1]()
                 await Promise.delay(0.25 * 5)
+            } else {
+                this.turnPlayer.get().removeFloodgate("CANNOT_ATTACK_FIRST_TURN")
             }
             this.turnPlayer.get().draw(1)
-            await this.handleResponses(this.turnPlayer.get()) 
+            await this.handleResponses(this.turnPlayer.get())
             await this.handlePhase('SP')
         } else if (p === 'SP') {
             this.phase.set(p)
@@ -221,6 +238,61 @@ export class Duel {
             }
         }
     }
+
+    getEmptyFieldZonesVector(
+        zoneType: 'MZone' | 'SZone' | 'Both',
+        YGOPlayer: Player,
+        zoneSide: "Player" | "Opponent" | 'Both',
+    ): Vector3Value[] {
+        const SZones: SZone[] = ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
+        const MZones: MZone[] = ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
+        const allZones: Location[] = [...SZones, ...MZones]
+    
+        const takenFieldZones = getFilteredCards(this, {
+            location: (zoneType === 'Both'
+                ? allZones
+                : zoneType === 'MZone'
+                ? MZones
+                : SZones) as Location[],
+            controller: [YGOPlayer]
+        }).map((card) => card.location.get())
+    
+        const emptyFieldZones = (zoneType === 'Both' ? allZones : zoneType === 'SZone' ? SZones : MZones)
+            .filter((zone) => !takenFieldZones.includes(zone))
+            .map((zone) => getFieldZonePart(zoneSide === 'Both' ? "Player" : zoneSide, zone as MZone | SZone))
+    
+        return emptyFieldZones;
+    }
+    
+    getEmptyFieldZones(
+        zoneType: 'MZone' | 'SZone' | 'Both',
+        YGOPlayer: Player,
+        zoneSide: "Player" | "Opponent" | 'Both',
+    ): SelectableZone[] {
+        const SZones: SZone[] = ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
+        const MZones: MZone[] = ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
+        const allZones: Location[] = [...SZones, ...MZones]
+    
+        const takenFieldZones = getFilteredCards(this, {
+            location: (zoneType === 'Both'
+                ? allZones
+                : zoneType === 'MZone'
+                ? MZones
+                : SZones) as Location[],
+            controller: [YGOPlayer]
+        }).map((card) => card.location.get())
+    
+        const emptyFieldZones = (zoneType === 'Both' ? allZones : zoneType === 'SZone' ? SZones : MZones)
+            .filter((zone) => !takenFieldZones.includes(zone))
+            .map((zone) => ({
+                zone: zone,
+                opponent: zoneSide === 'Both' || zoneSide === "Opponent",
+                player: zoneSide === 'Both' || zoneSide === "Player"
+            }))
+    
+        return emptyFieldZones;
+    }
+    
 }
 
 export function getDuel(player: Player) {

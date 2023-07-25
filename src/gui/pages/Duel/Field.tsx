@@ -1,40 +1,42 @@
 import Roact from "@rbxts/roact";
-import { useRef, useState, withHooks } from "@rbxts/roact-hooked";
+import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import { TweenService } from "@rbxts/services";
 import useMount from "gui/hooks/useMount";
+import useSelectableZones from "gui/hooks/useSelectableZones";
 import FadeZone from "server-storage/animations/FadeZone/FadeZone";
 import { getDuel } from "server/duel/duel";
+import { Location } from "server/duel/types";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(() => {
-    const field = game.Workspace.Field3D.Field.Player.FindFirstChild("Field")!.FindFirstChild("Part") as Part;
-    const fieldOpponent = game.Workspace.Field3D.Field.Opponent.FindFirstChild("Field")!.FindFirstChild("Part") as Part;
+	const field = game.Workspace.Field3D.Field.Player.Field.Part;
+	const fieldOpponent = game.Workspace.Field3D.Field.Opponent.Field.Part;
 
-    return (
-        <Roact.Fragment>
-            {[field, fieldOpponent].map((f) => {
-                return (
-                    <surfacegui Key="Field" Face="Top" Adornee={f}>
-                    <uigridlayout
-                        SortOrder="LayoutOrder"
-                        CellPadding={new UDim2(0, 0, 0.005, 0)}
-                        CellSize={new UDim2(0.2, -1, 0.5, 0)}
-                    />
-                    {["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].map((zone, i) => {
-                        return (
-                            <FieldZoneButton
-                                playerType={f.FindFirstAncestor("Opponent") ? "Opponent" : "Player"}
-                                zoneName={zone}
-                                layoutOrder={i}
-                            />
-                        );
-                    })}
-                </surfacegui>
-                )
-            })}
-        </Roact.Fragment>
-    )
+	return (
+		<Roact.Fragment>
+			{[field, fieldOpponent].map((f) => {
+				return (
+					<surfacegui AlwaysOnTop Key="Field" Face="Top" Adornee={f}>
+						<uigridlayout
+							SortOrder="LayoutOrder"
+							CellPadding={new UDim2(0, 0, 0.005, 0)}
+							CellSize={new UDim2(0.2, -1, 0.5, 0)}
+						/>
+						{["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].map((zone, i) => {
+							return (
+								<FieldZoneButton
+									playerType={f.Parent!.Parent!.Name as "Player" | "Opponent"}
+									zoneName={zone}
+									layoutOrder={i}
+								/>
+							);
+						})}
+					</surfacegui>
+				)
+			})}
+		</Roact.Fragment>
+	)
 })
 
 interface FieldZoneButtonProps {
@@ -51,48 +53,49 @@ const FieldZoneButton = withHooks(
 		const tweenInfo = new TweenInfo(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true, 0);
 		const tweenGoal = { BackgroundTransparency: 0.5 };
 		const [tween, setTween] = useState<Tween>();
-		//const [selectableZones, includesZone] = useSelectableZones();
-		//const YGOPlayer = useYGOPlayer();
+		const [selectableZones, includesZone] = useSelectableZones();
+		const duel = getDuel(player)!;
+		const yPlayer = duel.getPlayer(player);
 
 		useMount(() => {
 			setTween(TweenService.Create(buttonRef.getValue()!, tweenInfo, tweenGoal));
 		}, [buttonRef], buttonRef)
 
-		//useEffect(() => {
-		//	if(includesZone(zoneName, playerType)) {
-		//		tween?.Play();
-		//	} else {
-		//		tween?.Cancel();
-		//		buttonRef.getValue()!.BackgroundTransparency = 1;
-		//	}
-		//}, [isHovered, selectableZones]);
+		useEffect(() => {
+			if (includesZone(zoneName as Location, playerType)) {
+				tween?.Play();
+			} else {
+				tween?.Cancel();
+				buttonRef.getValue()!.BackgroundTransparency = 1;
+			}
+		}, [isHovered, selectableZones]);
 
 		return (
 			<textbutton
 				Key={zoneName}
 				Ref={buttonRef}
-				LayoutOrder={layoutOrder*(playerType === "Player" ? -1 : 1)}
+				LayoutOrder={layoutOrder * (playerType === "Player" ? -1 : 1)}
 				Text=""
 				AutoButtonColor={false}
 				BorderSizePixel={0}
-                BackgroundTransparency={1}
+				BackgroundTransparency={.999}
 				Event={{
 					MouseButton1Click: () => {
-						//if(includesZone(zoneName, playerType)) {
-						//	YGOPlayer!.selectedZone.set(zoneName);
-						//}
-                        print(0)
-                        getDuel(player)!.player1.draw(2)
-                        print(1)
+						print("click")
+						if (includesZone(zoneName as Location, playerType)) {
+							yPlayer!.selectedZone.set(zoneName as Location);
+						}
 					},
 					MouseEnter: () => {
+						print("enter")
 						setIsHovered(true);
 					},
 					MouseLeave: () => {
+						print("leave")
 						setIsHovered(false);
 					},
 				}}>
-					<FadeZone playAnimation={isHovered}/>
+				<FadeZone playAnimation={isHovered} />
 			</textbutton>
 		);
 	},

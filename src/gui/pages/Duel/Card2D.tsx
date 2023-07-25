@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { useRef, useState, withHooks } from "@rbxts/roact-hooked";
+import { Dispatch, SetStateAction, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import useController from "gui/hooks/useController";
 import useMount from "gui/hooks/useMount";
 import useShowArt from "gui/hooks/useShowArt";
@@ -11,14 +11,17 @@ import CardMenu from "./CardMenu";
 import { Location, Position } from "server/duel/types";
 import HoverCard from "server-storage/animations/HoverCard/HoverCard";
 import useCardStat from "gui/hooks/useCardStat";
+import debounce from "shared/debounce";
 
 interface Props {
-    card: Card
+    card: Card,
+    useShowMenu: [Card | undefined, Dispatch<SetStateAction<Card | undefined>>]
 }
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
-export default withHooks(({ card }: Props) => {
+export default withHooks(({ card, useShowMenu }: Props) => {
+    const [showMenu, setShowMenu] = useShowMenu;
     const duel = getDuel(player)!;
     const card2DRef = useRef<SurfaceGui>();
     const opponent = duel.getOpponent(player);
@@ -73,14 +76,14 @@ export default withHooks(({ card }: Props) => {
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
                 </imagelabel>
             </surfacegui>
-            <CardMenu/>
+            <CardMenu card={card} useShowMenu={[showMenu, setShowMenu]}/>
             <objectvalue Key="card3D"/>
             <remoteevent Key="onClick" 
             Ref={onClickRef}
             Event={{
                 OnServerEvent: (callback, player, eventName) => {
                     if(eventName === "click") {
-
+                        debounce(() => setShowMenu(state => state === card ? undefined : card))();
                     } else if(eventName === "hover") {
                         setHover(card.location.get() === "Hand");
                     } else {

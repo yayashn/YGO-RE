@@ -152,10 +152,21 @@ const zoneOrientation = {
         .filter((zone) => zone.IsA('Vector3Value'))
         .forEach((zone) => {
             const connections: Record<string, RBXScriptConnection> = {}
-            zone.ChildAdded.Connect((card3D) => {
+            zone.ChildAdded.Connect(async (card3D) => {
                 animateZone(card3D as Part, zone as Vector3Value)
 
                 const card2D = ((card3D as Part).FindFirstChild("card2D") as ObjectValue).Value!;
+                
+                while(!card2D.FindFirstChild("getUid")) {
+                    await Promise.delay(0)
+                }
+                while(!card2D.FindFirstChild("positionChanged")) {
+                    await Promise.delay(0)
+                }
+                while(!card2D.FindFirstChild("getLocation")) {
+                    await Promise.delay(0)
+                }
+
                 connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string] =
                     (card2D.FindFirstChild("positionChanged") as RemoteEvent).OnClientEvent.Connect(() => {
                         if ((card2D.FindFirstChild("getLocation") as RemoteFunction).InvokeServer() === zone.Name) {
@@ -163,8 +174,13 @@ const zoneOrientation = {
                         }
                     })
             })
-            zone.ChildRemoved.Connect((card3D) => {
+            zone.ChildRemoved.Connect(async (card3D) => {
                 const card2D = (card3D.FindFirstChild("card2D") as ObjectValue).Value!;
+
+                while(!card2D.FindFirstChild("getUid")) {
+                    await Promise.delay(0)
+                }
+
                 connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string].Disconnect()
             })
         })

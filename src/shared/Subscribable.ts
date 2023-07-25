@@ -26,6 +26,6 @@ export class Subscribable<T> {
     }
 
     wait() {
-        return this.event.Wait()
+        return this.event.Wait()[0]
     }
 }

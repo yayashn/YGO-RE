@@ -13,8 +13,8 @@ export default withHooks(() => {
     const phase = useDuelStat<"phase", Phase>(duel, "phase");
     const YGOPlayer = duel.getPlayer(player);
     const YGOOpponent = duel.getOpponent(player);
-    const [playerLP, setPlayerLp] = useState(8000)
-    const [opponentLP, setOpponentLp] = useState(8000)
+    const [playerLP, setPlayerLp] = useState(8000);
+    const [opponentLP, setOpponentLp] = useState(8000);
 
     useEffect(() => {
         if (!YGOPlayer || !YGOOpponent) return;

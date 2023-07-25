@@ -1,4 +1,5 @@
-import type { Location } from "server/duel/types";
+import { Workspace } from "@rbxts/services";
+import type { Location, MZone, SZone } from "server/duel/types";
 import cards from "shared/sets/cards";
 
 export default function getCardData(cardName: string) {
@@ -25,3 +26,4 @@ export const includes = (str: string, substr: string) => {
     return str.match(substr).size() > 0
 }
 
+export const getFieldZonePart = (player: "Opponent" | "Player", part: MZone | SZone) => Workspace.Field3D.Field[player].Field[part]

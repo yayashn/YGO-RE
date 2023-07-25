@@ -3,6 +3,7 @@ import alert from "server/popups/alert";
 import confirm from "server/popups/confirm";
 import waitingOptional from "server/popups/waitingOptional";
 import { getEquippedDeck } from "server/profile-service/profiles";
+import { YPlayer } from "server/duel/player";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
@@ -37,5 +38,5 @@ clickDetector.MouseClick.Connect(async (opponent) => {
     }
     stopWaiting();
 
-    const duel = new Duel(player, opponent);
+    const duel = new Duel(new YPlayer(player), new YPlayer(opponent));
 })

@@ -29,3 +29,12 @@ export type ChainedEffect = {
     negated: boolean,
     card: Card
 }
+export type SelectableZone = {
+    zone: Location;
+    opponent: boolean;
+    player: boolean;
+};
+
+export type GetEmptyFieldZonesReturnType<T extends boolean> = T extends true
+  ? Vector3Value[]
+  : SelectableZone[];

@@ -19,7 +19,15 @@
 		"YGORE:out/shared/Subscribable@Subscribable": "shared/Subscribable@Subscribable",
 		"YGORE:out/shared/Subscribable@YEvent": "shared/Subscribable@YEvent",
 		"YGORE:out/server/duel/utils@$p:error": "server/duel/utils@$p:error",
-		"YGORE:out/server/duel/utils@CardFilter": "server/duel/utils@CardFilter"
+		"YGORE:out/server/duel/utils@CardFilter": "server/duel/utils@CardFilter",
+		"YGORE:out/server/duel/service-locator.ts@ServiceLocator": "server/duel/service-locator.ts@ServiceLocator",
+		"YGORE:out/server/duel/DuelService@ServiceLocator": "server/duel/DuelService@ServiceLocator",
+		"YGORE:out/server/duel/DuelService@DuelService": "server/duel/DuelService@DuelService",
+		"YGORE:out/server/duel/DuelService@DuelSingleton": "server/duel/DuelService@DuelSingleton",
+		"YGORE:out/server/duel/DuelService@Singleton": "server/duel/DuelService@Singleton",
+		"YGORE:out/server/duel/DuelSingleton@DuelSingleton": "server/duel/DuelSingleton@DuelSingleton",
+		"YGORE:out/server/duel/DuelSingleton@Singleton": "server/duel/DuelSingleton@Singleton",
+		"YGORE:out/server/duel/DuelSingleton@Duels": "server/duel/DuelSingleton@Duels"
 	},
 	"metadata": {}
 }
