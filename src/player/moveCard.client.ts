@@ -66,13 +66,12 @@ const zoneOrientation = {
                     }
                     const cardButton = card2D.Value as SurfaceGui
                     
-                    const [order, pos, location] =[
+                    const [order, pos, location] = [
                         (cardButton.FindFirstChild('getOrder') as RemoteFunction).InvokeServer(),
                         (cardButton.WaitForChild('getPosition') as RemoteFunction).InvokeServer(),
                         (cardButton.WaitForChild('getLocation') as RemoteFunction).InvokeServer()
                     ]
 
-                    // Use type assertions here to ensure the types are what you expect.
                     const typedOrder = order as number;
                     const typedPos = pos as keyof typeof zoneOrientation["Player"];
                     const typedLocation = location as string;

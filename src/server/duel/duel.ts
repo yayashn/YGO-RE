@@ -52,6 +52,10 @@ export class Duel {
     getOpponent(player: Player) {
         return player === this.player1.player ? this.player2 : this.player1;
     }
+    
+    getPlayer(player: Player) {
+        return player === this.player1.player ? this.player1 : this.player2;
+    }
 
     async handleResponses(player: YPlayer) {
         this.handlingResponses.set(true)
@@ -100,7 +104,7 @@ export class Duel {
         if (this.chainResolving.get() === true) return
         this.chainResolving.set(true)
         //from highest key to lowest key
-        for (let chainNumber = Object.keys(this.chain).size() - 1; chainNumber >= 0; chainNumber--) {
+        for (let chainNumber = Object.keys(this.chain.get()).size() - 1; chainNumber >= 0; chainNumber--) {
             const { card, effect, negated } = this.chain.get()[chainNumber]
             if (!negated && !card.getFloodgate("EFFECTS_NEGATED")) {
                 effect()

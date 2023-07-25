@@ -10,6 +10,7 @@ export class YPlayer {
     responses = new Subscribable<Card[]>([]);
     targets = new Subscribable<Card[]>([]);
     action = new Subscribable<string | undefined>(undefined);
+    lifePoints = new Subscribable(8000);
 
     constructor(player: Player) {
         const equippedDeck = getEquippedDeck(player);
