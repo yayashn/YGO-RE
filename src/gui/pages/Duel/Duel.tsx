@@ -5,6 +5,7 @@ import Field from "./Field";
 import Phases from "./Phases";
 import { getDuel } from "server/duel/duel";
 import useDuelStat from "gui/hooks/useDuelStat";
+import CardInfo from "./CardInfo";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
@@ -20,11 +21,7 @@ export default withHooks(() => {
 
     return (
         <Roact.Fragment>
-            <frame 
-            BackgroundTransparency={1}
-            Size={new UDim2(1,0,1,0)}>
-                
-            </frame>
+            <CardInfo/>
             <Phases/>
             <Field/>
             <Cards/>

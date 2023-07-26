@@ -73,7 +73,9 @@ const FieldZoneButton = withHooks(
 				tween?.Play();
 			} else {
 				tween?.Cancel();
-				buttonRef.getValue()!.BackgroundTransparency = 1;
+				if(buttonRef.getValue()) {
+					buttonRef.getValue()!.BackgroundTransparency = 1;
+				}
 			}
 		}, [isHovered, selectableZones]);
 
@@ -84,25 +86,12 @@ const FieldZoneButton = withHooks(
 			}).size() !== 0)
 		}, [duelChanged, playerChanged])
 
-		const elementProps = {
-			BackgroundTransparency: 1,
-			Text: "",
-			BorderSizePixel: 0,
-			LayoutOrder: layoutOrder * (playerType === "Player" ? -1 : 1),
-		}
-
-		if(zoneOccupied) {
-			return (
-				<textlabel
-					Key={zoneName}
-					{...elementProps}
-				/>
-			)
-		}
-
 		return (
 			<textbutton
-				{...elementProps}
+				BackgroundTransparency={1}
+				Text=""
+				BorderSizePixel={0}
+				LayoutOrder={layoutOrder * (playerType === "Player" ? -1 : 1)}
 				Key={zoneName}
 				Ref={buttonRef}
 				AutoButtonColor={false}

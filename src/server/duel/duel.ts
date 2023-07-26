@@ -15,7 +15,7 @@ export class Duel {
     player1: YPlayer;
     player2: YPlayer;
     phase: Subscribable<Phase> = new Subscribable<Phase>("DP", () => this.onChanged());
-    turn = new Subscribable(0);
+    turn = new Subscribable(0, () => this.onChanged());
     gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN", () => this.onChanged());
     turnPlayer: Subscribable<YPlayer>;
     actor: Subscribable<YPlayer>;

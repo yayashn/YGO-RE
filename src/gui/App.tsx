@@ -38,9 +38,9 @@ export default withHooks(() => {
                         <Route path="/shop/"><Shop /></Route>
                     </Roact.Fragment>
                 }
-                <Route path="/duel/"><Duel/></Route>
             </frame>
             <PackOpen />
+            <Route path="/duel/"><Duel/></Route>
         </Roact.Fragment>
     )
 })

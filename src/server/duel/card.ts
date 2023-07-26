@@ -31,6 +31,7 @@ export class Card {
     activated = new Subscribable(false, () => this.onChanged());
     attackNegated = new Subscribable(false, () => this.onChanged());
     status = new Subscribable<string>("", () => this.onChanged());
+    attribute: Subscribable<string>;
 
     constructor(name: string, owner: Player, order: number) {
         const cardData = getCardData(name)!;
@@ -45,11 +46,16 @@ export class Card {
         this.controller = new Subscribable<Player>(owner, () => this.onChanged());
         this.order = new Subscribable<number>(order, () => this.onChanged());
         this["type"] = new Subscribable<string>(cardData["type"], () => this.onChanged());
+        this.attribute = new Subscribable<string>(cardData["attribute"] || cardData.type.split(" ")[0], () => this.onChanged());
 
         if (cardData["type"].match("Fusion").size() > 0) {
-            this.location = new Subscribable<Location>("EZone", () => this.onChanged());
+            this.location = new Subscribable<Location>("EZone", () => {
+                this.onChanged()
+            });
         } else {
-            this.location = new Subscribable<Location>("Deck", () => this.onChanged());
+            this.location = new Subscribable<Location>("Deck", () => {
+                this.onChanged()
+            });
         }
         if (cardData["type"].match("Monster").size() > 0) {
             this.atk.set(cardData.atk!);
@@ -73,6 +79,7 @@ export class Card {
             ...this.floodgates.get(),
             floodgate
         ]);
+        this.onChanged();
     }
 
     getFloodgates(floodgateString: string, card?: Card) {
@@ -124,13 +131,10 @@ export class Card {
         this.addFloodgate("CANNOT_CHANGE_POSITION", () => {
             return duel.turn.get() !== turn;
         })
-        print(this.position.get())
         if (this.position.get() === 'FaceUpAttack') {
             this.position.set('FaceUpDefense')
-            print('success')
         } else {
             this.position.set('FaceUpAttack')
-            print('success2')
         }
     }
 
@@ -219,12 +223,13 @@ export class Card {
         let defenderIsFlip = false;
 
         const startOfDamageStep = () => {
-            print(8)
             duel.battleStep.set('DAMAGE');
             duel.damageStep.set('START');
 
             Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get());
             Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get());
+            
+            wait(.5)
 
             duel.handleResponses(duel.turnPlayer.get())
             //during damage step only effects
@@ -235,7 +240,9 @@ export class Card {
         }
 
         const beforeDamageCalculation = () => {
-            print(9)
+            Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
+            Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
+            
             duel.damageStep.set('BEFORE')
             if (!isDirectAttack && defender.position.get() === 'FaceDownDefense') {
                 defender.flip(true)
@@ -260,7 +267,6 @@ export class Card {
         }
 
         const damageCalculation = () => {
-            print(10)
             duel.damageStep.set('DURING');
             //during damage calculation only effects immediately
             //during damage calculation effects
@@ -294,10 +300,9 @@ export class Card {
         }
 
         const afterDamageCalculation = () => {
-            print(11)
-            print('after damage calculation')
             duel.damageStep.set('AFTER'
-            )            //self destruction continuous effects immediately
+            )            
+            //self destruction continuous effects immediately
             //after damage calculation effects
             //battle damage effects
             //flip effects
@@ -319,7 +324,6 @@ export class Card {
         }
 
         const endOfDamageStep = () => {
-            print('end of damage step')
             duel.damageStep.set('END');
             if (!isDirectAttack) {
                 if (defender.status.get() === 'destroyedByBattle') {
@@ -344,7 +348,7 @@ export class Card {
 
     destroy(cause: string) {
         if (this.getFloodgates("PREVENT_DESTRUCTION")) return;
-        //this.status.set(`destroyedBy${cause}`)
+        this.status.set(`destroyedBy${cause}`)
         if (!includes(cause, "Battle")) {
             this.toGraveyard()
         }

@@ -170,9 +170,7 @@ const zoneOrientation = {
 
                 connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string] =
                     (card2D.FindFirstChild("positionChanged") as RemoteEvent).OnClientEvent.Connect(() => {
-                        print('positionChanged')
                         if ((card2D.FindFirstChild("getLocation") as RemoteFunction).InvokeServer() === zone.Name) {
-                            print('?')
                             animateZone(card3D as Part, zone as Vector3Value)
                         }
                     })

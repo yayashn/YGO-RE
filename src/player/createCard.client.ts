@@ -17,27 +17,10 @@ Remotes.Client.OnEvent("createCard3D", (card2D: SurfaceGui, location: Location, 
     sleeve.Adornee = card3D;
     const cardMenu = card2D.WaitForChild("CardMenu") as BillboardGui;
     cardMenu.Adornee = card3D;
- //   const status = card2D.WaitForChild("Status") as BillboardGui;
- //   status.Adornee = card3D;
-
-    const cardClickDetector = card3D.WaitForChild("Menu") as ClickDetector;
-    const connections = [
-        cardClickDetector.MouseClick.Connect(() => {
-            const onCardClick = card2D.WaitForChild("onClick") as RemoteEvent;
-            onCardClick.FireServer("click");
-        }),
-        cardClickDetector.MouseHoverEnter.Connect(() => {
-            const onCardClick = card2D.WaitForChild("onClick") as RemoteEvent;
-            onCardClick.FireServer("hover");
-        }),
-        cardClickDetector.MouseHoverLeave.Connect(() => {
-            const onCardClick = card2D.WaitForChild("onClick") as RemoteEvent;
-            onCardClick.FireServer("leave");
-        })
-    ]
+    const status = card2D.WaitForChild("Status") as BillboardGui;
+    status.Adornee = card3D;
 
     card2D.Destroying.Connect(() => {
-        connections.forEach(connection => connection.Disconnect());
         card3D.Destroy();
     })
 });

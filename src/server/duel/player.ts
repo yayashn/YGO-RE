@@ -41,7 +41,7 @@ export class YPlayer {
         for (let i = deck.size() - 1; i > 0; i--) {
             const ran = new Random().NextNumber()
             const j = math.floor(ran * (i + 1))
-            ;[deck[i], deck[j]] = [deck[j], deck[i]]
+                ;[deck[i], deck[j]] = [deck[j], deck[i]]
         }
         for (let i = 0; i < deck.size(); i++) {
             deck[i].order.set(i)
@@ -92,10 +92,9 @@ export class YPlayer {
         this.floodgates.set(this.floodgates.get().filter(floodgate => !floodgate.expired()));
     }
 
-    pickTargets (n: number, targettables: Card[]) {
+    pickTargets(n: number, targettables: Card[]) {
         this.targets.set([])
         this.targettableCards.set(targettables)
-        const duel = getDuel(this.player)
         let pickedTargets: Card[] = [];
         const connection = this.targets.changed((targets: Card[]) => {
             if (targets.size() === n) {
@@ -108,5 +107,13 @@ export class YPlayer {
         }
         this.targettableCards.set([])
         return pickedTargets
+    }
+
+    handleTarget(target: Card) {
+        if (this.targettableCards.get().includes(target)) {
+            this.targets.set([...this.targets.get(), target])
+        } else {
+            this.targets.set(this.targets.get().filter((t) => t !== target))
+        }
     }
 }

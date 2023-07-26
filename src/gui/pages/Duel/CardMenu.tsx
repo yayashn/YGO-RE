@@ -210,7 +210,6 @@ export default withHooks(({ card }: { card: Card }) => {
             yPlayer.selectableZones.set([])
         },
         "Change Position": () => {
-            print("?")
             card.changePosition()
         }
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "@rbxts/roact-hooked";
+import { useCallback, useEffect, useState } from "@rbxts/roact-hooked";
 import { getDuel } from "server/duel/duel";
 import { Location, SelectableZone } from "server/duel/types";
 
@@ -9,7 +9,7 @@ export default () => {
     const duel = getDuel(p)!;
     const player = duel.getPlayer(p);
 
-    const includesZone = (zoneName: Location, zoneSide: "Player" | "Opponent" | "Both") => {
+    const includesZone = useCallback((zoneName: Location, zoneSide: "Player" | "Opponent" | "Both") => {
         const zone = selectableZones.find((zone) => zone.zone === zoneName);
         if(zone) {
             if(zoneSide === "Both") {
@@ -19,12 +19,12 @@ export default () => {
             }
         }
         return false;
-    }
+    }, [selectableZones])
 
     useEffect(() => {
         if(!player) return;
-        const connection = player.selectableZones.changed((newValue) => {
-            setSelectableZones(newValue as unknown as SelectableZone[]);
+        const connection = player.selectableZones.changed((newValue: SelectableZone[]) => {
+            setSelectableZones(newValue);
         })
 
         return () => {

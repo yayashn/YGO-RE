@@ -14,6 +14,7 @@ const field = game.Workspace.Field3D.Field;
 
 Remotes.Client.OnEvent("attackCard3D", (opponent: boolean, zone1: Location, zone2?: Location, cleanup: boolean = false) => {
     const attacker = opponent ? "Opponent" : "Player"
+    const defender = opponent ? "Player" : "Opponent"
     const pointer = field[attacker].Attack[`${zone1 as "MZone1"}P`]
     const pointerGui = pointer.Gui
     const pointerOriginalPosition = pointer.FindFirstChild("OriginalPosition") as Vector3Value
@@ -29,11 +30,11 @@ Remotes.Client.OnEvent("attackCard3D", (opponent: boolean, zone1: Location, zone
     pointerGui.Enabled = true
     if(isDirectAttack) {
         const tween = TweenService.Create(pointer, new TweenInfo(0.5), {
-            Position: field[attacker].Hand.Center.Position
+            Position: field[defender].Hand.Center.Position
         })
         tween.Play()
     } else {
-        const pointer2 = field[attacker].Attack[`${zone2 as "MZone1"}P`]
+        const pointer2 = field[defender].Attack[`${zone2 as "MZone1"}P`]
         const tween = TweenService.Create(pointer, new TweenInfo(0.5), {
             Position: pointer2.Position
         })

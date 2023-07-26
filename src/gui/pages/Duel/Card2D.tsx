@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Dispatch, SetStateAction, useRef, useState, withHooks } from "@rbxts/roact-hooked";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import useController from "gui/hooks/useController";
 import useMount from "gui/hooks/useMount";
 import useShowArt from "gui/hooks/useShowArt";
@@ -11,9 +11,12 @@ import CardMenu from "./CardMenu";
 import { Location, Position } from "server/duel/types";
 import HoverCard from "server-storage/animations/HoverCard/HoverCard";
 import useCardStat from "gui/hooks/useCardStat";
-import debounce from "shared/debounce";
 import { useGlobalState } from "shared/useGlobalState";
 import { showMenuStore } from "./showMenuStore";
+import useIsTarget from "gui/hooks/useIsTarget";
+import useIsTargettable from "gui/hooks/useIsTargettable";
+import { hoveredCardStore } from "./CardInfo";
+import { includes } from "shared/utils";
 
 interface Props {
     card: Card,
@@ -35,6 +38,9 @@ export default withHooks(({ card }: Props) => {
     const onClickRef = useRef<RemoteEvent>();
     const [hover, setHover] = useState(false);
     const location = useCardStat<"location", Location>(card, "location");
+    const isTarget = useIsTarget(card);
+    const isTargettable = useIsTargettable(card);
+    const [hoveredCard, setHoveredCard] = useGlobalState(hoveredCardStore)
 
     useMount(() => {
         if(card2DRef.getValue() === undefined) return;
@@ -55,46 +61,74 @@ export default withHooks(({ card }: Props) => {
         }
     }, [], card2DRef)
 
-    const onClick = (_: unknown, __: unknown, eventName: string) => {
+    useEffect(() => {
+        if(showMenu === card) {
+            setShowMenu(undefined);
+        }
+    }, [isTargettable])
+
+    const onClick = useCallback((_: unknown, __: unknown, eventName: string) => {
         if(eventName === "click") {
-            setShowMenu(showMenu === card ? undefined : card)
+            if(isTargettable) {
+                yPlayer.handleTarget(card);
+            } else {
+                setShowMenu(showMenu === card ? undefined : card);
+            }
         } else if(eventName === "hover") {
             setHover(card.location.get() === "Hand");
+            if(showArt) {
+                setHoveredCard(card)
+            } else {
+                setHoveredCard(undefined)
+            }
         } else {
             setHover(false);
         }
-    }
+    }, [isTarget, isTargettable, showArt])
 
     return (
         <surfacegui Ref={card2DRef}>
-            <surfacegui AlwaysOnTop Key="Art" Face="Bottom">
-                <imagelabel ImageTransparency={0}
+            <surfacegui 
+            ZOffset={-1}
+            AlwaysOnTop Key="Art" Face="Bottom">
+                <imagebutton 
+                Event={{
+                    MouseButton1Click: () => onClick(undefined, undefined, "click"),
+                    MouseEnter: () => onClick(undefined, undefined, "hover"),
+                    MouseLeave: () => onClick(undefined, undefined, "unhover")
+                }}
+                ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
                     Image={showArt ? card.art : ''}
                     Position={new UDim2(0.5, 0, 0.5, 0)}>
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
-                </imagelabel>
+                        {isTargettable && <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30}/>}
+                        {isTarget && <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30}/>}
+                </imagebutton>
             </surfacegui>
 
             <surfacegui AlwaysOnTop Key="Sleeve" Face="Top">
-                <imagelabel ImageTransparency={0}
+                <imagebutton 
+                Event={{
+                    MouseButton1Click: () => onClick(undefined, undefined, "click"),
+                    MouseEnter: () => onClick(undefined, undefined, "hover"),
+                    MouseLeave: () => onClick(undefined, undefined, "unhover")
+                }}
+                ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
                     Image={sleeve}
                     Position={new UDim2(0.5, 0, 0.5, 0)}>
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
-                </imagelabel>
+                        {isTargettable && <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30}/>}
+                        {isTarget && <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30}/>}
+                </imagebutton>
             </surfacegui>
             <CardMenu card={card} />
             <objectvalue Key="card3D"/>
-            <remoteevent Key="onClick" 
-            Ref={onClickRef}
-            Event={{
-                OnServerEvent: (_, __, eventName)  => onClick(_, __, eventName as string),
-            }}/>
             <remotefunction Key="getPosition" OnServerInvoke={() => {
                 return card.position.get();
             }}/>
