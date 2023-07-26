@@ -29,6 +29,7 @@ export default withHooks(({ card }: { card: Card }) => {
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
     const duel = getDuel(player)!;
     const yPlayer = duel.getPlayer(player);
+    const yOpponent = duel.getOpponent(player);
     const position = useCardStat<"position", Position>(card, "position");
     const chainLink = useCardStat<"chainLink", number>(card, "chainLink");
     const location = useCardStat<"location", Location>(card, "location");
@@ -150,6 +151,67 @@ export default withHooks(({ card }: { card: Card }) => {
                 yPlayer.selectedZone.set(undefined)
                 yPlayer.selectableZones.set([])
             }
+        },
+        'Flip Summon': () => {
+            card.flipSummon();
+        },
+        Attack: () => {
+            const turn = duel.turn.get();
+            card.addFloodgate("CANNOT_CHANGE_POSITION", () => {
+                return duel.turn.get() !== turn;
+            })
+            card.addFloodgate("CANNOT_ATTACK", () => {
+                return duel.turn.get() !== turn;
+            })
+            const monstersOnOpponentField = getFilteredCards(duel!, {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                controller: [yOpponent.player]
+            })
+            if (monstersOnOpponentField.size() > 0) {
+                const targets = yPlayer.pickTargets(
+                    1,
+                    getFilteredCards(duel!, {
+                        location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                        controller: [yOpponent.player]
+                    })
+                )
+                
+                duel!.attackingCard.set(card)
+                duel!.defendingCard.set(targets[0])
+                
+                duel!.handleResponses(yPlayer)
+            } else {
+                duel!.attackingCard.set(card)
+                duel!.handleResponses(yPlayer)
+            }
+        },
+        'Tribute Summon': () => {
+            const turn = duel.turn.get()
+
+            const tributesRequired = card.level.get()! <= 6 ? 1 : 2
+            yPlayer.targets.set(yPlayer.pickTargets(tributesRequired, 
+                getFilteredCards(duel!, {
+                    location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                    controller: [player]
+                })
+            ))
+            yPlayer.targets.get().forEach((target) => {
+                target.tribute()
+            })
+
+            yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
+                return duel.turn.get() !== turn;
+            })
+            yPlayer.selectableZones.set(duel.getEmptyFieldZones('MZone', player, 'Player'))
+
+            const zone = yPlayer.selectedZone.wait()!;
+            card.tributeSummon(zone)
+            yPlayer.selectedZone.set(undefined)
+            yPlayer.selectableZones.set([])
+        },
+        "Change Position": () => {
+            print("?")
+            card.changePosition()
         }
     }
 
@@ -167,11 +229,6 @@ export default withHooks(({ card }: { card: Card }) => {
         
         if(!(!chainResolving && !isSelecting && isActor && isController)) return;
 
-        if(showMenu !== card) {
-            removeCardAction()
-            return;
-        }
-
         // Normal Summon & Set
         if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgates("CANNOT_NORMAL_SUMMON") && gameState === "OPEN") {
             if(card.level.get()! <= 4) {
@@ -180,30 +237,40 @@ export default withHooks(({ card }: { card: Card }) => {
                 addCardAction("Tribute Summon")
             }
             addCardAction("Set")
-        }
-
+        } 
         // Set
-        if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN") {
+        else if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN") {
             addCardAction("Set")
+        } else {
+            removeCardAction("Normal Summon")
+            removeCardAction("Set")
+            removeCardAction("Tribute Summon")
         }
 
         // Flip Summon
-        if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.getFloodgates("CANNOT_CHANGE_MANUAL_POSITION")) {
+        if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.getFloodgates("CANNOT_CHANGE_POSITION")) {
             addCardAction("Flip Summon");
         } 
         // Change Position
-        else if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && !card.getFloodgates("CANNOT_CHANGE_MANUAL_POSITION")) {
+        else if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && !card.getFloodgates("CANNOT_CHANGE_POSITION")) {
             addCardAction("Change Position");
+        } else {
+            removeCardAction("Flip Summon");
+            removeCardAction("Change Position");
         }
 
         // Activate
         if(conditionMet) {
             addCardAction("Activate");
+        } else {
+            removeCardAction("Activate");
         }
 
         // Attack
         if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" && !yPlayer.getFloodgates("CANNOT_ATTACK")) {
             addCardAction("Attack");
+        } else {
+            removeCardAction("Attack");
         }
     }, [
         showMenu, duelChanged, playerChanged, cardChanged

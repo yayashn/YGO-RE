@@ -1,11 +1,14 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import { TweenService } from "@rbxts/services";
+import useDuelStat from "gui/hooks/useDuelStat";
 import useMount from "gui/hooks/useMount";
+import usePlayerStat from "gui/hooks/usePlayerStat";
 import useSelectableZones from "gui/hooks/useSelectableZones";
 import FadeZone from "server-storage/animations/FadeZone/FadeZone";
 import { getDuel } from "server/duel/duel";
 import { Location } from "server/duel/types";
+import { getFilteredCards } from "server/duel/utils";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
@@ -56,6 +59,10 @@ const FieldZoneButton = withHooks(
 		const [selectableZones, includesZone] = useSelectableZones();
 		const duel = getDuel(player)!;
 		const yPlayer = duel.getPlayer(player);
+		const yOpponent = duel.getOpponent(player);
+		const [zoneOccupied, setZoneOccupied] = useState<boolean>(false);
+		const duelChanged = useDuelStat(duel, "changed");
+		const playerChanged = usePlayerStat(yPlayer, "changed");
 
 		useMount(() => {
 			setTween(TweenService.Create(buttonRef.getValue()!, tweenInfo, tweenGoal));
@@ -70,15 +77,35 @@ const FieldZoneButton = withHooks(
 			}
 		}, [isHovered, selectableZones]);
 
+		useEffect(() => {
+			setZoneOccupied(getFilteredCards(duel, {
+				location: [zoneName],
+				controller: [playerType === "Player" ? player : yOpponent.player],
+			}).size() !== 0)
+		}, [duelChanged, playerChanged])
+
+		const elementProps = {
+			BackgroundTransparency: 1,
+			Text: "",
+			BorderSizePixel: 0,
+			LayoutOrder: layoutOrder * (playerType === "Player" ? -1 : 1),
+		}
+
+		if(zoneOccupied) {
+			return (
+				<textlabel
+					Key={zoneName}
+					{...elementProps}
+				/>
+			)
+		}
+
 		return (
 			<textbutton
+				{...elementProps}
 				Key={zoneName}
 				Ref={buttonRef}
-				LayoutOrder={layoutOrder * (playerType === "Player" ? -1 : 1)}
-				Text=""
 				AutoButtonColor={false}
-				BorderSizePixel={0}
-				BackgroundTransparency={.999}
 				Event={{
 					MouseButton1Click: () => {
 						if (includesZone(zoneName as Location, playerType)) {

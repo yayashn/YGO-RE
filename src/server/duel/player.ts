@@ -48,6 +48,10 @@ export class YPlayer {
         }
     }
 
+    changeLifePoints(n: number) {
+        this.lifePoints.set(this.lifePoints.get() + n);
+    }
+
     draw(n: number) {
         for (let i = 0; i < n; i++) {
             let deck = this.cards.get().filter(

@@ -57,7 +57,6 @@ export default withHooks(({ card }: Props) => {
 
     const onClick = (_: unknown, __: unknown, eventName: string) => {
         if(eventName === "click") {
-            print(yPlayer.floodgates)
             setShowMenu(showMenu === card ? undefined : card)
         } else if(eventName === "hover") {
             setHover(card.location.get() === "Hand");
@@ -104,6 +103,9 @@ export default withHooks(({ card }: Props) => {
             }}/>
              <remotefunction Key="getOrder" OnServerInvoke={() => {
                 return card.order.get();
+            }}/>
+            <remotefunction Key="getUid" OnServerInvoke={() => {
+                return card.uid;
             }}/>
             <remoteevent Key="positionChanged" Ref={positionChangedRef}/>
         </surfacegui>

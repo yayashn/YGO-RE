@@ -20,6 +20,7 @@ export class Duel {
     turnPlayer: Subscribable<YPlayer>;
     actor: Subscribable<YPlayer>;
     battleStep = new Subscribable('', () => this.onChanged());
+    damageStep = new Subscribable('', () => this.onChanged());
     chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({}, () => this.onChanged());
     chainResolving = new Subscribable(false, () => this.onChanged());
     speedSpell = new Subscribable(0, () => this.onChanged());
@@ -182,7 +183,7 @@ export class Duel {
         this.gameState.set('OPEN')
         if (p === 'DP') {
             this.turn.set(this.turn.get() + 1)
-            this.turnPlayer.get().addFloodgate("CANNOT_ATTACK", () => {
+            this.turnPlayer.get().addFloodgate("CANNOT_ENTER_BP", () => {
                 return this.turn.get() !== 1
             })
             if (this.turn.get() >= 2) {
