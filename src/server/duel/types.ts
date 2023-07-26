@@ -38,3 +38,8 @@ export type SelectableZone = {
 export type GetEmptyFieldZonesReturnType<T extends boolean> = T extends true
   ? Vector3Value[]
   : SelectableZone[];
+
+export type Floodgate = {
+    name: string;
+    cardWhichCausedIt?: Card;
+}

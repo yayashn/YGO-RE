@@ -81,17 +81,14 @@ const FieldZoneButton = withHooks(
 				BackgroundTransparency={.999}
 				Event={{
 					MouseButton1Click: () => {
-						print("click")
 						if (includesZone(zoneName as Location, playerType)) {
 							yPlayer!.selectedZone.set(zoneName as Location);
 						}
 					},
 					MouseEnter: () => {
-						print("enter")
 						setIsHovered(true);
 					},
 					MouseLeave: () => {
-						print("leave")
 						setIsHovered(false);
 					},
 				}}>

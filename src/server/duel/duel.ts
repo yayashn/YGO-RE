@@ -11,27 +11,28 @@ import type { Card } from "./card";
 export let duels: Record<string, Duel> = {}
 
 export class Duel {
+    changed = new Subscribable(0);
     player1: YPlayer;
     player2: YPlayer;
-    phase: Subscribable<Phase> = new Subscribable<Phase>("DP");
+    phase: Subscribable<Phase> = new Subscribable<Phase>("DP", () => this.onChanged());
     turn = new Subscribable(0);
-    gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN");
+    gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN", () => this.onChanged());
     turnPlayer: Subscribable<YPlayer>;
     actor: Subscribable<YPlayer>;
-    battleStep = new Subscribable('');
-    chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({});
-    chainResolving = new Subscribable(false);
-    speedSpell = new Subscribable(0);
-    attackingCard = new Subscribable<Card | undefined>(undefined);
-    defendingCard = new Subscribable<Card | undefined>(undefined);
-    handlingResponses = new Subscribable(false);
+    battleStep = new Subscribable('', () => this.onChanged());
+    chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({}, () => this.onChanged());
+    chainResolving = new Subscribable(false, () => this.onChanged());
+    speedSpell = new Subscribable(0, () => this.onChanged());
+    attackingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
+    defendingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
+    handlingResponses = new Subscribable(false, () => this.onChanged());
 
     constructor(player1: YPlayer, player2: YPlayer) {
         this.player1 = player1;
         this.player2 = player2;
         duels[`${player1.player.UserId}:${player2.player.UserId}`] = this;
-        this.turnPlayer = new Subscribable<YPlayer>(this.player1);
-        this.actor = new Subscribable<YPlayer>(this.player1);
+        this.turnPlayer = new Subscribable<YPlayer>(this.player1, () => this.onChanged());
+        this.actor = new Subscribable<YPlayer>(this.player1, () => this.onChanged());
 
         Remotes.Server.Get("showField").SendToPlayers([player1.player, player2.player], true);
 
@@ -43,8 +44,11 @@ export class Duel {
             route()!.Value = "/duel/";
         })
 
-        this.turnPlayer.get().addFloodgate("CANNOT_ATTACK_FIRST_TURN");
         this.handlePhase("DP");
+    }
+
+    onChanged() {
+        this.changed.set(this.changed.get() + 1);
     }
 
     endDuel() {
@@ -109,7 +113,7 @@ export class Duel {
         //from highest key to lowest key
         for (let chainNumber = Object.keys(this.chain.get()).size() - 1; chainNumber >= 0; chainNumber--) {
             const { card, effect, negated } = this.chain.get()[chainNumber]
-            if (!negated && !card.getFloodgate("EFFECTS_NEGATED")) {
+            if (!negated && !card.getFloodgates("EFFECTS_NEGATED")) {
                 effect()
             }
             wait(3)
@@ -122,7 +126,7 @@ export class Duel {
         // Remove non-continuous spell/trap cards from SZone, and reset activated
         Object.values(this.chain.get()).forEach(({ card }) => {
             if (
-                card.getFloodgate("CONTINUOUS") ||
+                card.getFloodgates("CONTINUOUS") ||
                 includes(card.race.get(), 'Continuous') ||
                 includes(card.race.get(), 'Equip') ||
                 includes(card.race.get(), 'Field')
@@ -147,7 +151,13 @@ export class Duel {
             }
         }
         try {
-            this.attackingCard.get()?.addFloodgate("CANNOT_ATTACK_AFTER_ATTACK");
+            const turn = this.turn.get()
+            this.attackingCard.get()?.addFloodgate("SKIP_BP", () => {
+                return this.turn.get() !== turn
+            });
+            this.attackingCard.get()?.addFloodgate("CHANGED_POSITION", () => {
+                return this.turn.get() !== turn
+            });
         } catch {
             print('No attacking card')
         }
@@ -172,20 +182,9 @@ export class Duel {
         this.gameState.set('OPEN')
         if (p === 'DP') {
             this.turn.set(this.turn.get() + 1)
-            const cardsInSZone = getFilteredCards(this, {
-                location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5']
+            this.turnPlayer.get().addFloodgate("CANNOT_ATTACK", () => {
+                return this.turn.get() !== 1
             })
-            cardsInSZone.forEach((card) => {
-                card.removeFloodgate("CANNOT_ACTIVATE_AFTER_SET");
-            })
-            const cardsInMZone = getFilteredCards(this, {
-                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5']
-            })
-            for (const card of cardsInMZone) {
-                card.removeFloodgate("CANNOT_ATTACK_AFTER_ATTACK")
-                card.removeFloodgate("CANNOT_CHANGE_POSITION_AFTER_PLACEMENT")
-                card.removeFloodgate("CANNOT_CHANGE_POSITION_AFTER_ATTACK")
-            }
             if (this.turn.get() >= 2) {
                 this.turnPlayer.set(this.getOpponent(this.turnPlayer.get().player))
                 this.actor.set(this.turnPlayer.get())
@@ -203,9 +202,7 @@ export class Duel {
                 thread[0]()
                 thread[1]()
                 await Promise.delay(0.25 * 5)
-            } else {
-                this.turnPlayer.get().removeFloodgate("CANNOT_ATTACK_FIRST_TURN")
-            }
+            } 
             this.turnPlayer.get().draw(1)
             await this.handleResponses(this.turnPlayer.get())
             await this.handlePhase('SP')

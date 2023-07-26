@@ -7,7 +7,10 @@ import type { Card } from "server/duel/card";
 import { getDuel } from "server/duel/duel";
 import { YPlayer } from "server/duel/player";
 import { Location, Phase, Position } from "server/duel/types";
+import { useGlobalState } from "shared/useGlobalState";
 import { includes } from "shared/utils";
+import { showMenuStore } from "./showMenuStore";
+import { getFilteredCards } from "server/duel/utils";
 
 type CardAction =
     | 'Activate'
@@ -21,8 +24,8 @@ type CardAction =
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
-export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Card | undefined, Dispatch<SetStateAction<Card | undefined>>] }) => {
-    const [showMenu, setShowMenu] = useShowMenu;
+export default withHooks(({ card }: { card: Card }) => {
+    const [showMenu, setShowMenu] = useGlobalState(showMenuStore)
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
     const duel = getDuel(player)!;
     const yPlayer = duel.getPlayer(player);
@@ -31,18 +34,14 @@ export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Car
     const location = useCardStat<"location", Location>(card, "location");
     const atk = useCardStat<"atk", number>(card, "atk");
     const def = useCardStat<"def", number>(card, "def");
-    const action = usePlayerStat<"action", string>(yPlayer, "action");
-    const actionOpponent = usePlayerStat<"action", string>(duel.getOpponent(player), "action");
-    const floodgatesPlayer = usePlayerStat<"floodgates", string[]>(yPlayer, "floodgates");
-    const floodgatesCard = useCardStat<"floodgates", string[]>(card, "floodgates");
     const actor = useDuelStat<"actor", YPlayer>(duel, "actor");
-    const selectableZones = usePlayerStat<"selectableZones", Location[]>(yPlayer, "selectableZones");
     const chainResolving = useDuelStat<"chainResolving", boolean>(duel, "chainResolving");
     const gameState = useDuelStat<"gameState", string>(duel, "gameState");
-    const battleStep = useDuelStat<"battleStep", string>(duel, "battleStep");
-    const race = useCardStat<"race", string>(card, 'race');
     const type_ = useCardStat<"type", string>(card, 'type');
     const phase = useDuelStat<"phase", Phase>(duel, 'phase');
+    const duelChanged = useDuelStat<"changed", number>(duel, 'changed');
+    const playerChanged = usePlayerStat<"changed", number>(yPlayer, 'changed');
+    const cardChanged = useCardStat<"changed", number>(card, 'changed');
 
     const removeCardAction = (action?: CardAction) => {
         if (!action) return setEnabledActions([])
@@ -74,7 +73,10 @@ export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Car
             card.activateEffect()
         },
         'Normal Summon': async () => {
-            yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON_AFTER_NORMAL_SUMMON")
+            const turn = duel.turn.get()
+            yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
+                return duel.turn.get() !== turn;
+            })
             yPlayer.selectableZones.set(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'))
             
             const connection = yPlayer.selectedZone.changed((zone) => {
@@ -90,10 +92,72 @@ export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Car
                 action: 'Normal Summon',
             })
         },
+        'Special Summon': async () => {},
+        Set: async () => {
+            const turn = duel.turn.get()
+            if (card.type.get().match('Monster').size() > 0) {
+                yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
+                    return duel.turn.get() !== turn;
+                })
+                if (card.level.get()! <= 4) {
+                    yPlayer.selectableZones.set(duel.getEmptyFieldZones(
+                        'MZone',
+                        player,
+                        'Player'
+                    ))
+                } else {
+                    const tributesRequired = card.level.get()! <= 6 ? 1 : 2
+
+                    yPlayer.targets.set(yPlayer.pickTargets(
+                        tributesRequired,
+                        getFilteredCards(duel!, {
+                            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                            controller: [player]
+                        })
+                    ))
+                    yPlayer.targets.get().forEach((target) => {
+                        target.tribute()
+                    })
+
+                    yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
+                        return duel.turn.get() !== turn;
+                    })
+                    yPlayer.selectableZones.set(duel.getEmptyFieldZones(
+                        'MZone',
+                        player,
+                        'Player'
+                    ))
+                    const zone = yPlayer.selectedZone.wait();
+                    card.tributeSet(zone as Location)
+
+                    yPlayer.selectedZone.set(undefined)
+                    yPlayer.selectableZones.set([])
+
+                    return
+                }
+            } else {
+                yPlayer.selectableZones.set(duel.getEmptyFieldZones(
+                    'SZone',
+                    player,
+                    'Player'
+                ))
+            }
+            if(includes(card.race.get(), "Field")) {
+                card.set("FZone")
+            } else {
+                const zone = yPlayer.selectedZone.wait()
+                card.set(zone as Location)
+                yPlayer.selectedZone.set(undefined)
+                yPlayer.selectableZones.set([])
+            }
+        }
     }
 
     useEffect(() => {
+        card.handleFloodgates();
+
         const inHand = location === 'Hand'
+        const inMonsterZone = includes(location, "MZone");
         const isMonster = includes(type_, "Monster");
         const isSpellTrap = !isMonster;
         const isActor = actor === yPlayer;
@@ -103,16 +167,53 @@ export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Car
         
         if(!(!chainResolving && !isSelecting && isActor && isController)) return;
 
-        //Normal Summon
-        if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgate("CANNOT_NORMAL_SUMMON") && !card.getFloodgate("CANNOT_NORMAL_SUMMON") && gameState === "OPEN") {
-            addCardAction("Normal Summon")
+        if(showMenu !== card) {
+            removeCardAction()
+            return;
         }
-        
+
+        // Normal Summon & Set
+        if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgates("CANNOT_NORMAL_SUMMON") && gameState === "OPEN") {
+            if(card.level.get()! <= 4) {
+                addCardAction("Normal Summon")
+            } else {
+                addCardAction("Tribute Summon")
+            }
+            addCardAction("Set")
+        }
+
+        // Set
+        if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN") {
+            addCardAction("Set")
+        }
+
+        // Flip Summon
+        if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.getFloodgates("CANNOT_CHANGE_MANUAL_POSITION")) {
+            addCardAction("Flip Summon");
+        } 
+        // Change Position
+        else if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && !card.getFloodgates("CANNOT_CHANGE_MANUAL_POSITION")) {
+            addCardAction("Change Position");
+        }
+
+        // Activate
+        if(conditionMet) {
+            addCardAction("Activate");
+        }
+
+        // Attack
+        if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" && !yPlayer.getFloodgates("CANNOT_ATTACK")) {
+            addCardAction("Attack");
+        }
     }, [
-        action, actionOpponent, floodgatesCard, floodgatesPlayer,
-        actor, selectableZones, chainResolving, gameState, battleStep,
-        showMenu, race, type_, phase, showMenu
+        showMenu, duelChanged, playerChanged, cardChanged
     ])
+
+    useEffect(() => {
+        if(showMenu === card) {
+            setShowMenu(undefined)
+        }
+    }, [phase])
 
     return (
         <Roact.Fragment>
@@ -147,7 +248,7 @@ export default withHooks(({ card, useShowMenu }: { card: Card, useShowMenu: [Car
                                     if (!isCardActionEnabled(button)) return
                                     removeCardAction()
                                     if (button === "Attack") {
-                                        wait(.1)
+                                        await Promise.delay(.1)
                                     };
                                     (cardActions as unknown as Record<string, Callback>)[button]()
                                 }

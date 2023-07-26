@@ -27,7 +27,11 @@
 		"YGORE:out/server/duel/DuelService@Singleton": "server/duel/DuelService@Singleton",
 		"YGORE:out/server/duel/DuelSingleton@DuelSingleton": "server/duel/DuelSingleton@DuelSingleton",
 		"YGORE:out/server/duel/DuelSingleton@Singleton": "server/duel/DuelSingleton@Singleton",
-		"YGORE:out/server/duel/DuelSingleton@Duels": "server/duel/DuelSingleton@Duels"
+		"YGORE:out/server/duel/DuelSingleton@Duels": "server/duel/DuelSingleton@Duels",
+		"YGORE:out/server/duel/floodgate@Floodgate": "server/duel/floodgate@Floodgate",
+		"YGORE:out/server/duel/floodgate@Floodgates": "server/duel/floodgate@Floodgates",
+		"YGORE:out/server/duel/card@a": "server/duel/card@a",
+		"YGORE:out/server/duel/card@A": "server/duel/card@A"
 	},
 	"metadata": {}
 }

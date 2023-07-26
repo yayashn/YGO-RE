@@ -3,14 +3,17 @@ import { Signal } from "@rbxts/beacon"
 export class Subscribable<T> {
     private value: T
     private event = new Signal<[val: T]>();
+    private sideEffect?: Callback
 
-    constructor(value: T) {
-        this.value = value
+    constructor(value: T, sideEffect?: Callback) {
+        this.value = value;
+        this.sideEffect = sideEffect;
     }
 
     set(newValue: T) {
         this.value = newValue;
         this.event.Fire(newValue);
+        this.sideEffect?.();
     }
 
     get() {

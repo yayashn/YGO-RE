@@ -12,20 +12,22 @@ import { Location, Position } from "server/duel/types";
 import HoverCard from "server-storage/animations/HoverCard/HoverCard";
 import useCardStat from "gui/hooks/useCardStat";
 import debounce from "shared/debounce";
+import { useGlobalState } from "shared/useGlobalState";
+import { showMenuStore } from "./showMenuStore";
 
 interface Props {
     card: Card,
-    useShowMenu: [Card | undefined, Dispatch<SetStateAction<Card | undefined>>]
 }
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
-export default withHooks(({ card, useShowMenu }: Props) => {
-    const [showMenu, setShowMenu] = useShowMenu;
+export default withHooks(({ card }: Props) => {
+    const [showMenu, setShowMenu] = useGlobalState(showMenuStore)
     const duel = getDuel(player)!;
     const card2DRef = useRef<SurfaceGui>();
     const opponent = duel.getOpponent(player);
     const controller = useController(card);
+    const yPlayer = duel.getPlayer(player);
     const showArt = useShowArt(card)
     const sleeve = getEquippedSleeve(controller);
     const isOpponent = () => card.controller.get() !== player;
@@ -53,9 +55,20 @@ export default withHooks(({ card, useShowMenu }: Props) => {
         }
     }, [], card2DRef)
 
+    const onClick = (_: unknown, __: unknown, eventName: string) => {
+        if(eventName === "click") {
+            print(yPlayer.floodgates)
+            setShowMenu(showMenu === card ? undefined : card)
+        } else if(eventName === "hover") {
+            setHover(card.location.get() === "Hand");
+        } else {
+            setHover(false);
+        }
+    }
+
     return (
         <surfacegui Ref={card2DRef}>
-            <surfacegui Key="Art" Face="Bottom">
+            <surfacegui AlwaysOnTop Key="Art" Face="Bottom">
                 <imagelabel ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
@@ -66,7 +79,7 @@ export default withHooks(({ card, useShowMenu }: Props) => {
                 </imagelabel>
             </surfacegui>
 
-            <surfacegui Key="Sleeve" Face="Top">
+            <surfacegui AlwaysOnTop Key="Sleeve" Face="Top">
                 <imagelabel ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
@@ -76,20 +89,12 @@ export default withHooks(({ card, useShowMenu }: Props) => {
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
                 </imagelabel>
             </surfacegui>
-            <CardMenu card={card} useShowMenu={[showMenu, setShowMenu]}/>
+            <CardMenu card={card} />
             <objectvalue Key="card3D"/>
             <remoteevent Key="onClick" 
             Ref={onClickRef}
             Event={{
-                OnServerEvent: (callback, player, eventName) => {
-                    if(eventName === "click") {
-                        debounce(() => setShowMenu(state => state === card ? undefined : card))();
-                    } else if(eventName === "hover") {
-                        setHover(card.location.get() === "Hand");
-                    } else {
-                        setHover(false);
-                    }
-                }
+                OnServerEvent: (_, __, eventName)  => onClick(_, __, eventName as string),
             }}/>
             <remotefunction Key="getPosition" OnServerInvoke={() => {
                 return card.position.get();
