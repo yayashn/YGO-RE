@@ -1,8 +1,7 @@
 import { getEquippedDeck } from "server/profile-service/profiles";
 import { Card } from "./card";
 import { Subscribable } from "shared/Subscribable";
-import { HttpService } from "@rbxts/services";
-import { Location, SelectableZone } from "./types";
+import { Location, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
 
@@ -18,9 +17,12 @@ export class YPlayer {
     selectedZone = new Subscribable<Location | undefined>(undefined, () => this.onChanged());
     action = new Subscribable<{
         action: string,
+        cards?: Card[],
     } | undefined>(undefined, () => this.onChanged());
     targettableCards = new Subscribable<Card[]>([], () => this.onChanged());
     targettedCards = new Subscribable<Card[]>([], () => this.onChanged());
+    selectedPosition = new Subscribable<Position | undefined>(undefined, () => this.onChanged());
+    selectedPositionCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
 
     constructor(player: Player) {
         const equippedDeck = getEquippedDeck(player);
@@ -107,6 +109,14 @@ export class YPlayer {
         }
         this.targettableCards.set([])
         return pickedTargets
+    }
+
+    pickPosition(card: Card) {
+        this.selectedPositionCard.set(card)
+        const position = this.selectedPosition.wait()
+        this.selectedPositionCard.set(undefined)
+        this.selectedPosition.set(undefined)
+        return position as Position;
     }
 
     handleTarget(target: Card) {

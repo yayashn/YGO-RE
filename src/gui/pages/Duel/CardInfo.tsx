@@ -54,7 +54,7 @@ export default withHooks(() => {
                     AutomaticSize={Enum.AutomaticSize.Y}
                     TextColor3={theme.colours.white}
                     TextWrap
-                    Text={`[${hoveredCard?.type.get()}] ${hoveredCard?.race.get()}/${hoveredCard?.attribute.get()}${hoveredCard?.level.get() ? '/'+hoveredCard.level.get()+'★' : ''}`}
+                    Text={`[${hoveredCard?.type.get()}] ${hoveredCard?.race.get()}/${hoveredCard?.attribute.get().upper()}${hoveredCard?.level.get() ? '/'+hoveredCard.level.get()+'★' : ''}`}
                     TextXAlignment={"Left"}
                     BackgroundTransparency={1}
                     Font={Enum.Font.Jura}

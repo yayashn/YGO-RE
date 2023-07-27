@@ -8,6 +8,8 @@ export class CardFilter {
     location?: string[]
     controller?: Player[]
     type?: string[]
+    race?: string[]
+    position?: string[]
 }
 
 export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
@@ -25,7 +27,7 @@ export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
     )
 }
 
-const getCards = (duel: Duel) => {
+export const getCards = (duel: Duel) => {
     const cards1 = duel.player1.cards.get()
     const cards2 = duel.player2.cards.get()
     return [...cards1, ...cards2]

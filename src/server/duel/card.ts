@@ -2,7 +2,7 @@ import { HttpService } from "@rbxts/services";
 import getCardData, { includes } from "shared/utils";
 import { Location, Position, SelectableZone } from "./types";
 import { Subscribable } from "shared/Subscribable";
-import cardEffects from "server-storage/card-effects";
+import cardEffects from "server-storage/card-effects/index";
 import { getFilteredCards } from "./utils";
 import { getDuel } from "./duel";
 import { Floodgate } from "./floodgate";
@@ -114,6 +114,31 @@ export class Card {
         this.getController().action.set({
             action: "Tribute Summon",
         })
+    }
+
+    specialSummon(location: Location, newPosition: Position) {
+        const duel = getDuel(this.owner)!;
+        const turn = duel.turn.get();
+        this.position.set(newPosition)
+        this.location.set(location)
+        this.getController().addFloodgate("CANNOT_CHANGE_POSITION", () => {
+            return duel.turn.get() !== turn;
+        })
+        this.getController().action.set({
+            action: "Special Summon",
+        })
+    }
+
+    reveal() {
+
+    }
+
+    toHand(cause: 'Effect') {
+
+    }
+
+    banish(position: Position) {
+
     }
 
     tributeSet(location: Location) {

@@ -65,6 +65,14 @@ export class Duel {
         return player === this.player1.player ? this.player1 : this.player2;
     }
 
+    pickZone(player: YPlayer) {
+        player.selectableZones.set(this.getEmptyFieldZones('MZone', player.player, 'Player'))
+        const zone = player.selectedZone.wait()!;
+        player.selectableZones.set([])
+        player.selectedZone.set(undefined)
+        return zone;
+    }
+
     async handleResponses(player: YPlayer) {
         this.handlingResponses.set(true)
         let passes = 0
@@ -75,7 +83,7 @@ export class Duel {
             const lastCardInChain = this.chain.get()[Object.keys(this.chain.get()).size() - 1]
             const chainStartMessage = `You have ${numberOfResponses} card/effect${numberOfResponses > 1 ? 's' : ''
                 } that can be activated. Activate?`
-            const chainResponseMessage = `"${lastCardInChain ? lastCardInChain.card.name : '?'
+            const chainResponseMessage = `"${lastCardInChain ? lastCardInChain?.card.name : '?'
                 }" is activated. Chain another card or effect?`
 
             if (numberOfResponses > 0) {
@@ -112,20 +120,22 @@ export class Duel {
         if (this.chainResolving.get() === true) return
         this.chainResolving.set(true)
         //from highest key to lowest key
-        for (let chainNumber = Object.keys(this.chain.get()).size() - 1; chainNumber >= 0; chainNumber--) {
-            const { card, effect, negated } = this.chain.get()[chainNumber]
-            if (!negated && !card.getFloodgates("EFFECTS_NEGATED")) {
-                effect()
+        const chain = this.chain.get()
+        for (let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
+            const chainedEffect = chain[chainNumber + 1];
+
+            if (!chainedEffect.negated && !chainedEffect.card.getFloodgates("EFFECTS_NEGATED")) {
+                chainedEffect.effect()
             }
             wait(3)
-            card.chainLink.set(0)
-            if (!includes(card.race.get(), 'Equip')) {
-                card.targets.set([])
+            chainedEffect.card.chainLink.set(0)
+            if (!includes(chainedEffect.card.race.get(), 'Equip')) {
+                chainedEffect.card.targets.set([])
             }
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
-        Object.values(this.chain.get()).forEach(({ card }) => {
+        Object.values(chain).forEach(({ card }) => {
             if (
                 card.getFloodgates("CONTINUOUS") ||
                 includes(card.race.get(), 'Continuous') ||
@@ -169,14 +179,19 @@ export class Duel {
     addToChain(card: Card, effect: Callback) {
         this.gameState.set('CLOSED')
         card.activated.set(true)
-        const chainLink = Object.keys(this.chain).size() + 1
+        const chainLink = Object.keys(this.chain.get()).size() + 1
         card.chainLink.set(chainLink)
-        this.chain.get()[chainLink] = {
+        const newChain = {...this.chain.get()};
+        newChain[chainLink] = {
             card,
             effect,
             negated: false
         }
-        this.chain.set({...this.chain.get()})
+        this.chain.set(newChain)
+        wait()
+
+        this.getOpponent(card.controller.get()).targets.set([])
+        this.handleResponses(this.getOpponent(card.controller.get()))
     }
 
     async handlePhase(p: Phase) {
