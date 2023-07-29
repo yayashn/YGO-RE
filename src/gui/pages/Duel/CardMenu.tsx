@@ -128,9 +128,12 @@ export default withHooks(({ card }: { card: Card }) => {
                     })
                 }
             } else {
-                const zone = yPlayer.pickZone(duel.getEmptyFieldZones('SZone', yPlayer.player, 'Player'));
-                card.set(zone)
-
+                if(card.race.get() === "Field") {
+                    card.set("FZone")
+                } else {
+                    const zone = yPlayer.pickZone(duel.getEmptyFieldZones('SZone', yPlayer.player, 'Player'));
+                    card.set(zone)
+                }
 
                 duel.action.set({
                     action: 'Set',

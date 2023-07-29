@@ -75,30 +75,30 @@ export default {
     "Trap Hole": TrapHole,//
     "Dragon Capture Jar": DragonCaptureJar,//
     "Violet Crystal": VioletCrystal,//
-    "Beast Fangs": BeastFangs,
-    "Book of Secret Arts": BookOfSecretArts,
-    "Power of Kaishin": PowerOfKaishin,
-    "Dark Energy": DarkEnergy,
-    "Laser Cannon Armor": LaserCannonArmor,
-    "Vile Germs": VileGerms,
-    "Silver Bow and Arrow": SilverBowAndArrow,
-    "Dragon Treasure": DragonTreasure,
-    "Electro-Whip": ElectroWhip,
-    "Mystical Moon": MysticalMoon,
-    "Machine Conversion Factory": MachineConversionFactory,
-    "Raise Body Heat": RaiseBodyHeat,
-    "Follow Wind": FollowWind,
-    "Wasteland": Wasteland,
-    "Forest": Forest,
-    "Mountain": Mountain,
-    "Sogen": Sogen,
-    "Umi": Umi,
-    "Yami": Yami,
+    "Beast Fangs": BeastFangs,//
+    "Book of Secret Arts": BookOfSecretArts,//
+    "Power of Kaishin": PowerOfKaishin,//
+    "Dark Energy": DarkEnergy,//
+    "Laser Cannon Armor": LaserCannonArmor,//
+    "Vile Germs": VileGerms,//
+    "Silver Bow and Arrow": SilverBowAndArrow,//
+    "Dragon Treasure": DragonTreasure,//
+    "Electro-Whip": ElectroWhip,//
+    "Mystical Moon": MysticalMoon,//
+    "Machine Conversion Factory": MachineConversionFactory,//
+    "Raise Body Heat": RaiseBodyHeat,//
+    "Follow Wind": FollowWind,//
+    "Wasteland": Wasteland,//
+    "Forest": Forest,//
+    "Mountain": Mountain,//
+    "Sogen": Sogen,//
+    "Umi": Umi,//
+    "Yami": Yami,//
     "Man-Eater Bug": ManEaterBug,
     "Hane-Hane": HaneHane,
     "Reaper of the Cards": ReaperOfTheCards,
     "Armed Ninja": ArmedNinja,
-    "Polymerization": Polymerization,
+    "Polymerization": Polymerization,//
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }

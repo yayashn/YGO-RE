@@ -14,20 +14,39 @@ const BUFF_RACES = ['Dragon', 'Winged Beast', 'Thunder']
 export default (card: Card) => {
     const controller = card.getController()
     const duel = getDuel(controller.player)!
-    
-    const meetsBuffCondition = (c: Card) => {
-        const buffedCards = getFilteredCards(duel, {
-            race: BUFF_RACES,
-            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-            position: ['FaceUpAttack', 'FaceUpDefense'],
-        })
-
-        return buffedCards.includes(c)
-    }
-
 
     const effect = () => {
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_ATK`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: BUFF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: BUFF_ATK,
+                modifierId: `+ATK_${card.uid}`
+            }
+        })
 
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_DEF`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: BUFF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: BUFF_DEF,
+                modifierId: `+DEF_${card.uid}`
+            }
+        })
     }
 
     const effects: CardEffect[] = [

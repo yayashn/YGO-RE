@@ -37,6 +37,9 @@ export class Card {
 
     constructor(name: string, owner: Player, order: number) {
         const cardData = getCardData(name)!;
+        if(!cardData) {
+            error(`Card ${name} does not exist!`);
+        }
         this.originalData = new Subscribable(cardData, () => this.onChanged());
         this.uid = HttpService.GenerateGUID(false);
         this.name = new Subscribable(name, () => this.onChanged());
@@ -338,7 +341,17 @@ export class Card {
                     expiry: () => duel.turn.get() !== turn,
                 })
             }
-            this.location.set(location)
+            if(this.race.get() === "Field") {
+                const fieldSpells = getFilteredCards(duel, {
+                    location: ["FZone"]
+                })
+                fieldSpells.forEach(fieldSpell => {
+                    fieldSpell.destroy("Mechanic")
+                })
+                this.location.set("FZone")
+            } else {
+                this.location.set(location)
+            }
             wait(1)
             duel.action.set({
                 action: "Set",

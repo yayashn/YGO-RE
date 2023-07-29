@@ -21,11 +21,76 @@ export default (card: Card) => {
     const controller = card.getController()
     const duel = getDuel(controller.player)!
 
+    const effect = () => {
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_ATK`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: BUFF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: BUFF_ATK,
+                modifierId: `+ATK_${card.uid}`
+            }
+        })
+
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_DEF`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: BUFF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: BUFF_DEF,
+                modifierId: `+DEF_${card.uid}`
+            }
+        })
+
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_ATK`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: NERF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: NERF_ATK,
+                modifierId: `-ATK_${card.uid}`
+            }
+        })
+
+        duel.addCardFloodgate({
+            floodgateName: `MODIFY_DEF`,
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                race: NERF_RACES,
+                position: ['FaceUpAttack', 'FaceUpDefense']
+            },
+            expiry: () => {
+                return card.location.get() !== "FZone" || card.position.get() !== "FaceUp"
+            },
+            floodgateValue: {
+                value: NERF_DEF,
+                modifierId: `-DEF_${card.uid}`
+            }
+        })
+    }
 
     const effects: CardEffect[] = [
         {
             condition: () => NormalSpell(card),
-            effect: () => {},
+            effect: () => effect(),
             location: ['FZone']
         }
     ]

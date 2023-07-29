@@ -18,13 +18,13 @@ export default (card: Card) => {
     const duel = getDuel(controller.player)!
 
     const condition = () => {
-        const zombieCardOnField = getFilteredCards(duel, {
+        const raceOnField = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             type: ['Monster'],
             position: ['FaceUpDefense', 'FaceUpAttack'],
             race: RACE
         })
-        return zombieCardOnField.size() > 0
+        return raceOnField.size() > 0
     }
 
     const target = () => {
@@ -47,6 +47,7 @@ export default (card: Card) => {
             expiry: () => {
                 return !includes(card.location.get(), "SZone") || card.position.get() !== "FaceUp" || 
                 !includes(target.position.get(), "FaceUp") || !includes(target.location.get(), "MZone")
+                || !RACE.includes(target.race.get())
             },
             floodgateValue: {
                 value: ATK,
@@ -61,6 +62,7 @@ export default (card: Card) => {
             expiry: () => {
                 return !includes(card.location.get(), "SZone") || card.position.get() !== "FaceUp" || 
                 !includes(target.position.get(), "FaceUp") || !includes(target.location.get(), "MZone")
+                || !RACE.includes(target.race.get())
             },
             floodgateValue: {
                 value: DEF,
