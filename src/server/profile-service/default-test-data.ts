@@ -2,12 +2,16 @@ import { CardTemplate, PlayerData } from "../types";
 
 const defaultCards: CardTemplate[] = [
     { name: "Skull Servant" },
-    { name: "Harpie's Feather Duster" },
-    { name: "Harpie's Feather Duster" },
-    { name: "Violet Crystal" },
-    { name: "Violet Crystal" },
-    { name: "Skull Servant" },
-    { name: "Swords of Revealing Light" },
+    { name: "Polymerization" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+    { name: "Polymerization" },
+    { name: "Curse of Dragon" },
+    { name: "Gaia The Fierce Knight" },
+]
+
+const defaultExtra: CardTemplate[] = [
+    { name: "Gaia the Dragon Champion" },
 ]
 
 export const defaultPlayerData: PlayerData = {
@@ -16,7 +20,7 @@ export const defaultPlayerData: PlayerData = {
     decks: {
         "default": {
             deck: [...defaultCards],
-            extra: [],
+            extra: [...defaultExtra],
         }
     },
     sleeves: ['default'],

@@ -74,7 +74,7 @@ export default {
     "Two-Pronged Attack": TwoProngedAttack,//
     "Trap Hole": TrapHole,//
     "Dragon Capture Jar": DragonCaptureJar,//
-    "Violet Crystal": VioletCrystal,
+    "Violet Crystal": VioletCrystal,//
     "Beast Fangs": BeastFangs,
     "Book of Secret Arts": BookOfSecretArts,
     "Power of Kaishin": PowerOfKaishin,

@@ -10,7 +10,7 @@ export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
             if(key === "type") {
                 return values!.some((value) => card["type"].get().match(value as string).size() > 0)
             }
-            if(key === "name" || key === "uid") {
+            if(key === "uid") {
                 return values!.some((value) => card[key] === value)
             }
             if(key === "card") {

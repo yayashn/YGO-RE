@@ -15,26 +15,49 @@ export default (card: Card) => {
     const duel = getDuel(controller.player)!
 
     const getEligibleFusionMonsters = () => {
+        print('getEligibleFusionMonsters has started.');
+    
         const extraDeck = getFilteredCards(duel, {
             location: ["EZone"],
             controller: [controller.player]
-        })
-
-        return extraDeck.filter(fusion => {
+        });
+    
+        print(`Extra Deck:`, extraDeck);
+    
+        const eligibleMonsters = extraDeck.filter(fusion => {
+            print(`Current fusion monster:`, fusion);
+    
             const materials = monsterMaterials[fusion.name.get()](fusion)[0].fusionMaterials!
-            
-            return Object.entries(materials).every(([materialName, materialsRequired]) => {
-                return getFilteredCards(duel, {
+    
+            print(`Materials for fusion monster`, fusion, materials);
+    
+            const areMaterialsAvailable = Object.entries(materials).every(([materialName, materialsRequired]) => {
+                print(`Checking if enough ${materialName} are available.`);
+    
+                const availableMaterials = getFilteredCards(duel, {
                     location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "Hand"],
                     name: [materialName],
                     controller: [controller.player]
-                }).size() >= materialsRequired
-            })
-        })
+                });
+    
+                print(`Available ${materialName}: ${availableMaterials.size()}`);
+    
+                return availableMaterials.size() >= materialsRequired
+            });
+    
+            print(`Are all materials available for, fusion`, areMaterialsAvailable);
+    
+            return areMaterialsAvailable;
+        });
+    
+        print(`Eligible fusion monsters:`, eligibleMonsters);
+    
+        return eligibleMonsters;
     }
+    
 
     const target = () => {
-        controller.pickTargets(1, getEligibleFusionMonsters())
+        card.targets.set(controller.pickTargets(1, getEligibleFusionMonsters()))
     }
 
     const condition = () => {
