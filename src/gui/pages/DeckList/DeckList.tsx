@@ -1,12 +1,12 @@
 import Roact from "@rbxts/roact";
 import { withHooks } from "@rbxts/roact-hooked";
-import Flex from "gui/components/Flex";
+import Flex from "shared/components/Flex";
 import Window from "gui/components/Window";
 import usePlayerData from "gui/hooks/usePlayerData";
 import theme from "shared/theme";
 import { useNavigate } from "gui/router";
 import { Dictionary as Object } from "@rbxts/sift";
-import Padding from "gui/components/Padding";
+import Padding from "shared/components/Padding";
 import prompt from "server/popups/prompt";
 import { getProfile } from "server/profile-service/profiles";
 import alert from "server/popups/alert";

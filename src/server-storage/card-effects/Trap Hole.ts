@@ -14,33 +14,36 @@ export default (card: Card) => {
     const opponent = duel.getOpponent(controller.player)!
 
     const condition = () => {
-        if(opponent.action.get() === undefined) return false;
+        if(!duel.action.get()) return false
+        if(duel.action.get()?.player !== opponent) return false;
 
-        const { action, cards } = opponent.action.get()!;
+        const action = duel.action.get();
 
         if(action === undefined) return false;
-        if(cards === undefined) return false;
+        if(action.cards === undefined) return false;
 
-        if(includes(action, "Normal Summon") || includes(action, "Flip Summon") || includes(action, "Tribute Summon")) {
-            return cards.size() === 1 && cards[0].atk.get()! >= 1000
+        if(includes(action.action, "Normal Summon") || includes(action.action, "Flip Summon") || includes(action.action, "Tribute Summon")) {
+            return action.cards.size() === 1 && action.cards[0].atk.get()! >= 1000
         }
-
         return false
     }
     
     const target = () => {
-        const { cards } = opponent.action.get()!;
+        const { cards } = duel.action.get()!;
         card.targets.set(cards!)
     }
 
     const effect = () => {
         const target = card.targets.get()[0]
         target.destroy("Effect")
+        card.targets.set([])
     }
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalTrap(card) && condition(),
+            condition: () => {
+                return NormalTrap(card) && condition()
+            },
             target: () => target(),
             effect: () => effect(),
             location: ['SZone']

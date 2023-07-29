@@ -1,4 +1,5 @@
 import type { Card } from "./card";
+import { CardFilter } from "./types";
 
 export class Floodgate {
     name: string;

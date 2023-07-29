@@ -3,6 +3,7 @@ import { CardEffect } from ".";
 import { Card } from "server/duel/card";
 import { getDuel } from "server/duel/duel";
 import { getFilteredCards } from "server/duel/utils";
+import pickPosition from "server/popups/PickPosition";
 
 /*
     Target 1 monster in either GY; Special Summon it.
@@ -24,14 +25,14 @@ export default (card: Card) => {
             location: ['GZone'],
             type: ['Monster'],
         })
-        controller.pickTargets(1, targettableCards)
+        card.targets.set(controller.pickTargets(1, targettableCards))
     }
 
     const effect = async () => {
         const targets = card.targets.get()
         targets[0].controller.set(controller.player)
         const zone = duel.pickZone(controller);
-        const position = controller.pickPosition(targets[0]);
+        const position = await pickPosition(controller.player, targets[0].art);
         targets[0].specialSummon(zone, position)
     }
 

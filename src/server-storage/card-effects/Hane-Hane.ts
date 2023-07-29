@@ -14,12 +14,12 @@ export default (card: Card) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
         })
-        controller.pickTargets(1, targettableCards)
+        card.targets.set(controller.pickTargets(1, targettableCards))
     }
 
     const effect = () => {
         const targets = card.targets.get()
-        targets[0].toHand("Effect")
+        targets[0].toHand()
     }
 
     const effects: CardEffect[] = [

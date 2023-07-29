@@ -2,9 +2,8 @@ import type { Card } from "server/duel/card"
 import { getDuel } from "server/duel/duel"
 import NormalSpell from "server-storage/conditions/NormalSpell";
 import { CardEffect } from ".";
-import { HttpService } from "@rbxts/services";
 import { includes } from "shared/utils";
-import { getCards, getFilteredCards } from "server/duel/utils";
+import { getFilteredCards } from "server/duel/utils";
 
 /*
     After this card's activation, it remains on the field, 
@@ -18,10 +17,24 @@ export default (card: Card) => {
     const duel = getDuel(controller.player)!
     const opponent = duel.getOpponent(controller.player)
 
+    const expiration = (turn: number) => {
+        return (duel.turn.get() >= turn + 6 && duel.phase.get() === "EP") || card.position.get() !== "FaceUp" || !includes(card.location.get(), "SZone")
+    }
+
     const effect = () => {
         const turn = duel.turn.get()
-        card.addFloodgate("CONTINUOUS", () => {
-            return (duel.turn.get() >= turn + 5 && duel.phase.get() === "EP") || card.position.get() !== "FaceUp" || includes(card.location.get(), "SZone")
+        duel.addCardFloodgate({
+            floodgateName: "CONTINUOUS",
+            floodgateFilter: {
+                card: [card],
+            },
+            expiry: () => {
+                if(expiration(turn)) {
+                    card.destroy("Effect")
+                    return true
+                }
+                return false
+            }
         })
 
         const faceDownMonsters = getFilteredCards(duel, {
@@ -31,33 +44,19 @@ export default (card: Card) => {
         })
         faceDownMonsters.forEach(monster => monster.changePosition("FaceUpDefense"))
 
-        const cards = getCards(duel);
-        const bindEffect = () => {
-            cards.forEach(c => {
-                if (c.controller.get() === opponent.player && c.type.get() === "Monster") {
-                    c.addFloodgate("CANNOT_ATTACK", () => {
-                        return (duel.turn.get() >= turn + 5 && duel.phase.get() === "EP") || card.position.get() !== "FaceUp" || includes(card.location.get(), "SZone")
-                    })
-                }
-            })
-        }
-
-        const connections = [
-            duel.changed.changed(() => {
-                bindEffect()
-            })
-        ]
-
-        cards.forEach(c => {
-            connections.push(c.changed.changed(() => {
-                bindEffect()
-            }))
+        duel.addCardFloodgate({
+            floodgateName: "CANNOT_ATTACK",
+            floodgateFilter: {
+                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                controller: [opponent.player]
+            },
+            expiry: () => expiration(turn)
         })
     }
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalSpell(card),
+            condition: () => NormalSpell(card) && card.position.get() !== "FaceUp",
             effect: () => effect(),
             location: ['SZone']
         }

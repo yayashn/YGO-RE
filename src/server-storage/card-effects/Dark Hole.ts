@@ -18,9 +18,16 @@ export default (card: Card) => {
         cardsInMZone.forEach(card => card.destroy("Effect"))
     }
 
+    const condition = () => {
+        const cardsInMZone = getFilteredCards(duel, {
+            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+        })
+        return cardsInMZone.size() > 0
+    }
+
     const effects: CardEffect[] = [
         {
-            condition: () => NormalSpell(card),
+            condition: () => NormalSpell(card) && condition(),
             effect: () => effect(),
             location: ['SZone']
         }

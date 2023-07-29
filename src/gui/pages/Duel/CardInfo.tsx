@@ -1,8 +1,8 @@
 import Roact from "@rbxts/roact";
 import { withHooks } from "@rbxts/roact-hooked";
 import { Players } from "@rbxts/services";
-import Flex from "gui/components/Flex";
-import Padding from "gui/components/Padding";
+import Flex from "shared/components/Flex";
+import Padding from "shared/components/Padding";
 import type { Card } from "server/duel/card";
 import theme from "shared/theme";
 import { createGlobalState, useGlobalState } from "shared/useGlobalState";
@@ -68,7 +68,7 @@ export default withHooks(() => {
                     TextSize={14}
                     AutomaticSize={Enum.AutomaticSize.Y}
                     TextColor3={theme.colours.white}
-                    Text={`${hoveredCard?.atk.get()}/${hoveredCard?.def.get()}`}
+                    Text={`${hoveredCard.getAtk()}/${hoveredCard.getDef()}`}
                     TextXAlignment={"Left"}
                     BackgroundTransparency={1}
                     Font={Enum.Font.Jura}

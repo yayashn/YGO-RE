@@ -1,10 +1,10 @@
 //hoarcekat story ts
 import Roact from "@rbxts/roact";
-import CardInfo from "./CardInfo";
+import CardSearch from "./CardSearch";
 
 export = (target: Instance) => {
     let tree = Roact.mount(
-        <CardInfo/>,
+        <CardSearch/>,
         target,
         'UI'
     )

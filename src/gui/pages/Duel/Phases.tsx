@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
-import Flex from "gui/components/Flex";
+import Flex from "shared/components/Flex";
 import useDuelStat from "gui/hooks/useDuelStat";
 import { getDuel, type Duel } from "server/duel/duel";
 import { Phase } from "server/duel/types";

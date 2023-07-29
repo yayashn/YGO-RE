@@ -42,6 +42,7 @@ import ReaperOfTheCards from "./Reaper of the Cards";
 import ArmedNinja from "./Armed Ninja";
 import Polymerization from "./Polymerization";
 import { Location } from "server/duel/types";
+import HarpieSFeatherDuster from "./Harpie's Feather Duster";
 
 export type CardEffect = {
     condition?: () => boolean,
@@ -53,23 +54,26 @@ export type CardEffect = {
 }
 
 export default {
-    "Sparks": Sparks,
-    "Hinotama": Hinotama,
-    "Remove Trap": RemoveTrap,
-    "Red Medicine": RedMedicine,
-    "Dark Hole": DarkHole,
-    "Raigeki": Raigeki,
-    "Fissure": Fissure,
-    "Gravedigger Ghoul": GravediggerGhoul,
-    "Stop Defense": StopDefense,
-    "Goblin's Secret Remedy": GoblinSSecretRemedy,
-    "Pot of Greed": PotOfGreed,
-    "Final Flame": FinalFlame,
-    "Swords of Revealing Light": SwordsOfRevealingLight,
-    "Monster Reborn": MonsterReborn,
-    "Two-Pronged Attack": TwoProngedAttack,
-    "Trap Hole": TrapHole,
-    "Dragon Capture Jar": DragonCaptureJar,
+    //Not released
+    "Harpie's Feather Duster": HarpieSFeatherDuster,
+    //
+    "Sparks": Sparks, //
+    "Hinotama": Hinotama, //
+    "Remove Trap": RemoveTrap,//
+    "Red Medicine": RedMedicine,//
+    "Dark Hole": DarkHole,//
+    "Raigeki": Raigeki,//
+    "Fissure": Fissure,//
+    "Gravedigger Ghoul": GravediggerGhoul,//
+    "Stop Defense": StopDefense,//
+    "Goblin's Secret Remedy": GoblinSSecretRemedy,//
+    "Pot of Greed": PotOfGreed,//
+    "Final Flame": FinalFlame,//
+    "Swords of Revealing Light": SwordsOfRevealingLight,//
+    "Monster Reborn": MonsterReborn,//
+    "Two-Pronged Attack": TwoProngedAttack,//
+    "Trap Hole": TrapHole,//
+    "Dragon Capture Jar": DragonCaptureJar,//
     "Violet Crystal": VioletCrystal,
     "Beast Fangs": BeastFangs,
     "Book of Secret Arts": BookOfSecretArts,

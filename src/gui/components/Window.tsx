@@ -1,9 +1,9 @@
 import Roact from "@rbxts/roact";
 import theme from "shared/theme";
-import Flex from "./Flex";
+import Flex from "../../shared/components/Flex";
 import { useNavigate } from "gui/router";
 import { withHooks } from "@rbxts/roact-hooked";
-import Padding from "./Padding";
+import Padding from "shared/components/Padding";
 
 interface WindowProps extends Roact.PropsWithChildren {
     title?: string;

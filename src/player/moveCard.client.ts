@@ -3,7 +3,7 @@ import debounce from 'shared/debounce';
 import Remotes from 'shared/net'
 import { get3DZone } from 'shared/utils'
 
-Remotes.Client.OnEvent('moveCard3D', (card2D, location, isOpponent) => {
+Remotes.Client.OnEvent('moveCard3D', async (card2D, location, isOpponent) => {
     const card3D = (card2D.FindFirstChild('card3D') as ObjectValue).Value!;
     card3D.Parent = get3DZone(location, isOpponent)
 })

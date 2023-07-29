@@ -4,21 +4,17 @@ import { Subscribable } from "shared/Subscribable";
 import { Location, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
+import { getCards } from "./utils";
 
 export class YPlayer {
     changed = new Subscribable(0);
     player: Player;
     cards = new Subscribable<Card[]>([], () => this.onChanged());
     floodgates = new Subscribable<Floodgate[]>([]);
-    responses = new Subscribable<Card[]>([], () => this.onChanged());
     targets = new Subscribable<Card[]>([], () => this.onChanged());
     lifePoints = new Subscribable(8000, () => this.onChanged());
     selectableZones = new Subscribable<SelectableZone[]>([], () => this.onChanged());
     selectedZone = new Subscribable<Location | undefined>(undefined, () => this.onChanged());
-    action = new Subscribable<{
-        action: string,
-        cards?: Card[],
-    } | undefined>(undefined, () => this.onChanged());
     targettableCards = new Subscribable<Card[]>([], () => this.onChanged());
     targettedCards = new Subscribable<Card[]>([], () => this.onChanged());
     selectedPosition = new Subscribable<Position | undefined>(undefined, () => this.onChanged());
@@ -111,12 +107,13 @@ export class YPlayer {
         return pickedTargets
     }
 
-    pickPosition(card: Card) {
-        this.selectedPositionCard.set(card)
-        const position = this.selectedPosition.wait()
-        this.selectedPositionCard.set(undefined)
-        this.selectedPosition.set(undefined)
-        return position as Position;
+    pickZone(zones: SelectableZone[] = []) {
+        this.selectableZones.set(zones)
+        this.selectedZone.wait()
+        const selectedZone = this.selectedZone.get()
+        this.selectedZone.set(undefined)
+        this.selectableZones.set([])
+        return selectedZone as Location
     }
 
     handleTarget(target: Card) {

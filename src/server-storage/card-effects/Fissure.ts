@@ -15,7 +15,8 @@ export default (card: Card) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             type: ['Monster'],
-            position: ['FaceUp']
+            position: ['FaceUpAttack', 'FaceUpDefense'],
+            controller: [duel.getOpponent(controller.player).player]
         })
         return targettableCards.size() > 0
     }
@@ -24,7 +25,8 @@ export default (card: Card) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             type: ['Monster'],
-            position: ['FaceUp']
+            position: ['FaceUpAttack', 'FaceUpDefense'],
+            controller: [duel.getOpponent(controller.player).player]
         })
         const lowestATK = targettableCards.reduce((lowest, card) => {
             return card.atk.get()! < lowest.atk.get()! ? card : lowest
@@ -32,8 +34,8 @@ export default (card: Card) => {
         const tiedCards = targettableCards.filter(card => card.atk.get() === lowestATK.atk.get())
         if (tiedCards.size() > 1) {
             controller.targettableCards.set(tiedCards)
-            controller.targets.wait()
-            const target = controller.targets.get()[0]
+            const targets = controller.targets.wait()
+            const target = targets[0]
             target.destroy("Effect")
         } else {
             lowestATK.destroy("Effect")

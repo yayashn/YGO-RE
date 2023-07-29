@@ -8,6 +8,7 @@ export default function useCardStat<T extends keyof Card, U>(card: Card, statTyp
     
     useEffect(() => {
         const connection = card[statType].changed((value: U) => {
+            print(statType)
             setStat(value);
         })
 

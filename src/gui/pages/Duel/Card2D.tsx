@@ -8,7 +8,7 @@ import { getDuel } from "server/duel/duel";
 import { getEquippedSleeve } from "server/profile-service/profiles";
 import Remotes from "shared/net";
 import CardMenu from "./CardMenu";
-import { Location, Position } from "server/duel/types";
+import { CardFloodgate, Location, Position } from "server/duel/types";
 import HoverCard from "server-storage/animations/HoverCard/HoverCard";
 import useCardStat from "gui/hooks/useCardStat";
 import { useGlobalState } from "shared/useGlobalState";
@@ -17,6 +17,7 @@ import useIsTarget from "gui/hooks/useIsTarget";
 import useIsTargettable from "gui/hooks/useIsTargettable";
 import { hoveredCardStore } from "./CardInfo";
 import { includes } from "shared/utils";
+import useDuelStat from "gui/hooks/useDuelStat";
 
 interface Props {
     card: Card,
@@ -69,6 +70,9 @@ export default withHooks(({ card }: Props) => {
 
     const onClick = useCallback((_: unknown, __: unknown, eventName: string) => {
         if(eventName === "click") {
+            print(duel.cardFloodgates.get())
+            print(card.atkModifier.get())
+            print(card.defModifier.get())
             if(isTargettable) {
                 yPlayer.handleTarget(card);
             } else {

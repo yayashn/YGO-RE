@@ -81,7 +81,7 @@ const FieldZoneButton = withHooks(
 
 		useEffect(() => {
 			setZoneOccupied(getFilteredCards(duel, {
-				location: [zoneName],
+				location: [zoneName as Location],
 				controller: [playerType === "Player" ? player : yOpponent.player],
 			}).size() !== 0)
 		}, [duelChanged, playerChanged])

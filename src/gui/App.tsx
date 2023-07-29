@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import Flex from "./components/Flex";
+import Flex from "../shared/components/Flex";
 import { useEffect, useRef, withHooks } from "@rbxts/roact-hooked";
 import { Route, useNavigate, useRoute } from "gui/router";
 import Home from "./pages/Deck/Deck";

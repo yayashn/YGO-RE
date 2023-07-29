@@ -1,12 +1,12 @@
 import Roact from "@rbxts/roact";
-import { Dispatch, SetStateAction, useEffect, useState, withHooks } from "@rbxts/roact-hooked";
+import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import useCardStat from "gui/hooks/useCardStat";
 import useDuelStat from "gui/hooks/useDuelStat";
 import usePlayerStat from "gui/hooks/usePlayerStat";
 import type { Card } from "server/duel/card";
 import { getDuel } from "server/duel/duel";
 import { YPlayer } from "server/duel/player";
-import { Location, Phase, Position } from "server/duel/types";
+import { CardFloodgate, Location, Phase, Position } from "server/duel/types";
 import { useGlobalState } from "shared/useGlobalState";
 import { includes } from "shared/utils";
 import { showMenuStore } from "./showMenuStore";
@@ -68,101 +68,90 @@ export default withHooks(({ card }: { card: Card }) => {
             if(target_) {
                 target_()
             }
-            yPlayer.action.set({
+            duel.action.set({
                 action: 'Activated Card',
+                player: card.getController(),
+                cards: [card],
             })
             card.activateEffect()
         },
-        'Normal Summon': async () => {
+        'Normal Summon': () => {
             const turn = duel.turn.get()
             yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
                 return duel.turn.get() !== turn;
             })
-            yPlayer.selectableZones.set(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'))
-            
-            const connection = yPlayer.selectedZone.changed((zone) => {
-                connection.Disconnect()
-                card.normalSummon(zone as Location)
-            })
-            while (connection.Connected) {
-                await Promise.delay(0)
-            }
-            yPlayer.selectedZone.set(undefined)
-            yPlayer.selectableZones.set([])
-            yPlayer.action.set({
+            const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
+            card.normalSummon(zone)
+
+            duel.action.set({
                 action: 'Normal Summon',
+                player: card.getController(),
+                cards: [card],
             })
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Special Summon': async () => {},
         Set: async () => {
             const turn = duel.turn.get()
-            if (card.type.get().match('Monster').size() > 0) {
+            const level = card.level.get()
+
+            if(level !== undefined) {
                 yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
                     return duel.turn.get() !== turn;
                 })
-                if (card.level.get()! <= 4) {
-                    yPlayer.selectableZones.set(duel.getEmptyFieldZones(
-                        'MZone',
-                        player,
-                        'Player'
-                    ))
-                } else {
-                    const tributesRequired = card.level.get()! <= 6 ? 1 : 2
+                if(level <= 4) {
+                    const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
+                    card.set(zone)
 
-                    yPlayer.targets.set(yPlayer.pickTargets(
-                        tributesRequired,
-                        getFilteredCards(duel!, {
-                            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-                            controller: [player]
-                        })
-                    ))
-                    yPlayer.targets.get().forEach((target) => {
-                        target.tribute()
+
+                    duel.action.set({
+                        action: 'Normal Set',
+                        player: card.getController(),
+                        cards: [card],
                     })
-
-                    yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
-                        return duel.turn.get() !== turn;
+                } else if(level >= 5) {
+                    const tributes = yPlayer.pickTargets(level <= 6 ? 1 : 2, getFilteredCards(duel!, {
+                        location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                        controller: [yPlayer.player]
+                    }))
+                    tributes.forEach((card) => {
+                        card.tribute()
                     })
-                    yPlayer.selectableZones.set(duel.getEmptyFieldZones(
-                        'MZone',
-                        player,
-                        'Player'
-                    ))
-                    const zone = yPlayer.selectedZone.wait();
-                    card.tributeSet(zone as Location)
+                    const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
+                    card.tributeSet(zone)  
+                    
 
-                    yPlayer.selectedZone.set(undefined)
-                    yPlayer.selectableZones.set([])
-
-                    return
+                    duel.action.set({
+                        action: 'Tribute Set',
+                        player: card.getController(),
+                        cards: [card],
+                    })
                 }
             } else {
-                yPlayer.selectableZones.set(duel.getEmptyFieldZones(
-                    'SZone',
-                    player,
-                    'Player'
-                ))
+                const zone = yPlayer.pickZone(duel.getEmptyFieldZones('SZone', yPlayer.player, 'Player'));
+                card.set(zone)
+
+
+                duel.action.set({
+                    action: 'Set',
+                    player: card.getController(),
+                    cards: [card],
+                })
             }
-            if(includes(card.race.get(), "Field")) {
-                card.set("FZone")
-            } else {
-                const zone = yPlayer.selectedZone.wait()
-                card.set(zone as Location)
-                yPlayer.selectedZone.set(undefined)
-                yPlayer.selectableZones.set([])
-            }
+
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Flip Summon': () => {
             card.flipSummon();
+
+            duel.action.set({
+                action: 'Flip Summon',
+                player: card.getController(),
+                cards: [card],
+            })
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         Attack: () => {
-            const turn = duel.turn.get();
-            card.addFloodgate("CANNOT_CHANGE_POSITION", () => {
-                return duel.turn.get() !== turn;
-            })
-            card.addFloodgate("CANNOT_ATTACK", () => {
-                return duel.turn.get() !== turn;
-            })
             const monstersOnOpponentField = getFilteredCards(duel!, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                 controller: [yOpponent.player]
@@ -179,10 +168,10 @@ export default withHooks(({ card }: { card: Card }) => {
                 duel!.attackingCard.set(card)
                 duel!.defendingCard.set(targets[0])
                 
-                duel!.handleResponses(yPlayer)
+                duel.handleResponses(duel.getOpponent(card.getController().player))
             } else {
                 duel!.attackingCard.set(card)
-                duel!.handleResponses(yPlayer)
+                duel.handleResponses(duel.getOpponent(card.getController().player))
             }
         },
         'Tribute Summon': () => {
@@ -202,34 +191,61 @@ export default withHooks(({ card }: { card: Card }) => {
             yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
                 return duel.turn.get() !== turn;
             })
-            yPlayer.selectableZones.set(duel.getEmptyFieldZones('MZone', player, 'Player'))
 
-            const zone = yPlayer.selectedZone.wait()!;
+            const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', player, 'Player'))
+
+
+            duel.action.set({
+                action: 'Tribute Summon',
+                player: card.getController(),
+                cards: [card],
+            })
+
             card.tributeSummon(zone)
-            yPlayer.selectedZone.set(undefined)
-            yPlayer.selectableZones.set([])
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         "Change Position": () => {
             card.changePosition()
+
+
+            duel.action.set({
+                action: 'Change Position',
+                player: card.getController(),
+                cards: [card],
+            })
+
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         }
     }
 
     useEffect(() => {
-        card.handleFloodgates();
+        duel.handleCardFloodgates();
 
         const inHand = location === 'Hand'
         const inMonsterZone = includes(location, "MZone");
         const isMonster = includes(type_, "Monster");
         const isSpellTrap = !isMonster;
         const isActor = actor === yPlayer;
-        const isSelecting = yPlayer.selectableZones.get().size() !== 0 || yPlayer.targettableCards.get().size() !== 0
+        const isSelecting = yPlayer.selectableZones.get().size() !== 0;
         const conditionMet = card.checkEffectConditions()
         const isController = card.getController() === yPlayer
-        
-        if(!(!chainResolving && !isSelecting && isActor && isController)) return;
+        const mzoneAvailable = getFilteredCards(duel, {
+            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+            controller: [yPlayer.player]
+        }).size() < 5
+        const szoneAvailable = getFilteredCards(duel, {
+            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+            controller: [yPlayer.player]
+        }).size() < 5
+
+        if(chainResolving || isSelecting || !isActor || !isController) {
+            removeCardAction()
+            return;
+        }
 
         // Normal Summon & Set
-        if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgates("CANNOT_NORMAL_SUMMON") && gameState === "OPEN") {
+        if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgates("CANNOT_NORMAL_SUMMON") 
+        && gameState === "OPEN" && mzoneAvailable) {
             if(card.level.get()! <= 4) {
                 addCardAction("Normal Summon")
             } else {
@@ -238,7 +254,7 @@ export default withHooks(({ card }: { card: Card }) => {
             addCardAction("Set")
         } 
         // Set
-        else if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN") {
+        else if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN" && szoneAvailable) {
             addCardAction("Set")
         } else {
             removeCardAction("Normal Summon")
@@ -247,11 +263,11 @@ export default withHooks(({ card }: { card: Card }) => {
         }
 
         // Flip Summon
-        if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.getFloodgates("CANNOT_CHANGE_POSITION")) {
+        if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.hasFloodgate("CANNOT_CHANGE_POSITION")) {
             addCardAction("Flip Summon");
         } 
         // Change Position
-        else if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && !card.getFloodgates("CANNOT_CHANGE_POSITION")) {
+        else if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && !card.hasFloodgate("CANNOT_CHANGE_POSITION")) {
             addCardAction("Change Position");
         } else {
             removeCardAction("Flip Summon");
@@ -266,7 +282,7 @@ export default withHooks(({ card }: { card: Card }) => {
         }
 
         // Attack
-        if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" && !yPlayer.getFloodgates("CANNOT_ATTACK")) {
+        if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" && !yPlayer.getFloodgates("CANNOT_ATTACK") && !card.hasFloodgate("CANNOT_ATTACK")) {
             addCardAction("Attack");
         } else {
             removeCardAction("Attack");
@@ -330,13 +346,13 @@ export default withHooks(({ card }: { card: Card }) => {
                 ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
                 Active={true}
             >
-                {(position === "FaceUpAttack" || position === "FaceUpDefense") && includes(location || "", "MZone") && atk !== undefined && <textlabel
+                {(position === "FaceUpAttack" || position === "FaceUpDefense") && includes(location || "", "MZone") && atk !== undefined && def !== undefined && <textlabel
                     BackgroundTransparency={1}
                     TextColor3={Color3.fromRGB(255, 255, 255)}
                     Size={new UDim2(1, 0, 0, 17)}
                     Position={card.getController() === yPlayer ? new UDim2(0, 0, 1, 0) : new UDim2(0, 0, 0, 0)}
                     AnchorPoint={card.getController() === yPlayer ? new Vector2(0, 1) : new Vector2(0, 0)}
-                    Text={`${atk || 0}/${def || 0}`}
+                    Text={`${card.getAtk()}/${card.getDef()}`}
                     TextStrokeColor3={Color3.fromRGB(0, 0, 0)}
                     TextStrokeTransparency={0}
                     TextSize={20}

@@ -1,16 +1,7 @@
 import { Dictionary as Object } from "@rbxts/sift"
 import { Duel } from "./duel"
-import type { Card } from "./card"
-
-export class CardFilter {
-    name?: string[]
-    uid?: string[]
-    location?: string[]
-    controller?: Player[]
-    type?: string[]
-    race?: string[]
-    position?: string[]
-}
+import { CardFilter } from "./types"
+import { Card } from "./card"
 
 export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
     const cards = getCards(duel)
@@ -21,6 +12,9 @@ export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
             }
             if(key === "name" || key === "uid") {
                 return values!.some((value) => card[key] === value)
+            }
+            if(key === "card") {
+                return (values as Card[]).includes(card)
             }
             return values!.some((value) => card[key].get() === value)
         })

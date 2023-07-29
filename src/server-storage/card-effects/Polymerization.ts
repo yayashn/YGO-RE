@@ -4,6 +4,7 @@ import NormalSpell from "server-storage/conditions/NormalSpell";
 import monsterMaterials, { CardEffect } from "./materials";
 import Object from "@rbxts/object-utils";
 import { getFilteredCards } from "server/duel/utils";
+import pickPosition from "server/popups/PickPosition";
 
 /*
     Fusion Summon 1 Fusion Monster from your Extra Deck, using monsters 
@@ -40,7 +41,7 @@ export default (card: Card) => {
         return getEligibleFusionMonsters().size() > 0
     }
     
-    const effect = () => {
+    const effect = async () => {
         if(card.targets.get().size() === 0) return;
 
         const fusionMonster = controller.targets.get()[0]
@@ -62,7 +63,7 @@ export default (card: Card) => {
         })
 
         const zone = duel.pickZone(controller);
-        const position = controller.pickPosition(fusionMonster);
+        const position = await pickPosition(controller.player, fusionMonster.art);
         fusionMonster.controller.set(controller.player)
         fusionMonster.specialSummon(zone, position)
         card.targets.set([])

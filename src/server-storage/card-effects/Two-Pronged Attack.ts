@@ -42,6 +42,7 @@ export default (card: Card) => {
         const controllerMonsterTarget = controller.pickTargets(2, controllerMonsters);
         controller.targets.set([])
         const opponentMonsterTarget = controller.pickTargets(1, opponentMonsters);
+        controller.targets.set([])
         const allTargets = [...controllerMonsterTarget, ...opponentMonsterTarget]
         card.targets.set(allTargets)
     }

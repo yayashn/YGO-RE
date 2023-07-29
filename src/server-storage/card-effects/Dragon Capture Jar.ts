@@ -1,9 +1,8 @@
 import type { Card } from "server/duel/card"
 import { getDuel } from "server/duel/duel"
 import { CardEffect } from ".";
-import NormalTrap from "server-storage/conditions/NormalTrap";
-import { getCards, getFilteredCards } from "server/duel/utils";
 import { includes } from "shared/utils";
+import ContinuousTrap from "server-storage/conditions/ContinuousTrap";
 
 /*
     Change all face-up Dragon-Type monsters on the field to Defense Position, 
@@ -14,51 +13,34 @@ export default (card: Card) => {
     const duel = getDuel(controller.player)!
 
     const effect = () => {
-        const checkEffectCondition = (card: Card) => {
-            return getFilteredCards(duel, {
+        duel.addCardFloodgate({
+            floodgateName: "CANNOT_CHANGE_POSITION",
+            floodgateFilter: {
+                race: ["Dragon"],
                 location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
-                type: ["Dragon"],
-                controller: [controller.player]
-            }).includes(card)
-        }
-
-        const cards = getCards(duel);
-
-        const bindEffect = () => {
-            cards.forEach(c => {
-                if (checkEffectCondition(c)) {
-                    if (c.position.get() === "FaceUpAttack") {
-                        c.position.set("FaceUpDefense")
-                    }
-
-                    c.addFloodgate("CANNOT_CHANGE_POSITION", () => {
-                        return !checkEffectCondition(c)
-                            || card.position.get() !== "FaceUp"
-                            || !includes(card.location.get(), "SZone")
-                    })
-                    c.addFloodgate("FORCE_DEFENSE_POSITION", () => {
-                        return !checkEffectCondition(c)
-                            || card.position.get() !== "FaceUp"
-                            || !includes(card.location.get(), "SZone")
-                    })
-                }
-            })
-        }
-
-        const connection = duel.changed.changed(() => {
-            bindEffect()
+                position: ["FaceUpAttack", "FaceUpDefense"],
+            },
+            expiry: () => {
+                return !includes(card.location.get(), "SZone") || card.position.get() !== "FaceUp"
+            }
         })
 
-        card.changed.changed(() => {
-            if (card.position.get() !== "FaceUp" || !includes(card.location.get(), "SZone")) {
-                connection.Disconnect();
+        duel.addCardFloodgate({
+            floodgateName: "FORCE_FACEUP_DEFENSE",
+            floodgateFilter: {
+                race: ["Dragon"],
+                location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+                position: ["FaceUpAttack", "FaceUpDefense"],
+            },
+            expiry: () => {
+                return !includes(card.location.get(), "SZone") || card.position.get() !== "FaceUp"
             }
         })
     }
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalTrap(card),
+            condition: () => ContinuousTrap(card),
             effect: () => effect(),
             location: ['SZone']
         }

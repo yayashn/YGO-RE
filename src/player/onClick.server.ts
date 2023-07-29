@@ -4,6 +4,7 @@ import confirm from "server/popups/confirm";
 import waitingOptional from "server/popups/waitingOptional";
 import { getEquippedDeck } from "server/profile-service/profiles";
 import { YPlayer } from "server/duel/player";
+import { DEV } from "shared/env";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
@@ -15,13 +16,13 @@ clickDetector.MouseClick.Connect(async (opponent) => {
         return;
     }
     const opponentDeck = getEquippedDeck(opponent);
-    if(opponentDeck.deck.size() < 40) {
+    if(!DEV && opponentDeck.deck.size() < 40) {
         await alert("You need a minimum of 40 cards in your deck to start a duel.", opponent);
         return;
     }
 
     const playerDeck = getEquippedDeck(player);
-    if(playerDeck.deck.size() < 40) {
+    if(!DEV && playerDeck.deck.size() < 40) {
         await alert("Opponent has an invalid deck.", opponent);
         return;
     }

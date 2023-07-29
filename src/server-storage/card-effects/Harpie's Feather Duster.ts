@@ -5,26 +5,26 @@ import { getDuel } from "server/duel/duel";
 import { getFilteredCards } from "server/duel/utils";
 
 /*
-    Destroy all monsters your opponent controls.
+    Destroy all Spell and Trap Cards your opponent controls.
 */
 export default (card: Card) => {
     const controller = card.getController()
     const duel = getDuel(controller.player)!
 
     const effect = () => {
-        const cardsInMZone = getFilteredCards(duel, {
-            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+        const cardsInSZone = getFilteredCards(duel, {
+            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [duel.getOpponent(controller.player).player]
         })
-        cardsInMZone.forEach(card => card.destroy("Effect"))
+        cardsInSZone.forEach(card => card.destroy("Effect"))
     }
 
     const condition = () => {
-        const cardsInMZone = getFilteredCards(duel, {
-            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+        const cardsInSZone = getFilteredCards(duel, {
+            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [duel.getOpponent(controller.player).player]
         })
-        return cardsInMZone.size() > 0
+        return cardsInSZone.size() > 0
     }
 
     const effects: CardEffect[] = [

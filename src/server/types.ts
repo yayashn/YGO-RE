@@ -1,6 +1,6 @@
 export type CardTemplate = {
     name: string;
-    rarity: string;
+    rarity?: string;
 }
 
 export type DeckTemplate = {

@@ -1,9 +1,11 @@
 import ProfileService  from "@rbxts/profileservice";
 import defaultPlayerData from "./default-data";
-import { Players } from "@rbxts/services";
+import { HttpService, Players } from "@rbxts/services";
 import { profiles } from "./profiles";
+import defaultTestData from "./default-test-data";
+import { DEV } from "shared/env";
 
-const profileStore = ProfileService.GetProfileStore('PlayerData4', defaultPlayerData);
+const profileStore = ProfileService.GetProfileStore('PlayerData5', DEV ? defaultTestData : defaultPlayerData);
 
 Players.PlayerAdded.Connect(player => {
     const profile = profileStore.LoadProfileAsync(`player_${player.UserId}`);
@@ -16,6 +18,9 @@ Players.PlayerAdded.Connect(player => {
 		})
 		if(player.IsDescendantOf(Players)) {
 			profiles[player.UserId] = profile;
+			if(DEV) {
+				profile.Data = {...defaultTestData}
+			}
 			//do stuff
 			const profileChanged = new Instance("BindableEvent");
 			profileChanged.Name = "profileChanged";

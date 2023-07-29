@@ -1,9 +1,9 @@
 import Roact from "@rbxts/roact";
-import Flex from "./Flex";
+import Flex from "../../shared/components/Flex";
 import { motion } from "shared/motion";
 import { useState, withHooks } from "@rbxts/roact-hooked";
 import theme from "shared/theme";
-import Padding from "./Padding";
+import Padding from "shared/components/Padding";
 import { useNavigate } from "gui/router";
 import { useGlobalState } from "shared/useGlobalState";
 import { playerDataStore } from "gui/hooks/useInitPlayerData";

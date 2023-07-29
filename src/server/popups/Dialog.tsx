@@ -21,7 +21,7 @@ export default withHooks<DialogProps>(({ message, options, handleInput, player }
     const hasButtons = options && options.size() > 0
 
     return (
-        <textbutton {...Container}>
+        <frame {...Container}>
             <frame {...PromptContainer}>
                 <uipadding
                     PaddingTop={new UDim(0, 10)}
@@ -84,18 +84,16 @@ export default withHooks<DialogProps>(({ message, options, handleInput, player }
                     </frame>
                 )}
             </frame>
-        </textbutton>
+        </frame>
     )
 })
 
-const Container: JSX.IntrinsicElement<TextButton> = {
-    BackgroundTransparency: .5,
+const Container: JSX.IntrinsicElement<Frame> = {
+    BackgroundTransparency: 1,
     BackgroundColor3: Color3.fromRGB(0, 0, 0),
     Size: new UDim2(1, 0, 1, 0),
     Position: new UDim2(0, 0, 0, 0),
-    AutoButtonColor: false,
     BorderSizePixel: 0,
-    Text: ""
 }
 
 const PromptContainer: JSX.IntrinsicElement<Frame> = {

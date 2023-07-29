@@ -26,7 +26,7 @@ export default (card: Card) => {
             type: ['Monster'],
             position: ['FaceUpDefense', 'FaceDownDefense']
         })
-        controller.pickTargets(1, targettableCards)
+        card.targets.set(controller.pickTargets(1, targettableCards))
     }
 
     const effect = () => {

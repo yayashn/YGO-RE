@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 import { useState, withHooks } from "@rbxts/roact-hooked";
-import Flex from "gui/components/Flex";
+import Flex from "shared/components/Flex";
 import Window from "gui/components/Window";
 import usePlayerData from "gui/hooks/usePlayerData";
 import theme from "shared/theme";

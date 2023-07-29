@@ -27,48 +27,7 @@ export default (card: Card) => {
 
 
     const effect = () => {
-        const connections: RBXScriptConnection[] = []
-        
-        const allCards = getCards(duel)
 
-        const handleBuff = (buffedCard: Card) => {
-            const floodgates = buffedCard.getFloodgates(`ATK_BOOST:${BUFF_ATK}_${card.uid}`)
-            const buffed = floodgates ? floodgates.size() > 0 : false
-            const buffCondition = meetsBuffCondition(buffedCard)
-            if (buffCondition && !buffed) {
-                buffedCard.addFloodgate(`ATK_BOOST:${BUFF_ATK}_${card.uid}`, () => {
-                    return !meetsBuffCondition(buffedCard) 
-                    || card.location.get() !== 'FZone' 
-                    || card.position.get() !== 'FaceUp'
-                })
-                buffedCard.addFloodgate(`DEF_BOOST:${BUFF_DEF}_${card.uid}`, () => {
-                    return !meetsBuffCondition(buffedCard) 
-                    || card.location.get() !== 'FZone' 
-                    || card.position.get() !== 'FaceUp'
-                })
-            }
-        }
-
-
-        allCards.forEach(c => {
-            const initBuffs = () => {
-                if (meetsBuffCondition(c)) {
-                    handleBuff(c)
-                }
-            }
-
-            initBuffs()
-
-            connections.push(c.changed.changed(() => {
-                initBuffs()
-            }))
-        })
-
-        connections.push(card.changed.changed(() => {
-            if (card.location.get() !== 'FZone' || card.position.get() !== 'FaceUp') {
-                connections.forEach(c => c.Disconnect())
-            }
-        }))
     }
 
     const effects: CardEffect[] = [
