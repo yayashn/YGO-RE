@@ -10,6 +10,8 @@ import CardSearch from "./CardSearch";
 import usePlayerStat from "gui/hooks/usePlayerStat";
 import { Card } from "server/duel/card";
 import { includes } from "shared/utils";
+import { createGlobalState, useGlobalState } from "shared/useGlobalState";
+import { shownCardsStore } from "./shownCardsStore";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
@@ -20,6 +22,7 @@ export default withHooks(() => {
     const playerChanged = useDuelStat<"changed", number>(duel, 'changed');
     const targettableCards = usePlayerStat<"targettableCards", Card[]>(yPlayer, 'targettableCards');
     const allTargettableCardsVisible = !targettableCards.some(card => !["MZone", "SZone", "FZone"].some(zone => includes(card.location.get(), zone)))
+    const [shownCards] = useGlobalState(shownCardsStore);
 
     useEffect(() => {
         yPlayer.handleFloodgates();
@@ -31,7 +34,7 @@ export default withHooks(() => {
             <Phases/>
             <Field/>
             <Cards/>
-            {!allTargettableCardsVisible && <CardSearch/>}
+            {(!allTargettableCardsVisible || shownCards !== undefined) && <CardSearch />}
         </Roact.Fragment>
     )
 })

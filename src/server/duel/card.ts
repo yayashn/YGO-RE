@@ -305,7 +305,6 @@ export class Card {
                 target()
             }
 
-            print(2)
             this.activateEffect({
                 action: "Flip Summon",
                 cards: [this],

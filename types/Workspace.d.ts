@@ -1,10 +1,12 @@
 interface Workspace extends Model {
+	testValue: StringValue;
 	Camera: Camera;
 	Field3D: Model & {
 		Phases: Part;
 		Pri: Part;
 		Card: Part & {
 			Menu: ClickDetector;
+			card2D: ObjectValue;
 		};
 		Part: Part;
 		FieldCam: Part;
@@ -42,10 +44,12 @@ interface Workspace extends Model {
 		};
 		Field: Model & {
 			Opponent: Model & {
+				GZone: Part;
+				EZone: Part;
+				FZone: Part;
+				BZone: Part;
 				Cards: Model;
-				EZone: Vector3Value;
-				FZone: Vector3Value;
-				BZone: Vector3Value;
+				Deck: Part;
 				Attack: Model & {
 					MZone1P: Part & {
 						Gui: SurfaceGui & {
@@ -73,8 +77,6 @@ interface Workspace extends Model {
 						};
 					};
 				};
-				GZone: Vector3Value;
-				Deck: Vector3Value;
 				Hand: Model & {
 					Center: Part;
 				};
@@ -94,10 +96,11 @@ interface Workspace extends Model {
 				};
 			};
 			Player: Model & {
+				GZone: Part;
+				EZone: Part;
+				FZone: Part;
+				BZone: Part;
 				Cards: Model;
-				EZone: Vector3Value;
-				FZone: Vector3Value;
-				BZone: Vector3Value;
 				Attack: Model & {
 					MZone1P: Part & {
 						Gui: SurfaceGui & {
@@ -125,8 +128,6 @@ interface Workspace extends Model {
 						};
 					};
 				};
-				GZone: Vector3Value;
-				Deck: Vector3Value;
 				Hand: Model & {
 					Center: Part;
 				};

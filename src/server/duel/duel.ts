@@ -162,33 +162,25 @@ export class Duel {
 
                 if(response === "YES") {
                     passes = 0;
-                    print(6)
                     this.action.wait()
                     await Promise.delay(1)
-                    print(7, this.action.get())
                 } else if(response === "NO") {
                     passes++
                 }
                 stopWaiting()
-                print(8)
             } else {
-                print('passed', passes, numberOfResponses)
                 passes++
             }
-            print(9)
 
             if(passes < 2) {
                 this.actor.set(this.getOpponent(this.actor.get().player))
             } else if(passes === 2) {
                 this.actor.set(this.turnPlayer.get())
             }
-
-            print(10)
         }
 
         this.handlingResponses = false
         this.resolveChain()
-        print(11)
     }
 
     resolveChain() {
@@ -198,11 +190,8 @@ export class Duel {
         const chain = this.chain.get()
         let chainSize = Object.keys(chain).size()
 
-        print(chain, chainSize)
-
         while(chainSize > 0) {
             const chainedEffect = chain[chainSize]
-            print(chainedEffect, chainSize)
             if(!chainedEffect.negated) {
                 chainedEffect.effect()
             }
@@ -265,7 +254,6 @@ export class Duel {
     }
 
     async addToChain(card: Card, effect: Callback, action: Action) {
-        print(4, card.name)
         this.gameState.set('CLOSED')
         card.activated.set(true)
         const chainLink = Object.keys(this.chain.get()).size() + 1
@@ -279,7 +267,6 @@ export class Duel {
         this.chain.set(newChain)
         this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
-        print(5)
         await this.handleResponses(this.getOpponent(card.controller.get()))
     }
 

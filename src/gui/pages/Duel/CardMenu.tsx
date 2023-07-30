@@ -98,7 +98,6 @@ export default withHooks(({ card }: { card: Card }) => {
                     const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
                     card.set(zone)
 
-
                     duel.setAction({
                         action: 'Normal Set',
                         cards: [card],
@@ -115,7 +114,6 @@ export default withHooks(({ card }: { card: Card }) => {
                     const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
                     card.tributeSet(zone)  
                     
-
                     duel.setAction({
                         action: 'Tribute Set',
                         cards: [card],
@@ -140,7 +138,6 @@ export default withHooks(({ card }: { card: Card }) => {
             duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Flip Summon': () => {
-            print(1)
             card.flipSummon();
         },
         Attack: () => {

@@ -9,33 +9,54 @@ import FadeZone from "server-storage/animations/FadeZone/FadeZone";
 import { getDuel } from "server/duel/duel";
 import { Location } from "server/duel/types";
 import { getFilteredCards } from "server/duel/utils";
+import { useGlobalState } from "shared/useGlobalState";
+import { shownCardsStore } from "./shownCardsStore";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(() => {
-	const field = game.Workspace.Field3D.Field.Player.Field.Part;
-	const fieldOpponent = game.Workspace.Field3D.Field.Opponent.Field.Part;
+	const field = game.Workspace.Field3D.Field.Player
+	const fieldOpponent = game.Workspace.Field3D.Field.Opponent
+	const [shownCards, setShownCards] = useGlobalState(shownCardsStore)
+	const duel = getDuel(player)!;
 
 	return (
 		<Roact.Fragment>
 			{[field, fieldOpponent].map((f) => {
 				return (
-					<surfacegui AlwaysOnTop Key="Field" Face="Top" Adornee={f}>
-						<uigridlayout
-							SortOrder="LayoutOrder"
-							CellPadding={new UDim2(0, 0, 0.005, 0)}
-							CellSize={new UDim2(0.2, -1, 0.5, 0)}
-						/>
-						{["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].map((zone, i) => {
-							return (
-								<FieldZoneButton
-									playerType={f.Parent!.Parent!.Name as "Player" | "Opponent"}
-									zoneName={zone}
-									layoutOrder={i}
+					<Roact.Fragment>
+						<surfacegui AlwaysOnTop Key="Field" Face="Top" Adornee={f.Field.Part}>
+							<uigridlayout
+								SortOrder="LayoutOrder"
+								CellPadding={new UDim2(0, 0, 0.005, 0)}
+								CellSize={new UDim2(0.2, -1, 0.5, 0)}
+							/>
+							{["MZone1", "MZone2", "MZone3", "MZone4", "MZone5", "SZone1", "SZone2", "SZone3", "SZone4", "SZone5"].map((zone, i) => {
+								return (
+									<FieldZoneButton
+										playerType={f.Parent!.Parent!.Name as "Player" | "Opponent"}
+										zoneName={zone}
+										layoutOrder={i}
+									/>
+								);
+							})}
+						</surfacegui>
+						{["EZone", "GZone", "BZone"].map((zone, i) => {
+							return <surfacegui AlwaysOnTop Key={zone} Face="Top" Adornee={f[zone as "EZone"]}>
+								<textbutton
+									BackgroundTransparency={1}
+									Size={new UDim2(1,0,1,0)}
+									Event={{
+										MouseButton1Click: () => {
+											setShownCards(getFilteredCards(duel, {
+												location: [zone as Location]
+											}))
+										}
+									}}
 								/>
-							);
+							</surfacegui>
 						})}
-					</surfacegui>
+					</Roact.Fragment>
 				)
 			})}
 		</Roact.Fragment>
