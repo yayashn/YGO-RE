@@ -134,14 +134,14 @@ const zoneOrientation = {
     playerField.Hand.ChildRemoved.Connect(layoutCards)
 
     // Field zone animations
-    const animateZone = (card3D: Part, zone: Part) => {
+    const animateZone = (card3D: Part, zone: Vector3Value) => {
         const card2D = (card3D.FindFirstChild("card2D") as ObjectValue).Value!;
         const position = (card2D.FindFirstChild("getPosition") as RemoteFunction).InvokeServer() as Position
         let tweenGoal: { CFrame: CFrame } = { CFrame: new CFrame() }
 
         tweenGoal.CFrame = positionOrientation[playerField.Name as 'Player' | 'Opponent'][
             position
-        ].add(zone.Position)
+        ].add(zone.Value)
 
         tweenService
             .Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>)
@@ -149,12 +149,12 @@ const zoneOrientation = {
     }
 
     playerField.Field.GetChildren()
-        .filter((zone) => zone.IsA('Part'))
+        .filter((zone) => zone.IsA('Vector3Value'))
         .forEach((zone) => {
             const connections: Record<string, RBXScriptConnection> = {}
 
             zone.ChildAdded.Connect(async (card3D) => {
-                animateZone(card3D as Part, zone as Part)
+                animateZone(card3D as Part, zone as Vector3Value)
 
                 const card2D = ((card3D as Part).FindFirstChild("card2D") as ObjectValue).Value!;
                 
@@ -171,7 +171,7 @@ const zoneOrientation = {
                 connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string] =
                     (card2D.FindFirstChild("positionChanged") as RemoteEvent).OnClientEvent.Connect(() => {
                         if ((card2D.FindFirstChild("getLocation") as RemoteFunction).InvokeServer() === zone.Name) {
-                            animateZone(card3D as Part, zone as Part)
+                            animateZone(card3D as Part, zone as Vector3Value)
                         }
                     })
                 })
