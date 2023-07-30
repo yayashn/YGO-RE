@@ -40,7 +40,6 @@ export default withHooks(() => {
                 }
             </frame>
             <PackOpen />
-            <Route path="/duel/"><Duel/></Route>
         </Roact.Fragment>
     )
 })
