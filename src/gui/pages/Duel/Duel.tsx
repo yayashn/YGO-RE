@@ -10,8 +10,16 @@ import CardSearch from "./CardSearch";
 import usePlayerStat from "gui/hooks/usePlayerStat";
 import { Card } from "server/duel/card";
 import { includes } from "shared/utils";
+import { useGlobalState } from "shared/useGlobalState";
+import { shownCardsStore } from "./shownCardsStore";
+import { Location } from "server/duel/types";
+import { getFilteredCards } from "server/duel/utils";
+import confirm from "server/popups/confirm";
+import alert from "server/popups/alert";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
+const field = game.Workspace.Field3D.Field.Player
+const fieldOpponent = game.Workspace.Field3D.Field.Opponent
 
 export default withHooks(() => {
     const duel = getDuel(player)!;
@@ -20,6 +28,7 @@ export default withHooks(() => {
     const playerChanged = useDuelStat<"changed", number>(duel, 'changed');
     const targettableCards = usePlayerStat<"targettableCards", Card[]>(yPlayer, 'targettableCards');
     const allTargettableCardsVisible = !targettableCards.some(card => !["MZone", "SZone", "FZone"].some(zone => includes(card.location.get(), zone)))
+    const [shownCards, setShownCards] = useGlobalState(shownCardsStore)
 
     useEffect(() => {
         yPlayer.handleFloodgates();
@@ -27,11 +36,53 @@ export default withHooks(() => {
 
     return (
         <Roact.Fragment>
-            <CardInfo/>
-            <Phases/>
-            <Field/>
-            <Cards/>
-            {!allTargettableCardsVisible && <CardSearch/>}
+            <CardInfo />
+            <Phases />
+            <Field />
+            <Cards />
+            {(!allTargettableCardsVisible || shownCards !== undefined) && <CardSearch />}
+            {
+                ["Top", "Bottom", "Front", "Back", "Left", "Right"].map((face) => {
+                    return (
+                        <Roact.Fragment>
+                            {[field, fieldOpponent].map((f) => {
+                                return (
+                                    <Roact.Fragment>
+                                        {["EZone", "GZone", "BZone", "Deck"].map((zone, i) => {
+                                            return <surfacegui AlwaysOnTop Key={zone} Face={face as "Top"} Adornee={f[zone as "EZone"]}>
+                                                <textbutton
+                                                    BackgroundTransparency={1}
+                                                    Size={new UDim2(1, 0, 1, 0)}
+                                                    Event={{
+                                                        MouseButton1Click: async () => {
+                                                            const yPlayer = duel.getPlayer(player);
+                                                            const yOpponent = duel.getOpponent(player);
+                                                            const controller = f.Name === "Player" ? yPlayer : yOpponent;
+
+                                                            if(zone === "Deck") {
+                                                                const surrender = await confirm("Would you like to surrender?", player)
+                                                                if(surrender === "YES") {
+                                                                    duel.endDuel()
+                                                                    alert(`${player.Name} surrendered!`, yOpponent.player)
+                                                                }
+                                                            } else {
+                                                                setShownCards(getFilteredCards(duel, {
+                                                                    location: [zone as Location],
+                                                                    controller: [controller.player],
+                                                                }))
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                            </surfacegui>
+                                        })}
+                                    </Roact.Fragment>
+                                )
+                            })}
+                        </Roact.Fragment>
+                    )
+                })
+            }
         </Roact.Fragment>
     )
 })

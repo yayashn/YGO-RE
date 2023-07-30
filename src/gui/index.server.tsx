@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import App from "./App";
 import useInitProfile from "./hooks/useInitPlayerData";
-import { withHooks } from "@rbxts/roact-hooked";
+import { useEffect, withHooks } from "@rbxts/roact-hooked";
 
 const player = script.FindFirstAncestorWhichIsA("Player")
 
@@ -9,16 +9,29 @@ const DataApp = withHooks(() => {
     useInitProfile()
 
     return (
-        <App/>
+        <screengui
+            Key="App"
+            IgnoreGuiInset>
+            <bindableevent
+                Event={{
+                    Event: () => {
+                        Roact.unmount(mount)
+                        wait(1)
+                        mount = Roact.mount(
+                            <DataApp />,
+                            player?.FindFirstChildWhichIsA("PlayerGui"),
+                            'UI'
+                        )
+                    }
+                }}
+                Key="endDuel" />
+            <App />
+        </screengui>
     )
 })
 
-Roact.mount(
-    <screengui 
-    Key="App"
-    IgnoreGuiInset>
-        <DataApp/>
-    </screengui>,
+let mount = Roact.mount(
+    <DataApp />,
     player?.FindFirstChildWhichIsA("PlayerGui"),
     'UI'
 )

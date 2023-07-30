@@ -89,11 +89,8 @@ export class Duel {
         duels = Object.fromEntries(Object.entries(duels).filter(([key, value]) => value !== this));
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
         [this.player1, this.player2].forEach(async player => {
-            const route = () => player.player.GetDescendants().find(descendant => descendant.IsA("StringValue") && descendant.Name === "route") as StringValue | undefined;
-            while (route() === undefined) {
-                await Promise.delay(0);
-            }
-            route()!.Value = "/";
+            (player.player.FindFirstChild("endDuel", true) as BindableEvent).Fire();
+
         })
     }
 
