@@ -49,8 +49,8 @@ const zoneOrientation = {
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
     ['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
-        const zone = playerField[zoneName as keyof typeof playerField] as Vector3Value
-        const position = zone.Value
+        const zone = playerField[zoneName as keyof typeof playerField] as Part
+        const position = zone.Position
 
         const stackCards = debounce(async () => {
             const card3Ds = zone.GetChildren()

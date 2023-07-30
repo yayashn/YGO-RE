@@ -5,10 +5,8 @@
 		"YGORE:out/shared/Subscribable@Subscribable": "shared/Subscribable@Subscribable",
 		"YGORE:out/server/duel/floodgate@Floodgate": "server/duel/floodgate@Floodgate",
 		"YGORE:out/server/duel/player@YPlayer": "server/duel/player@YPlayer",
-		"YGORE:out/server/duel/utils@CardFilter": "server/duel/utils@CardFilter",
 		"YGORE:out/server/duel/duel@Duel": "server/duel/duel@Duel",
-		"YGORE:out/server/duel/card@Card": "server/duel/card@Card",
-		"YGORE:out/server/duel/floodgate@CardFloodgate": "server/duel/floodgate@CardFloodgate"
+		"YGORE:out/server/duel/card@Card": "server/duel/card@Card"
 	},
 	"metadata": {}
 }
