@@ -1,6 +1,6 @@
 import { HttpService } from "@rbxts/services";
 import getCardData, { includes } from "shared/utils";
-import { FloodgateValueAtkDefModifier, Location, Position } from "./types";
+import { Action, FloodgateValueAtkDefModifier, Location, Position } from "./types";
 import { Subscribable } from "shared/Subscribable";
 import cardEffects from "server-storage/card-effects/index";
 import { getFilteredCards } from "./utils";
@@ -176,7 +176,7 @@ export class Card {
         })
 
         this.location.set(location)
-        duel.action.set({
+        duel.setAction({
             action: "Normal Summon",
             cards: [this],
             player: this.getController(),
@@ -188,7 +188,7 @@ export class Card {
         const duel = getDuel(this.owner)!;
         this.normalSummon(location)
         wait(1)
-        duel.action.set({
+        duel.setAction({
             action: "Tribute Summon",
             cards: [this],
             player: this.getController(),
@@ -207,7 +207,7 @@ export class Card {
         })
         this.position.set(newPosition)
         this.location.set(location)
-        duel.action.set({
+        duel.setAction({
             action: "Special Summon",
             cards: [this],
             player: this.getController(),
@@ -274,7 +274,11 @@ export class Card {
             if (target) {
                 target()
             }
-            this.activateEffect()
+            this.activateEffect({
+                action: "Flip",
+                cards: [this],
+                player: this.getController(),
+            })
         }
     }
 
@@ -290,6 +294,7 @@ export class Card {
             expiry: () => duel.turn.get() !== turn,
         })
         this.position.set('FaceUpAttack')
+
         if (includes(this['type'].get(), "Flip")) {
             const cost = this.getCost()
             if (cost) {
@@ -299,9 +304,9 @@ export class Card {
             if (target) {
                 target()
             }
-            this.activateEffect()
-        } else {
-            duel.action.set({
+
+            print(2)
+            this.activateEffect({
                 action: "Flip Summon",
                 cards: [this],
                 player: this.getController(),
@@ -325,7 +330,7 @@ export class Card {
 
             this.location.set(location)
             wait(1)
-            duel.action.set({
+            duel.setAction({
                 action: "Set Monster",
                 cards: [this],
                 player: this.getController(),
@@ -353,7 +358,7 @@ export class Card {
                 this.location.set(location)
             }
             wait(1)
-            duel.action.set({
+            duel.setAction({
                 action: "Set",
                 cards: [this],
                 player: this.getController(),
@@ -461,7 +466,6 @@ export class Card {
             //after damage calculation effects
             //battle damage effects
             //flip effects
-            duel.handleResponses(duel.turnPlayer.get())
             if (defenderIsFlip) {
                 const cost = defender!.getCost()
                 if (cost) {
@@ -471,7 +475,11 @@ export class Card {
                 if (target) {
                     target()
                 }
-                defender!.activateEffect()
+                defender!.activateEffect({
+                    action: "Flip",
+                    player: defender!.getController(),
+                    cards: [defender!],
+                })
             } else {
                 duel.handleResponses(duel.turnPlayer.get())
             }
@@ -517,7 +525,11 @@ export class Card {
         })
     }
 
-    async activateEffect() {
+    async activateEffect(action: Action = {
+        action: "Activate Effect",
+        cards: [],
+        player: this.getController(),
+    }) {
         const duel = getDuel(this.owner)!;
         const effects = cardEffects[this.name.get()](this)
         const ifMoreThanOneEffect = effects.map(({ condition }) => {
@@ -527,7 +539,7 @@ export class Card {
         if (ifMoreThanOneEffect) {
             // show effect selection menu
         } else {
-            const { location: locationCondition, effect } = effects[0]
+            const { location: locationCondition, effect, action: customAction } = effects[0]
             const directActivationFromHand = locationCondition?.includes("Hand")
 
             if (this["type"].get() === "Spell Card") {
@@ -551,31 +563,10 @@ export class Card {
                 } else if (this.location.get().match("SZone").size() > 0 || this.location.get().match("MZone").size() > 0 || this.location.get().match("FZone").size() > 0) {
                     this.position.set('FaceUp')
                 }
-                wait(1)
-                duel.action.set({
-                    action: "Activate Effect Spell",
-                    cards: [this],
-                    player: this.getController()
-                })
-                duel.addToChain(this, effect!)
             } else if (this['type'].get() === "Trap Card") {
                 this.position.set('FaceUp')
-                wait(1)
-                duel.action.set({
-                    action: "Activate Effect Trap",
-                    cards: [this],
-                    player: this.getController()
-                })
-                duel.addToChain(this, effect!)
-            } else if (includes(this['type'].get(), "Monster")) {
-                wait(1)
-                duel.action.set({
-                    action: "Activate Effect Monster Flip",
-                    cards: [this],
-                    player: this.getController()
-                })
-                duel.addToChain(this, effect!)
             }
+            duel.addToChain(this, effect!, customAction || action)
         }
         this.activated.set(true)
     }

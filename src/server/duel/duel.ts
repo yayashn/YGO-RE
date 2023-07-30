@@ -1,6 +1,6 @@
 import { Subscribable } from "shared/Subscribable";
 import type { YPlayer } from "./player";
-import { CardFloodgate, ChainedEffect, Location, MZone, Phase, SZone, SelectableZone } from "./types";
+import { Action, CardFloodgate, ChainedEffect, Location, MZone, Phase, SZone, SelectableZone } from "./types";
 import { Dictionary as Object } from "@rbxts/sift";
 import Remotes from "shared/net";
 import { getCards, getFilteredCards } from "./utils";
@@ -29,13 +29,7 @@ export class Duel {
     attackingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
     defendingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
     handlingResponses = false;
-    action: Subscribable<{
-        action: string,
-        cards?: Card[],
-        player: YPlayer,
-    } | undefined> = new Subscribable(undefined, () => {
-        this.onChanged()
-    });
+    action: Subscribable<Action[]> = new Subscribable([], () => this.onChanged());
     cardFloodgates: Subscribable<CardFloodgate[]> = new Subscribable([]);
 
     constructor(player1: YPlayer, player2: YPlayer) {
@@ -60,7 +54,7 @@ export class Duel {
             if(this.action.get() === undefined) return;
             if(this.speedSpell.get() === 1) return
             try {
-                this.handleResponses(this.getOpponent(this.action.get()!.player.player))
+                this.handleResponses(this.getOpponent(this.actor.get().player));
             }catch{}
         })
     }
@@ -68,6 +62,27 @@ export class Duel {
     onChanged() {
         this.changed.set(this.changed.get() + 1);
         this.handleCardFloodgates();
+    }
+
+    getPlayerName(player: YPlayer) {
+        return player === this.player1 ? "player1" : "player2";
+    }
+
+    setAction(action: Action) {
+        this.action.set([...this.action.get(), action]);
+    }
+
+    getLastAction(): Action | undefined {
+        return this.action.get()[this.action.get().size() - 1];
+    }
+
+    getAction(actionNames: string[]): Action | undefined {
+        const actions = this.action.get();
+        for (let i = actions.size() - 1; i >= 0; i--) {
+            if (actionNames.includes(actions[i].action)) {
+                return actions[i];
+            }
+        }
     }
 
     endDuel() {
@@ -117,8 +132,8 @@ export class Duel {
 
     async handleResponses(player: YPlayer) {
         if(this.handlingResponses) return
-
         this.handlingResponses = true
+        
         this.speedSpell.set(2)
         this.gameState.set('CLOSED')
         let passes = 0;
@@ -147,27 +162,33 @@ export class Duel {
 
                 if(response === "YES") {
                     passes = 0;
+                    print(6)
                     this.action.wait()
                     await Promise.delay(1)
+                    print(7, this.action.get())
                 } else if(response === "NO") {
                     passes++
                 }
                 stopWaiting()
+                print(8)
             } else {
+                print('passed', passes, numberOfResponses)
                 passes++
             }
-
-            this.action.set(undefined)
+            print(9)
 
             if(passes < 2) {
                 this.actor.set(this.getOpponent(this.actor.get().player))
             } else if(passes === 2) {
                 this.actor.set(this.turnPlayer.get())
             }
+
+            print(10)
         }
 
         this.handlingResponses = false
         this.resolveChain()
+        print(11)
     }
 
     resolveChain() {
@@ -175,22 +196,26 @@ export class Duel {
         this.chainResolving.set(true)
 
         const chain = this.chain.get()
-        for (let chainNumber = Object.keys(chain).size() - 1; chainNumber >= 0; chainNumber--) {
-            const chainedEffect = chain[chainNumber + 1];
+        let chainSize = Object.keys(chain).size()
 
-            if (!chainedEffect.negated) {
+        print(chain, chainSize)
+
+        while(chainSize > 0) {
+            const chainedEffect = chain[chainSize]
+            print(chainedEffect, chainSize)
+            if(!chainedEffect.negated) {
                 chainedEffect.effect()
             }
-            wait(3)
+            wait(1)
             chainedEffect.card.chainLink.set(0)
             if (!includes(chainedEffect.card.race.get(), 'Equip')) {
                 chainedEffect.card.targets.set([])
             }
+            chainSize--
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
         Object.values(chain).forEach(({ card }) => {
-            print(this.cardFloodgates.get())
             if (includes(card.location.get(), "SZone") && !card.hasFloodgate("CONTINUOUS") && !includes(card.race.get(), "Continuous") && !includes(card.race.get(), "Equip")) {
                 card.toGraveyard()
             }
@@ -239,7 +264,8 @@ export class Duel {
         this.defendingCard.set(undefined)
     }
 
-    async addToChain(card: Card, effect: Callback) {
+    async addToChain(card: Card, effect: Callback, action: Action) {
+        print(4, card.name)
         this.gameState.set('CLOSED')
         card.activated.set(true)
         const chainLink = Object.keys(this.chain.get()).size() + 1
@@ -251,8 +277,9 @@ export class Duel {
             negated: false
         }
         this.chain.set(newChain)
-        wait(1)
+        this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
+        print(5)
         await this.handleResponses(this.getOpponent(card.controller.get()))
     }
 

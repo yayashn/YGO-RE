@@ -2,7 +2,6 @@ import type { Card } from "server/duel/card"
 import { getDuel } from "server/duel/duel"
 import { CardEffect } from ".";
 import NormalTrap from "server-storage/conditions/NormalTrap";
-import { includes } from "shared/utils";
 
 /*
     When your opponent Normal or Flip Summons 1 monster with 1000 or more ATK:
@@ -11,25 +10,21 @@ import { includes } from "shared/utils";
 export default (card: Card) => {
     const controller = card.getController()
     const duel = getDuel(controller.player)!
-    const opponent = duel.getOpponent(controller.player)!
 
     const condition = () => {
-        if(!duel.action.get()) return false
-        if(duel.action.get()?.player !== opponent) return false;
-
-        const action = duel.action.get();
+        const action = duel.getLastAction()
 
         if(action === undefined) return false;
         if(action.cards === undefined) return false;
 
-        if(includes(action.action, "Normal Summon") || includes(action.action, "Flip Summon") || includes(action.action, "Tribute Summon")) {
+        if(["Normal Summon", "Flip Summon", "Tribute Summon"].includes(action.action)) {
             return action.cards.size() === 1 && action.cards[0].atk.get()! >= 1000
         }
         return false
     }
     
     const target = () => {
-        const { cards } = duel.action.get()!;
+        const { cards } = duel.getAction(["Normal Summon", "Flip Summon", "Tribute Summon"])!;
         card.targets.set(cards!)
     }
 
@@ -46,7 +41,12 @@ export default (card: Card) => {
             },
             target: () => target(),
             effect: () => effect(),
-            location: ['SZone']
+            location: ['SZone'],
+            action: {
+                action: "EFFECT_DESTROY_MONSTER",
+                cards: [card],
+                player: controller
+            }
         }
     ]
 

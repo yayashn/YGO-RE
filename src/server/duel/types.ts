@@ -35,7 +35,7 @@ export type GetEmptyFieldZonesReturnType<T extends boolean> = T extends true
 
 export type Action = {
     action: string,
-    cards?: Card[],
+    cards: Card[],
     player: YPlayer,
 }
 

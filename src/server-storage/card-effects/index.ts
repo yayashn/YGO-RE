@@ -41,7 +41,7 @@ import HaneHane from "./Hane-Hane";
 import ReaperOfTheCards from "./Reaper of the Cards";
 import ArmedNinja from "./Armed Ninja";
 import Polymerization from "./Polymerization";
-import { Location } from "server/duel/types";
+import type { Action, Location } from "server/duel/types";
 import HarpieSFeatherDuster from "./Harpie's Feather Duster";
 
 export type CardEffect = {
@@ -50,7 +50,8 @@ export type CardEffect = {
     location?: (Location | "SZone" | "MZone" | "Hand")[],
     cost?: Callback
     target?: Callback
-    fusionMaterials?: Record<string, number>
+    fusionMaterials?: Record<string, number>,
+    action?: Action
 }
 
 export default {

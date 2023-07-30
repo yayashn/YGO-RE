@@ -14,12 +14,12 @@ export default (card: Card) => {
 
     const target = () => {
         const faceUpSpells = getFilteredCards(duel, {
-            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5', 'FZone'],
             position: ['FaceUp'],
             type: ['Spell Card']
         })
         const faceDownCards = getFilteredCards(duel, {
-            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+            location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5', 'FZone'],
             position: ['FaceDown']
         })
         card.targets.set(controller.pickTargets(1, [...faceUpSpells, ...faceDownCards]))

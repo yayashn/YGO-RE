@@ -10,6 +10,7 @@ const defaultCards: CardTemplate[] = [
     { name: "Petit Angel" },
     { name: "Skull Servant" },
     { name: "Wasteland" },
+    { name: "Monster Reborn" }
 ]
 
 const defaultExtra: CardTemplate[] = [

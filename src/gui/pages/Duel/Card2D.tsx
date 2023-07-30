@@ -70,9 +70,6 @@ export default withHooks(({ card }: Props) => {
 
     const onClick = useCallback((_: unknown, __: unknown, eventName: string) => {
         if(eventName === "click") {
-            print(duel.cardFloodgates.get())
-            print(card.atkModifier.get())
-            print(card.defModifier.get())
             if(isTargettable) {
                 yPlayer.handleTarget(card);
             } else {

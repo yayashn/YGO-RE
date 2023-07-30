@@ -68,11 +68,6 @@ export default withHooks(({ card }: { card: Card }) => {
             if(target_) {
                 target_()
             }
-            duel.action.set({
-                action: 'Activated Card',
-                player: card.getController(),
-                cards: [card],
-            })
             card.activateEffect()
         },
         'Normal Summon': () => {
@@ -83,10 +78,10 @@ export default withHooks(({ card }: { card: Card }) => {
             const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', yPlayer.player, 'Player'));
             card.normalSummon(zone)
 
-            duel.action.set({
+            duel.setAction({
                 action: 'Normal Summon',
-                player: card.getController(),
                 cards: [card],
+                player: yPlayer,
             })
             duel.handleResponses(duel.getOpponent(card.getController().player))
         },
@@ -104,10 +99,10 @@ export default withHooks(({ card }: { card: Card }) => {
                     card.set(zone)
 
 
-                    duel.action.set({
+                    duel.setAction({
                         action: 'Normal Set',
-                        player: card.getController(),
                         cards: [card],
+                        player: yPlayer,
                     })
                 } else if(level >= 5) {
                     const tributes = yPlayer.pickTargets(level <= 6 ? 1 : 2, getFilteredCards(duel!, {
@@ -121,10 +116,10 @@ export default withHooks(({ card }: { card: Card }) => {
                     card.tributeSet(zone)  
                     
 
-                    duel.action.set({
+                    duel.setAction({
                         action: 'Tribute Set',
-                        player: card.getController(),
                         cards: [card],
+                        player: yPlayer,
                     })
                 }
             } else {
@@ -135,24 +130,18 @@ export default withHooks(({ card }: { card: Card }) => {
                     card.set(zone)
                 }
 
-                duel.action.set({
+                duel.setAction({
                     action: 'Set',
-                    player: card.getController(),
                     cards: [card],
+                    player: yPlayer,
                 })
             }
 
             duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Flip Summon': () => {
+            print(1)
             card.flipSummon();
-
-            duel.action.set({
-                action: 'Flip Summon',
-                player: card.getController(),
-                cards: [card],
-            })
-            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         Attack: () => {
             const monstersOnOpponentField = getFilteredCards(duel!, {
@@ -197,11 +186,10 @@ export default withHooks(({ card }: { card: Card }) => {
 
             const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', player, 'Player'))
 
-
-            duel.action.set({
+            duel.setAction({
                 action: 'Tribute Summon',
-                player: card.getController(),
                 cards: [card],
+                player: yPlayer
             })
 
             card.tributeSummon(zone)
@@ -209,12 +197,11 @@ export default withHooks(({ card }: { card: Card }) => {
         },
         "Change Position": () => {
             card.changePosition()
-
-
-            duel.action.set({
+            
+            duel.setAction({
                 action: 'Change Position',
-                player: card.getController(),
                 cards: [card],
+                player: yPlayer
             })
 
             duel.handleResponses(duel.getOpponent(card.getController().player))
@@ -240,6 +227,10 @@ export default withHooks(({ card }: { card: Card }) => {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [yPlayer.player]
         }).size() < 5
+        const numberOfTributes = getFilteredCards(duel, {
+            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+            controller: [yPlayer.player]
+        }).size();
 
         if(chainResolving || isSelecting || !isActor || !isController) {
             removeCardAction()
@@ -251,10 +242,14 @@ export default withHooks(({ card }: { card: Card }) => {
         && gameState === "OPEN" && mzoneAvailable) {
             if(card.level.get()! <= 4) {
                 addCardAction("Normal Summon")
-            } else {
+                addCardAction("Set")
+            } else if(card.level.get()! <= 6 && numberOfTributes >= 1) {
                 addCardAction("Tribute Summon")
+                addCardAction("Set")
+            } else if(card.level.get()! >= 7 && numberOfTributes >= 2) {
+                addCardAction("Tribute Summon")
+                addCardAction("Set")
             }
-            addCardAction("Set")
         } 
         // Set
         else if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN" && szoneAvailable) {

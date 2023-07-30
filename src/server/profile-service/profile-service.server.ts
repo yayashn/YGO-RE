@@ -5,7 +5,7 @@ import { profiles } from "./profiles";
 import defaultTestData from "./default-test-data";
 import { DEV } from "shared/env";
 
-const profileStore = ProfileService.GetProfileStore('PlayerData5', DEV ? defaultTestData : defaultPlayerData);
+const profileStore = ProfileService.GetProfileStore('PlayerData5', defaultPlayerData);
 
 Players.PlayerAdded.Connect(player => {
     const profile = profileStore.LoadProfileAsync(`player_${player.UserId}`);
