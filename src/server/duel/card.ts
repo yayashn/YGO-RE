@@ -162,11 +162,13 @@ export class Card {
     }
 
     normalSummon(location: Location) {
+        print(1)
         this.position.set('FaceUpAttack')
+        print(2)
         const duel = getDuel(this.owner)!;
-
+print(3)
         const turn = duel.turn.get();
-
+print(4)
         duel.addCardFloodgate({
             floodgateName: "CANNOT_CHANGE_POSITION",
             floodgateFilter: {
@@ -174,14 +176,15 @@ export class Card {
             },
             expiry: () => duel.turn.get() !== turn,
         })
-
+print(5)
         this.location.set(location)
+        print(5.5)
         duel.setAction({
             action: "Normal Summon",
             cards: [this],
             player: this.getController(),
         })
-        wait(1)
+print(7)
     }
 
     tributeSummon(location: Location) {
