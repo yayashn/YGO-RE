@@ -1,16 +1,26 @@
 import Roact from "@rbxts/roact";
 import Flex from "../../shared/components/Flex";
 import { motion } from "shared/motion";
-import { useState, withHooks } from "@rbxts/roact-hooked";
+import { useEffect, useMutable, useState, withHooks } from "@rbxts/roact-hooked";
 import theme from "shared/theme";
 import Padding from "shared/components/Padding";
 import { useNavigate } from "gui/router";
-import { useGlobalState } from "shared/useGlobalState";
-import { playerDataStore } from "gui/hooks/useInitPlayerData";
+import usePlayerData from "gui/hooks/usePlayerData";
+import waiting from "server/popups/waiting";
+
+const player = script.FindFirstAncestorWhichIsA("Player")!;
+const cancelWaiting = waiting(`Loading data...`, player);
 
 export default withHooks(() => {
     const navigate = useNavigate()
-    const [playerData, setPlayerData] = useGlobalState(playerDataStore)
+    const playerData = usePlayerData()
+    
+    useEffect(() => {
+        if(playerData === undefined) return
+        cancelWaiting();
+    }, [playerData])
+
+    if(playerData === undefined) return
 
     return (
         <frame

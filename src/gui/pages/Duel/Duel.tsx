@@ -11,7 +11,7 @@ import usePlayerStat from "gui/hooks/usePlayerStat";
 import { Card } from "server/duel/card";
 import { includes } from "shared/utils";
 import { useGlobalState } from "shared/useGlobalState";
-import { shownCardsStore } from "./shownCardsStore";
+import { useShownCards } from "./useShownCards";
 import { Location } from "server/duel/types";
 import { getFilteredCards } from "server/duel/utils";
 import confirm from "server/popups/confirm";
@@ -27,8 +27,8 @@ export default withHooks(() => {
     const duelChanged = useDuelStat<"changed", number>(duel, 'changed');
     const playerChanged = useDuelStat<"changed", number>(duel, 'changed');
     const targettableCards = usePlayerStat<"targettableCards", Card[]>(yPlayer, 'targettableCards');
-    const allTargettableCardsVisible = !targettableCards.some(card => !["MZone", "SZone", "FZone"].some(zone => includes(card.location.get(), zone)))
-    const [shownCards, setShownCards] = useGlobalState(shownCardsStore)
+    const allTargettableCardsVisible = !targettableCards.some(card => !["MZone", "SZone", "FZone", "Hand"].some(zone => includes(card.location.get(), zone)))
+    const [shownCards, setShownCards] = useShownCards()
 
     useEffect(() => {
         yPlayer.handleFloodgates();
@@ -62,8 +62,7 @@ export default withHooks(() => {
                                                             if(zone === "Deck") {
                                                                 const surrender = await confirm("Would you like to surrender?", player)
                                                                 if(surrender === "YES") {
-                                                                    duel.endDuel()
-                                                                    alert(`${player.Name} surrendered!`, yOpponent.player)
+                                                                    duel.endDuel(yOpponent, "Surrendered")
                                                                 }
                                                             } else {
                                                                 setShownCards(getFilteredCards(duel, {

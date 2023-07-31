@@ -5,20 +5,27 @@ import { Location, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
 import { getCards } from "./utils";
+import debounce from "shared/debounce";
 
 export class YPlayer {
     changed = new Subscribable(0);
     player: Player;
-    cards = new Subscribable<Card[]>([], () => this.onChanged());
+    cards = new Subscribable<Card[]>([]);
     floodgates = new Subscribable<Floodgate[]>([]);
-    targets = new Subscribable<Card[]>([], () => this.onChanged());
-    lifePoints = new Subscribable(8000, () => this.onChanged());
-    selectableZones = new Subscribable<SelectableZone[]>([], () => this.onChanged());
-    selectedZone = new Subscribable<Location | undefined>(undefined, () => this.onChanged());
-    targettableCards = new Subscribable<Card[]>([], () => this.onChanged());
-    targettedCards = new Subscribable<Card[]>([], () => this.onChanged());
-    selectedPosition = new Subscribable<Position | undefined>(undefined, () => this.onChanged());
-    selectedPositionCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
+    targets = new Subscribable<Card[]>([]);
+    lifePoints = new Subscribable(8000, () => {
+        if(this.lifePoints.get() <= 0) {
+            const duel = getDuel(this.player);
+            const opponent = duel!.getOpponent(this.player);
+            duel!.endDuel(opponent, 'Lifepoints reduced to 0.');
+        }
+    });
+    selectableZones = new Subscribable<SelectableZone[]>([]);
+    selectedZone = new Subscribable<Location | undefined>(undefined);
+    targettableCards = new Subscribable<Card[]>([]);
+    targettedCards = new Subscribable<Card[]>([]);
+    selectedPosition = new Subscribable<Position | undefined>(undefined);
+    selectedPositionCard = new Subscribable<Card | undefined>(undefined);
 
     constructor(player: Player) {
         const equippedDeck = getEquippedDeck(player);
@@ -28,9 +35,9 @@ export class YPlayer {
         this.cards.set([...this.cards.get(), ...equippedDeck.extra.map((card, i) => new Card(card.name, player, i))]);
     }
 
-    onChanged() {
+    onChanged = debounce(() => {
         this.changed.set(this.changed.get() + 1);
-    }
+    })
 
     shuffle() {
         const deck = this.cards.get().filter(

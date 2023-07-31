@@ -1,18 +1,28 @@
 import Roact from "@rbxts/roact";
-import { withHooks } from "@rbxts/roact-hooked";
+import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import { Players } from "@rbxts/services";
 import Flex from "shared/components/Flex";
 import Padding from "shared/components/Padding";
 import type { Card } from "server/duel/card";
 import theme from "shared/theme";
-import { createGlobalState, useGlobalState } from "shared/useGlobalState";
+import { Signal } from "@rbxts/beacon";
 
-export const hoveredCardStore = createGlobalState<Card | undefined>(undefined)
+export const hoveredCardSignal = new Signal<Card | undefined>()
 
 const DEV = Players.GetChildren().size() === 0;
 
 export default withHooks(() => {
-    const [hoveredCard, setHoveredCard] = useGlobalState(hoveredCardStore);
+    const [hoveredCard, setHoveredCard] = useState<Card>()
+
+    useEffect(() => {
+        const connection = hoveredCardSignal.Connect((card) => {
+            setHoveredCard(card)
+        })
+
+        return () => {
+            connection.Disconnect()
+        }
+    }, [])
 
     return (
         <frame

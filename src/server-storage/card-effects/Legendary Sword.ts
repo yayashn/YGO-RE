@@ -7,11 +7,11 @@ import { includes } from "shared/utils";
 import { Position } from "server/duel/types";
 
 /*
-    A Beast-Type monster equipped with this card increases its ATK and DEF by 300 points.
+    Equip only to a Warrior monster. It gains 300 ATK/DEF.
 */
 const ATK = 300
 const DEF = 300
-const RACE = ["Beast"]
+const RACE = ["Warrior"]
 
 export default (card: Card) => {
     const controller = card.getController()

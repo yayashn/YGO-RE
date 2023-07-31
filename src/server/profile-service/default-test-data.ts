@@ -1,16 +1,15 @@
 import { CardTemplate, PlayerData } from "../types";
 
 const defaultCards: CardTemplate[] = [
-    { name: "Man-Eater Bug" },
-    { name: "Hane-Hane" },
-    { name: "Reaper of the Cards" },
-    { name: "Armed Ninja" },
-    { name: "Trap Hole" },
-    { name: "Yami" },
-    { name: "Petit Angel" },
     { name: "Skull Servant" },
-    { name: "Wasteland" },
-    { name: "Monster Reborn" }
+    { name: "Yami" },
+    { name: "Violet Crystal" },
+    { name: "Skull Servant" },
+    { name: "Yami" },
+    { name: "Violet Crystal" },
+    { name: "Skull Servant" },
+    { name: "Yami" },
+    { name: "Violet Crystal" },
 ]
 
 const defaultExtra: CardTemplate[] = [

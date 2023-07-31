@@ -43,6 +43,7 @@ import ArmedNinja from "./Armed Ninja";
 import Polymerization from "./Polymerization";
 import type { Action, Location } from "server/duel/types";
 import HarpieSFeatherDuster from "./Harpie's Feather Duster";
+import LegendarySword from "./Legendary Sword";
 
 export type CardEffect = {
     condition?: () => boolean,
@@ -70,6 +71,7 @@ export default {
     "Goblin's Secret Remedy": GoblinSSecretRemedy,//
     "Pot of Greed": PotOfGreed,//
     "Final Flame": FinalFlame,//
+    "Legendary Sword": LegendarySword,//
     "Swords of Revealing Light": SwordsOfRevealingLight,//
     "Monster Reborn": MonsterReborn,//
     "Two-Pronged Attack": TwoProngedAttack,//

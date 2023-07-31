@@ -9,6 +9,7 @@ import { getFieldZonePart, includes } from "shared/utils";
 import type { Card } from "./card";
 import waiting from "server/popups/waiting";
 import debounce from "shared/debounce";
+import alert from "server/popups/alert";
 
 export let duels: Record<string, Duel> = {}
 
@@ -16,18 +17,18 @@ export class Duel {
     changed = new Subscribable(0);
     player1: YPlayer;
     player2: YPlayer;
-    phase: Subscribable<Phase> = new Subscribable<Phase>("DP", () => this.onChanged());
-    turn = new Subscribable(0, () => this.onChanged());
-    gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN", () => this.onChanged());
+    phase: Subscribable<Phase> = new Subscribable<Phase>("DP");
+    turn = new Subscribable(0);
+    gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN");
     turnPlayer: Subscribable<YPlayer>;
     actor: Subscribable<YPlayer>;
-    battleStep = new Subscribable('', () => this.onChanged());
-    damageStep = new Subscribable('', () => this.onChanged());
-    chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({}, () => this.onChanged());
-    chainResolving = new Subscribable(false, () => this.onChanged());
-    speedSpell = new Subscribable(1, () => this.onChanged());
-    attackingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
-    defendingCard = new Subscribable<Card | undefined>(undefined, () => this.onChanged());
+    battleStep = new Subscribable('');
+    damageStep = new Subscribable('');
+    chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({});
+    chainResolving = new Subscribable(false);
+    speedSpell = new Subscribable(1);
+    attackingCard = new Subscribable<Card | undefined>(undefined);
+    defendingCard = new Subscribable<Card | undefined>(undefined);
     handlingResponses = false;
     action: Subscribable<Action[]> = new Subscribable([], () => this.onChanged());
     cardFloodgates: Subscribable<CardFloodgate[]> = new Subscribable([]);
@@ -36,8 +37,8 @@ export class Duel {
         this.player1 = player1;
         this.player2 = player2;
         duels[`${player1.player.UserId}:${player2.player.UserId}`] = this;
-        this.turnPlayer = new Subscribable<YPlayer>(this.player1, () => this.onChanged());
-        this.actor = new Subscribable<YPlayer>(this.player1, () => this.onChanged());
+        this.turnPlayer = new Subscribable<YPlayer>(this.player1);
+        this.actor = new Subscribable<YPlayer>(this.player1);
 
         Remotes.Server.Get("showField").SendToPlayers([player1.player, player2.player], true);
 
@@ -60,10 +61,10 @@ export class Duel {
         })
     }
 
-    onChanged() {
+    onChanged = debounce(() => {
         this.changed.set(this.changed.get() + 1);
         this.handleCardFloodgates();
-    }
+    })
 
     getPlayerName(player: YPlayer) {
         return player === this.player1 ? "player1" : "player2";
@@ -86,7 +87,7 @@ export class Duel {
         }
     }
 
-    endDuel() {
+    endDuel(winner: YPlayer, message: string) {
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
         [this.player1, this.player2].forEach(async player => {
             (player.player.FindFirstChild("endDuel", true) as BindableEvent).Fire();
@@ -96,6 +97,10 @@ export class Duel {
             (player.player.FindFirstChild("route", true) as StringValue).Value = "/";
         })
         duels = Object.fromEntries(Object.entries(duels).filter(([key, value]) => value !== this));
+
+        const loser = this.getOpponent(winner.player);
+        alert(message || `You lost the duel! ${message ? `Reason: ${message}` : ''}`, loser.player);
+        alert(message || `You won the duel! ${message ? `Reason: ${message}` : ''}`, winner.player);
     }
 
     getOpponent(player: Player) {
@@ -163,17 +168,13 @@ export class Duel {
 
                 if(response === "YES") {
                     passes = 0;
-                    print(6)
                     this.action.wait()
                     await Promise.delay(1)
-                    print(7, this.action.get())
                 } else if(response === "NO") {
                     passes++
                 }
                 stopWaiting()
-                print(8)
             } else {
-                print('passed', passes, numberOfResponses)
                 passes++
             }
             print(9)

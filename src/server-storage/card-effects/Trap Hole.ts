@@ -18,6 +18,7 @@ export default (card: Card) => {
         if(action.cards === undefined) return false;
 
         if(["Normal Summon", "Flip Summon", "Tribute Summon"].includes(action.action)) {
+            if(action.player === controller) return false;
             return action.cards.size() === 1 && action.cards[0].atk.get()! >= 1000
         }
         return false

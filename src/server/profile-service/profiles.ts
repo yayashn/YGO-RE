@@ -6,9 +6,7 @@ import items from "./items";
 
 export const profiles: Record<string, Profile<PlayerData> | undefined> = {}
 
-const profileChanged = (player: Player) => {
-    (player.FindFirstChild("profileChanged") as BindableEvent).Fire()
-}
+const profileChanged = (player: Player, playerData: PlayerData) => (player.FindFirstChild("profileChanged", true) as BindableEvent).Fire(playerData);
 
 export const getProfile = (player: Player) => {
     return profiles[player.UserId]
@@ -29,7 +27,7 @@ export const addCardToDeck = (player: Player, card: CardTemplate, deckName: stri
             }
         }
     }
-    profileChanged(player);
+    profileChanged(player, profile!.Data)
 }
 
 export const removeCardFromDeck = (player: Player, card: CardTemplate, deckName: string) => {
@@ -43,7 +41,7 @@ export const removeCardFromDeck = (player: Player, card: CardTemplate, deckName:
             deck.deck.remove(deck.deck.findIndex((c) => c.name === card.name));
         }
     }
-    profileChanged(player);
+    profileChanged(player, profile!.Data)
 }
 
 export const changeDp = (player: Player, amount: number) => {
@@ -51,7 +49,7 @@ export const changeDp = (player: Player, amount: number) => {
     if (profile !== undefined) {
         profile.Data.dp += amount;
     }
-    profileChanged(player);
+    profileChanged(player, profile!.Data)
 }
 
 export const buyPack = (player: Player, pack: string) => {
@@ -65,7 +63,7 @@ export const buyPack = (player: Player, pack: string) => {
         cards.forEach(card => {
             profile.Data.cards = [...profile.Data.cards, card]
         })
-        profileChanged(player);
+        profileChanged(player, profile!.Data)
         return cards;
     } else {
         return false
@@ -75,6 +73,12 @@ export const buyPack = (player: Player, pack: string) => {
 export const getEquippedDeck = (player: Player) => {
     const profile = getProfile(player);
     return profile!.Data.decks[profile!.Data.equipped.deck];
+}
+
+export const equipDeck = (player: Player, deckName: string) => {
+    const profile = getProfile(player);
+    profile!.Data.equipped.deck = deckName;
+    profileChanged(player, profile!.Data)
 }
 
 export const getEquippedSleeve = (player: Player) => {

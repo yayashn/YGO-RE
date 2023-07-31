@@ -7,8 +7,7 @@ import Navbar from "./components/Navbar";
 import DeckList from "./pages/DeckList/DeckList";
 import Shop from "./pages/Shop/Shop";
 import PackOpen from "./pages/Shop/PackOpen";
-import Duel from "./pages/Duel/Duel";
-import Remotes from "shared/net";
+
 
 export default withHooks(() => {
     const route = useRoute()

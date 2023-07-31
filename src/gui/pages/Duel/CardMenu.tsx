@@ -6,10 +6,9 @@ import usePlayerStat from "gui/hooks/usePlayerStat";
 import type { Card } from "server/duel/card";
 import { getDuel } from "server/duel/duel";
 import { YPlayer } from "server/duel/player";
-import { CardFloodgate, Location, Phase, Position } from "server/duel/types";
-import { useGlobalState } from "shared/useGlobalState";
+import { Location, Phase, Position } from "server/duel/types";
 import { includes } from "shared/utils";
-import { showMenuStore } from "./showMenuStore";
+import { useShowMenu } from "./useShowMenu";
 import { getFilteredCards } from "server/duel/utils";
 
 type CardAction =
@@ -25,7 +24,7 @@ type CardAction =
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(({ card }: { card: Card }) => {
-    const [showMenu, setShowMenu] = useGlobalState(showMenuStore)
+    const [showMenu, setShowMenu] = useShowMenu()
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
     const duel = getDuel(player)!;
     const yPlayer = duel.getPlayer(player);
@@ -140,7 +139,6 @@ export default withHooks(({ card }: { card: Card }) => {
             duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Flip Summon': () => {
-            print(1)
             card.flipSummon();
         },
         Attack: () => {
@@ -179,13 +177,11 @@ export default withHooks(({ card }: { card: Card }) => {
             yPlayer.targets.get().forEach((target) => {
                 target.tribute()
             })
-
             yPlayer.addFloodgate("CANNOT_NORMAL_SUMMON", () => {
                 return duel.turn.get() !== turn;
             })
 
             const zone = yPlayer.pickZone(duel.getEmptyFieldZones('MZone', player, 'Player'))
-
             duel.setAction({
                 action: 'Tribute Summon',
                 cards: [card],
@@ -219,10 +215,6 @@ export default withHooks(({ card }: { card: Card }) => {
         const isSelecting = yPlayer.selectableZones.get().size() !== 0;
         const conditionMet = card.checkEffectConditions()
         const isController = card.getController() === yPlayer
-        const mzoneAvailable = getFilteredCards(duel, {
-            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-            controller: [yPlayer.player]
-        }).size() < 5
         const szoneAvailable = getFilteredCards(duel, {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [yPlayer.player]
@@ -231,6 +223,10 @@ export default withHooks(({ card }: { card: Card }) => {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             controller: [yPlayer.player]
         }).size();
+        const mzoneAvailable = getFilteredCards(duel, {
+            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+            controller: [yPlayer.player]
+        }).size() < (numberOfTributes === 1 ? 4 : numberOfTributes === 2 ? 3 : 5);
 
         if(chainResolving || isSelecting || !isActor || !isController) {
             removeCardAction()

@@ -28,7 +28,7 @@ clickDetector.MouseClick.Connect(async (opponent) => {
     }
 
     const [stopWaiting, stillWaiting] = waitingOptional("Waiting for opponent to accept...", opponent);
-    const accept = await confirm(`${player.Name} has challenged you to a duel! Do you accept?`, player)
+    const accept = await confirm(`${opponent.Name} has challenged you to a duel! Do you accept?`, player)
     if(stillWaiting() === undefined) {
         await alert("Request has expired.", player);
         return;

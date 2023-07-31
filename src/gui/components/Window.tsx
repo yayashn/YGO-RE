@@ -31,7 +31,14 @@ export default withHooks((props: WindowProps) => {
             BackgroundTransparency={1}
             BorderSizePixel={0}
             Size={new UDim2(1,0,0.1,0)}>
-                {props.buttons}
+                <frame
+                Size={new UDim2(0, 0, 1, 0)}
+                BackgroundTransparency={1}
+                AutomaticSize={Enum.AutomaticSize.X}
+                >
+                    <Flex gap={new UDim(0, 10)}/>
+                    {props.buttons}
+                </frame>
                 <textlabel 
                 Position={new UDim2(0.5, 0, 0.5, 0)}
                 AnchorPoint={new Vector2(0.5, 0.5)}

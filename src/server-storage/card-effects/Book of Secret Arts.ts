@@ -69,6 +69,20 @@ export default (card: Card) => {
                 modifierId: `+DEF_${card.uid}`
             }
         })
+        duel.addCardFloodgate({
+            floodgateName: `EQUIP`,
+            floodgateFilter: {
+                card: [card]
+            },
+            expiry: () => {
+                const expired = !includes(target.location.get(), "MZone") || !includes(target.position.get(), "FaceUp");
+                if(expired) {
+                    card.destroy('Equip')
+                    return true;
+                } 
+                return false;
+            }
+        })
     }
 
     const effects: CardEffect[] = [

@@ -7,7 +7,7 @@ import Flex from "shared/components/Flex";
 import Padding from "shared/components/Padding";
 import theme from "shared/theme";
 import { useGlobalState } from "shared/useGlobalState";
-import { shownCardsStore } from "./shownCardsStore";
+import { useShownCards } from "./useShownCards";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
@@ -15,7 +15,7 @@ export default withHooks(() => {
     const duel = getDuel(player)!;
     const yPlayer = duel.getPlayer(player);
     const targettableCards = usePlayerStat<"targettableCards", Card[]>(yPlayer, 'targettableCards');
-    const [shownCards, setShownCards] = useGlobalState(shownCardsStore)
+    const [shownCards, setShownCards] = useShownCards();
 
     return (
         <frame

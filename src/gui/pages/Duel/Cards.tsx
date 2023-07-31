@@ -1,11 +1,8 @@
 import Roact from "@rbxts/roact"
-import { useState, withHooks } from "@rbxts/roact-hooked"
+import { withHooks } from "@rbxts/roact-hooked"
 import useCards from "gui/hooks/useCards"
 import { getDuel } from "server/duel/duel";
 import Card2D from "./Card2D";
-import type { Card } from "server/duel/card";
-import { useGlobalState } from "shared/useGlobalState";
-import { showMenuStore } from "./showMenuStore";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 

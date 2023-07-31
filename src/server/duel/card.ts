@@ -13,12 +13,12 @@ export class Card {
     changed = new Subscribable(0);
     uid: string;
     name: Subscribable<string>;
-    atk = new Subscribable<number | undefined>(undefined, () => this.onChanged());
-    def = new Subscribable<number | undefined>(undefined, () => this.onChanged());
+    atk = new Subscribable<number | undefined>(undefined);
+    def = new Subscribable<number | undefined>(undefined);
     originalData: Subscribable<Record<string, unknown>>;
     race: Subscribable<string>;
     desc: Subscribable<string>;
-    level = new Subscribable<number | undefined>(undefined, () => this.onChanged());
+    level = new Subscribable<number | undefined>(undefined);
     art: string;
     owner: Player;
     controller: Subscribable<Player>;
@@ -26,11 +26,11 @@ export class Card {
     location: Subscribable<Location>;
     order: Subscribable<number>;
     "type": Subscribable<string>;
-    chainLink = new Subscribable<number>(0, () => this.onChanged());
-    targets = new Subscribable<Card[]>([], () => this.onChanged());
-    activated = new Subscribable(false, () => this.onChanged());
-    attackNegated = new Subscribable(false, () => this.onChanged());
-    status = new Subscribable<string>("", () => this.onChanged());
+    chainLink = new Subscribable<number>(0);
+    targets = new Subscribable<Card[]>([]);
+    activated = new Subscribable(false);
+    attackNegated = new Subscribable(false);
+    status = new Subscribable<string>("");
     attribute: Subscribable<string>;
     atkModifier = new Subscribable<Record<string, number>>({});
     defModifier = new Subscribable<Record<string, number>>({});
@@ -40,18 +40,18 @@ export class Card {
         if(!cardData) {
             error(`Card ${name} does not exist!`);
         }
-        this.originalData = new Subscribable(cardData, () => this.onChanged());
+        this.originalData = new Subscribable(cardData);
         this.uid = HttpService.GenerateGUID(false);
-        this.name = new Subscribable(name, () => this.onChanged());
-        this.race = new Subscribable(cardData.race, () => this.onChanged());
-        this.desc = new Subscribable(cardData.desc, () => this.onChanged());
+        this.name = new Subscribable(name);
+        this.race = new Subscribable(cardData.race);
+        this.desc = new Subscribable(cardData.desc);
         this.position = new Subscribable<Position>("FaceDown");
         this.art = cardData.art;
         this.owner = owner;
-        this.controller = new Subscribable<Player>(owner, () => this.onChanged());
-        this.order = new Subscribable<number>(order, () => this.onChanged());
-        this["type"] = new Subscribable<string>(cardData["type"], () => this.onChanged());
-        this.attribute = new Subscribable<string>(cardData["attribute"] || cardData.type.split(" ")[0], () => this.onChanged());
+        this.controller = new Subscribable<Player>(owner);
+        this.order = new Subscribable<number>(order);
+        this["type"] = new Subscribable<string>(cardData["type"]);
+        this.attribute = new Subscribable<string>(cardData["attribute"] || cardData.type.split(" ")[0]);
 
         if (cardData["type"].match("Fusion").size() > 0) {
             this.location = new Subscribable<Location>("EZone", () => {
@@ -305,7 +305,6 @@ export class Card {
                 target()
             }
 
-            print(2)
             this.activateEffect({
                 action: "Flip Summon",
                 cards: [this],
@@ -448,10 +447,10 @@ export class Card {
                         this.destroy('Battle')
                     }
                 } else {
-                    if (this.getAtk() > defender.getAtk()) {
+                    if (this.getAtk() > defender.getDef()) {
                         defender.destroy('Battle')
-                    } else if (this.getAtk()! < defender.getAtk()) {
-                        const calculation = defender.getAtk() - this.getAtk()
+                    } else if (this.getAtk()! < defender.getDef()) {
+                        const calculation = defender.getDef() - this.getAtk()
                         this.getController().changeLifePoints(-calculation)
                     }
                 }

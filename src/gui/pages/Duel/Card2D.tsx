@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
+import { useCallback, useEffect, useRef, useState, withHooks } from "@rbxts/roact-hooked";
 import useController from "gui/hooks/useController";
 import useMount from "gui/hooks/useMount";
 import useShowArt from "gui/hooks/useShowArt";
@@ -8,16 +8,14 @@ import { getDuel } from "server/duel/duel";
 import { getEquippedSleeve } from "server/profile-service/profiles";
 import Remotes from "shared/net";
 import CardMenu from "./CardMenu";
-import { CardFloodgate, Location, Position } from "server/duel/types";
+import { Location, Position } from "server/duel/types";
 import HoverCard from "server-storage/animations/HoverCard/HoverCard";
 import useCardStat from "gui/hooks/useCardStat";
-import { useGlobalState } from "shared/useGlobalState";
-import { showMenuStore } from "./showMenuStore";
+import { useShowMenu } from "./useShowMenu";
 import useIsTarget from "gui/hooks/useIsTarget";
 import useIsTargettable from "gui/hooks/useIsTargettable";
-import { hoveredCardStore } from "./CardInfo";
-import { includes } from "shared/utils";
-import useDuelStat from "gui/hooks/useDuelStat";
+import ImgSrc from "server-storage/client-components/ImgSrc/ImgSrc";
+import { hoveredCardSignal } from "./CardInfo";
 
 interface Props {
     card: Card,
@@ -26,22 +24,23 @@ interface Props {
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 
 export default withHooks(({ card }: Props) => {
-    const [showMenu, setShowMenu] = useGlobalState(showMenuStore)
     const duel = getDuel(player)!;
     const card2DRef = useRef<SurfaceGui>();
-    const opponent = duel.getOpponent(player);
     const controller = useController(card);
     const yPlayer = duel.getPlayer(player);
     const showArt = useShowArt(card)
     const sleeve = getEquippedSleeve(controller);
     const isOpponent = () => card.controller.get() !== player;
     const positionChangedRef = useRef<RemoteEvent>();
-    const onClickRef = useRef<RemoteEvent>();
     const [hover, setHover] = useState(false);
     const location = useCardStat<"location", Location>(card, "location");
     const isTarget = useIsTarget(card);
     const isTargettable = useIsTargettable(card);
-    const [hoveredCard, setHoveredCard] = useGlobalState(hoveredCardStore)
+    const [showMenu, setShowMenu] = useShowMenu()
+
+    const setHoveredCard = useCallback((c) => {
+        hoveredCardSignal.Fire(c)
+    }, [])
 
     useMount(() => {
         if(card2DRef.getValue() === undefined) return;
@@ -87,23 +86,25 @@ export default withHooks(({ card }: Props) => {
         }
     }, [isTarget, isTargettable, showArt])
 
+    const ButtonEvents = {
+        MouseButton1Click: () => onClick(undefined, undefined, "click"),
+        MouseEnter: () => onClick(undefined, undefined, "hover"),
+        MouseLeave: () => onClick(undefined, undefined, "unhover")
+    }
+
     return (
         <surfacegui Ref={card2DRef}>
             <surfacegui 
             ZOffset={-1}
             AlwaysOnTop Key="Art" Face="Bottom">
                 <imagebutton 
-                Event={{
-                    MouseButton1Click: () => onClick(undefined, undefined, "click"),
-                    MouseEnter: () => onClick(undefined, undefined, "hover"),
-                    MouseLeave: () => onClick(undefined, undefined, "unhover")
-                }}
+                Event={ButtonEvents}
                 ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
-                    Image={showArt ? card.art : ''}
                     Position={new UDim2(0.5, 0, 0.5, 0)}>
+                        <ImgSrc player={player} src={showArt ? card.art : ''}/>
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
                         {isTargettable && <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30}/>}
                         {isTarget && <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30}/>}
@@ -112,17 +113,13 @@ export default withHooks(({ card }: Props) => {
 
             <surfacegui AlwaysOnTop Key="Sleeve" Face="Top">
                 <imagebutton 
-                Event={{
-                    MouseButton1Click: () => onClick(undefined, undefined, "click"),
-                    MouseEnter: () => onClick(undefined, undefined, "hover"),
-                    MouseLeave: () => onClick(undefined, undefined, "unhover")
-                }}
+                Event={ButtonEvents}
                 ImageTransparency={0}
                     Size={location !== "Hand" ? new UDim2(1, 0, 1, 0) : new UDim2(.8,0,.8,0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
-                    Image={sleeve}
                     Position={new UDim2(0.5, 0, 0.5, 0)}>
+                        <ImgSrc player={player} src={sleeve}/>
                         {location === "Hand" && <HoverCard playAnimation={hover}/>}
                         {isTargettable && <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30}/>}
                         {isTarget && <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30}/>}
