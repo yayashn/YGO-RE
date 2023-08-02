@@ -1,12 +1,33 @@
 import { CardTemplate } from "server/types";
 import { Pack } from "./packs";
+import alert from "server/popups/alert";
 
-const rarities = {
-    rare: 0.8389,
-    super: 0.1,
-    ultra: 0.05,
+export const rarities = {
+    rare: 0.70 - 0.0001 - 0.01,
+    super: 0.2,
+    ultra: 0.1,
     secret: 0.01,
     gold: 0.0001,
+}
+
+export const getAmountOfRarity = (rarity: keyof typeof rarities | "common") => {
+    let amount = 0
+    for (const card of cards) {
+        if (card.rarity === rarity) {
+            amount += 1
+        }
+    }
+    return amount
+}
+
+export const alertInfo = async (player: Player) => {
+    const amountOfGold = getAmountOfRarity("gold")
+    const amountOfSecret = getAmountOfRarity("secret")
+    const amountOfUltra = getAmountOfRarity("ultra")
+    const amountOfSuper = getAmountOfRarity("super")
+    const amountOfRare = getAmountOfRarity("rare")
+    const ammountOfCommons = getAmountOfRarity("common")
+    alert(`This pack guarantees you: 8 commons + 1 rare or higher. Chances of obtaining: rare (${amountOfRare}) - ${rarities.rare*100}%, super (${amountOfSuper}) - ${rarities.super*100}%, ultra (${amountOfUltra}) - ${rarities.ultra*100}%, secret (${amountOfSecret}) - ${rarities.secret*100}%, gold (${amountOfGold}) - ${rarities.gold*100}%.`, player)
 }
 
 export const cards: CardTemplate[] = [

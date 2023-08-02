@@ -10,6 +10,8 @@ import { Location, Phase, Position } from "server/duel/types";
 import { includes } from "shared/utils";
 import { useShowMenu } from "./useShowMenu";
 import { getFilteredCards } from "server/duel/utils";
+import { throttle } from "shared/debounce";
+import Remotes from "shared/net";
 
 type CardAction =
     | 'Activate'
@@ -157,10 +159,19 @@ export default withHooks(({ card }: { card: Card }) => {
                 
                 duel!.attackingCard.set(card)
                 duel!.defendingCard.set(targets[0])
+
+                const defender = targets[0]
+
+                Remotes.Server.Get("attackCard3D").SendToPlayer(yPlayer.player, false, card.location.get(), defender.location.get());
+                Remotes.Server.Get("attackCard3D").SendToPlayer(yOpponent.player, true, card.location.get(), defender.location.get());
                 
                 duel.handleResponses(duel.getOpponent(card.getController().player))
             } else {
                 duel!.attackingCard.set(card)
+                
+                Remotes.Server.Get("attackCard3D").SendToPlayer(yPlayer.player, false, card.location.get(), undefined);
+                Remotes.Server.Get("attackCard3D").SendToPlayer(yOpponent.player, true, card.location.get(), undefined);
+
                 duel.handleResponses(duel.getOpponent(card.getController().player))
             }
         },
@@ -219,14 +230,11 @@ export default withHooks(({ card }: { card: Card }) => {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [yPlayer.player]
         }).size() < 5
-        const numberOfTributes = getFilteredCards(duel, {
+        const numberOfMzoneCards = getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             controller: [yPlayer.player]
         }).size();
-        const mzoneAvailable = getFilteredCards(duel, {
-            location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
-            controller: [yPlayer.player]
-        }).size() < (numberOfTributes === 1 ? 4 : numberOfTributes === 2 ? 3 : 5);
+        const mzoneAvailable = (card.level.get() || 0) <= 4 ? (numberOfMzoneCards < 5) : true
 
         if(chainResolving || isSelecting || !isActor || !isController) {
             removeCardAction()
@@ -239,10 +247,10 @@ export default withHooks(({ card }: { card: Card }) => {
             if(card.level.get()! <= 4) {
                 addCardAction("Normal Summon")
                 addCardAction("Set")
-            } else if(card.level.get()! <= 6 && numberOfTributes >= 1) {
+            } else if(card.level.get()! <= 6 && numberOfMzoneCards >= 1) {
                 addCardAction("Tribute Summon")
                 addCardAction("Set")
-            } else if(card.level.get()! >= 7 && numberOfTributes >= 2) {
+            } else if(card.level.get()! >= 7 && numberOfMzoneCards >= 2) {
                 addCardAction("Tribute Summon")
                 addCardAction("Set")
             }

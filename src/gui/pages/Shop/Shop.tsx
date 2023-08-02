@@ -7,11 +7,11 @@ import theme from "shared/theme";
 import { useNavigate } from "gui/router";
 import { Dictionary as Object } from "@rbxts/sift";
 import Padding from "shared/components/Padding";
-import prompt from "server/popups/prompt";
-import { buyPack, getProfile } from "server/profile-service/profiles";
+import { buyPack } from "server/profile-service/profiles";
 import alert from "server/popups/alert";
-import PackOpen, { showPackOpenStore } from "./PackOpen";
+import { showPackOpenStore } from "./PackOpen";
 import { useGlobalState } from "shared/useGlobalState";
+import { alertInfo as alertInfoLob } from "server/shop/LOB";
 
 const gap = 5;
 const player = script.FindFirstAncestorWhichIsA("Player")!;
@@ -44,7 +44,7 @@ export default withHooks(() => {
                     Image='rbxassetid://13064039998'
                     ScaleType={Enum.ScaleType.Crop}>
                     <Padding Padding={new UDim(0, 20)} />
-                    <Flex flexDirection="column" alignItems="center" justifyContent="end" />
+                    <Flex flexDirection="column" alignItems="center" justifyContent="end" gap={new UDim(0, 5)} />
                     <textbutton
                         Event={{
                             MouseButton1Click: async () => {
@@ -63,6 +63,21 @@ export default withHooks(() => {
                         Font={Enum.Font.Jura}
                         Text="1000 DP">
                         <uiaspectratioconstraint AspectRatio={16 / 9} />
+                        <Padding Padding={new UDim(.1)} />
+                    </textbutton>
+                    <textbutton
+                        Event={{
+                            MouseButton1Click: async () => {
+                                alertInfoLob(player);
+                            }
+                        }}
+                        TextColor3={theme.colours.white}
+                        Size={new UDim2(0.3, 0, .2, 0)}
+                        BackgroundColor3={theme.colours.primary}
+                        TextScaled
+                        BorderSizePixel={0}
+                        Font={Enum.Font.Jura}
+                        Text="Info">
                         <Padding Padding={new UDim(.1)} />
                     </textbutton>
                 </imagelabel>

@@ -8,7 +8,7 @@ import confirm from "server/popups/confirm";
 import { getFieldZonePart, includes } from "shared/utils";
 import type { Card } from "./card";
 import waiting from "server/popups/waiting";
-import debounce from "shared/debounce";
+import { throttle } from "@rbxts/set-timeout";
 import alert from "server/popups/alert";
 
 export let duels: Record<string, Duel> = {}
@@ -30,8 +30,8 @@ export class Duel {
     attackingCard = new Subscribable<Card | undefined>(undefined);
     defendingCard = new Subscribable<Card | undefined>(undefined);
     handlingResponses = false;
-    action: Subscribable<Action[]> = new Subscribable([], () => this.onChanged());
-    cardFloodgates: Subscribable<CardFloodgate[]> = new Subscribable([]);
+    action: Subscribable<Action[]> = new Subscribable([]);
+    cardFloodgates: Subscribable<Record<string, CardFloodgate[]>> = new Subscribable({});
 
     constructor(player1: YPlayer, player2: YPlayer) {
         this.player1 = player1;
@@ -61,7 +61,7 @@ export class Duel {
         })
     }
 
-    onChanged = debounce(() => {
+    onChanged = throttle(() => {
         this.changed.set(this.changed.get() + 1);
         this.handleCardFloodgates();
     })
@@ -123,18 +123,37 @@ export class Duel {
         return getCards(this).filter(card => card.getController() === player && card.checkEffectConditions())
     }
 
-    addCardFloodgate(floodgate: CardFloodgate) {
-        const floodgates = this.cardFloodgates.get()
-        floodgates.push(floodgate)
-        this.cardFloodgates.set(floodgates)
+    addCardFloodgate(floodgateName: string, floodgate: CardFloodgate) {
+        const floodgates = this.cardFloodgates.get();
+        if (!floodgates[floodgateName]) {
+            floodgates[floodgateName] = [];
+        }
+        floodgates[floodgateName].push(floodgate);
+        this.cardFloodgates.refresh();
     }
 
-    handleCardFloodgates = debounce(() => {
-        this.cardFloodgates.set(this.cardFloodgates.get().filter(floodgate => !floodgate.expiry()))
+    handleCardFloodgates = throttle(() => {
+        const floodgates = this.cardFloodgates.get();
+    
+        for (const [floodgateName, floodgateArray] of pairs(floodgates)) {
+            let newFloodgates = [];
+            for (const floodgate of floodgateArray) {
+                if (!floodgate.expiry()) {
+                    newFloodgates.push(floodgate);
+                }
+            }
+            if (newFloodgates.size() > 0) {
+                floodgates[floodgateName] = newFloodgates;
+            } else {
+                delete floodgates[floodgateName];
+            }
+        }
+    
+        this.cardFloodgates.refresh();
         getCards(this).forEach(card => {
-            card.handleFloodgates()
-        })
-    })
+            card.handleFloodgates();
+        });
+    });
 
     async handleResponses(player: YPlayer) {
         if(this.handlingResponses) return
@@ -169,7 +188,6 @@ export class Duel {
                 if(response === "YES") {
                     passes = 0;
                     this.action.wait()
-                    await Promise.delay(1)
                 } else if(response === "NO") {
                     passes++
                 }
@@ -177,7 +195,6 @@ export class Duel {
             } else {
                 passes++
             }
-            print(9)
 
             if(passes < 2) {
                 this.actor.set(this.getOpponent(this.actor.get().player))
@@ -185,12 +202,10 @@ export class Duel {
                 this.actor.set(this.turnPlayer.get())
             }
 
-            print(10)
         }
 
         this.handlingResponses = false
         this.resolveChain()
-        print(11)
     }
 
     resolveChain() {
@@ -200,11 +215,8 @@ export class Duel {
         const chain = this.chain.get()
         let chainSize = Object.keys(chain).size()
 
-        print(chain, chainSize)
-
         while(chainSize > 0) {
             const chainedEffect = chain[chainSize]
-            print(chainedEffect, chainSize)
             if(!chainedEffect.negated) {
                 chainedEffect.effect()
             }
@@ -217,12 +229,16 @@ export class Duel {
         }
 
         // Remove non-continuous spell/trap cards from SZone, and reset activated
-        Object.values(chain).forEach(({ card }) => {
-            if (includes(card.location.get(), "SZone") && !card.hasFloodgate("CONTINUOUS") && !includes(card.race.get(), "Continuous") && !includes(card.race.get(), "Equip")) {
-                card.toGraveyard()
+        for (const [_, { card }] of pairs(chain)) {
+            if (includes(card.location.get(), "SZone") && 
+                !card.hasFloodgate("CONTINUOUS") && 
+                !includes(card.race.get(), "Continuous") && 
+                !includes(card.race.get(), "Equip")) {
+                card.toGraveyard();
             }
-            card.activated.set(false)
-        })
+            card.activated.set(false);
+        }
+        
         this.chain.set({})
         this.gameState.set('OPEN')
         this.chainResolving.set(false)
@@ -236,38 +252,11 @@ export class Duel {
                 this.attackingCard.get()?.attack(this.defendingCard.get())
             }
         }
-        try {
-            const turn = this.turn.get()
-            const attackingCard = this.attackingCard.get()
-            if(attackingCard !== undefined) {
-                this.addCardFloodgate({
-                    floodgateName: "CANNOT_ATTACK",
-                    floodgateFilter: {
-                        card: [this.attackingCard.get()!],
-                    },
-                    expiry: () => this.turn.get() !== turn 
-                    || includes(attackingCard.position.get(), "FaceDown")
-                    || !includes(attackingCard.location.get(), "MZone") 
-                })
-                this.addCardFloodgate({
-                    floodgateName: "CANNOT_ATTACK",
-                    floodgateFilter: {
-                        card: [this.attackingCard.get()!],
-                    },
-                    expiry: () => this.turn.get() !== turn 
-                    || includes(attackingCard.position.get(), "FaceDown")
-                    || !includes(attackingCard.location.get(), "MZone") 
-                })   
-            }
-        } catch {
-            print('No attacking card')
-        }
         this.attackingCard.set(undefined)
         this.defendingCard.set(undefined)
     }
 
     async addToChain(card: Card, effect: Callback, action: Action) {
-        print(4, card.name)
         this.gameState.set('CLOSED')
         card.activated.set(true)
         const chainLink = Object.keys(this.chain.get()).size() + 1
@@ -281,7 +270,7 @@ export class Duel {
         this.chain.set(newChain)
         this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
-        print(5)
+
         await this.handleResponses(this.getOpponent(card.controller.get()))
     }
 
@@ -289,10 +278,11 @@ export class Duel {
         this.gameState.set('OPEN')
         if (p === 'DP') {
             this.turn.set(this.turn.get() + 1)
-            this.turnPlayer.get().addFloodgate("CANNOT_ENTER_BP", () => {
-                return this.turn.get() !== 1
-            })
-            if (this.turn.get() >= 2) {
+            if(this.turn.get() === 1) {
+                this.turnPlayer.get().addFloodgate("CANNOT_ENTER_BP", () => {
+                    return this.turn.get() !== 1
+                })
+            } else if (this.turn.get() >= 2) {
                 this.turnPlayer.set(this.getOpponent(this.turnPlayer.get().player))
                 this.actor.set(this.turnPlayer.get())
             }
@@ -335,12 +325,27 @@ export class Duel {
                 this.phase.set(p)
                 await Promise.delay(0.15)
                 await this.handleResponses(this.turnPlayer.get())
+
+                const cardsInHand = getFilteredCards(this, {
+                    location: ['Hand'],
+                    controller: [this.turnPlayer.get().player],
+                })
+                const numberOfCardsInHand = cardsInHand.size()
+                const numberOfCardsToDiscard = numberOfCardsInHand - 6
+                if(numberOfCardsToDiscard > 0) {
+                    const cardsToDiscard =  this.turnPlayer.get().pickTargets(numberOfCardsToDiscard, cardsInHand)
+                    cardsToDiscard.forEach((card) => {
+                        card.destroy("Discard")
+                    })
+                }
+
                 await this.handlePhase('DP')
             } else if (this.phase.get() === 'BP') {
                 await this.handleResponses(this.turnPlayer.get())
                 await this.handlePhase('MP2')
             }
         }
+        this.onChanged()
     }
 
     getEmptyFieldZonesVector(

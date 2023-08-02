@@ -51,7 +51,6 @@ export type CardFilter = {
 }
 
 export type CardFloodgate = {
-    floodgateName: string,
     floodgateFilter: CardFilter,
     expiry: () => boolean,
     floodgateValue?: unknown

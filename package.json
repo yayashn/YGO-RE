@@ -40,6 +40,7 @@
 		"@rbxts/roact-hooked": "2.6.0",
 		"@rbxts/roact-hooked-plus": "^1.8.1",
 		"@rbxts/services": "^1.5.1",
+		"@rbxts/set-timeout": "^1.1.2",
 		"@rbxts/sift": "^0.0.6",
 		"patch-package": "^6.5.0"
 	}

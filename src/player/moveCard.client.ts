@@ -1,10 +1,10 @@
-import { Location, Position } from 'server/duel/types';
-import debounce from 'shared/debounce';
+import { Position } from 'server/duel/types'
+import debounce from 'shared/debounce'
 import Remotes from 'shared/net'
 import { get3DZone } from 'shared/utils'
 
 Remotes.Client.OnEvent('moveCard3D', async (card2D, location, isOpponent) => {
-    const card3D = (card2D.FindFirstChild('card3D') as ObjectValue).Value!;
+    const card3D = (card2D.FindFirstChild('card3D') as ObjectValue).Value!
     card3D.Parent = get3DZone(location, isOpponent)
 })
 
@@ -48,41 +48,42 @@ const zoneOrientation = {
 }
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
-    ['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
+    ;['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
         const zone = playerField[zoneName as keyof typeof playerField] as Part
         const position = zone.Position
 
         const stackCards = debounce(async () => {
             const card3Ds = zone.GetChildren()
-            
+
             const promises = card3Ds.map((card3D) => {
                 return new Promise(async (resolve) => {
                     const card2D = card3D.WaitForChild('card2D') as ObjectValue
-                    while(!card2D.Value) {
+                    while (!card2D.Value) {
                         await Promise.delay(0)
                     }
-                    while(card2D.Value.FindFirstChild('getOrder') === undefined) {
+                    while (card2D.Value.FindFirstChild('getOrder') === undefined) {
                         await Promise.delay(0)
                     }
                     const cardButton = card2D.Value as SurfaceGui
-                    
+
                     const [order, pos, location] = [
                         (cardButton.FindFirstChild('getOrder') as RemoteFunction).InvokeServer(),
                         (cardButton.WaitForChild('getPosition') as RemoteFunction).InvokeServer(),
                         (cardButton.WaitForChild('getLocation') as RemoteFunction).InvokeServer()
                     ]
 
-                    const typedOrder = order as number;
-                    const typedPos = pos as keyof typeof zoneOrientation["Player"];
-                    const typedLocation = location as string;
+                    const typedOrder = order as number
+                    const typedPos = pos as keyof (typeof zoneOrientation)['Player']
+                    const typedLocation = location as string
 
                     const tweenGoal = {
-                        Position: new Vector3(position.X, position.Y + typedOrder * 0.5, position.Z),
+                        Position: new Vector3(position.X, position.Y + typedOrder * 0.5, position.Z)
                     } as Partial<ExtractMembers<Instance, Tweenable>>
 
                     const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
                     if (typedLocation === zoneName) {
-                        (card3D as Part).Orientation = zoneOrientation[playerField.Name as "Player" | "Opponent"][typedPos]
+                        ;(card3D as Part).Orientation =
+                            zoneOrientation[playerField.Name as 'Player' | 'Opponent'][typedPos]
                         tween.Play()
                     }
 
@@ -126,7 +127,7 @@ const zoneOrientation = {
                     center.Z
                 )
             }
-            ;card3D.Orientation = orientation
+            card3D.Orientation = orientation
             tweenService.Create(card3D, tweenInfo, tweenGoal).Play()
         })
     }
@@ -135,8 +136,10 @@ const zoneOrientation = {
 
     // Field zone animations
     const animateZone = (card3D: Part, zone: Vector3Value) => {
-        const card2D = (card3D.FindFirstChild("card2D") as ObjectValue).Value!;
-        const position = (card2D.FindFirstChild("getPosition") as RemoteFunction).InvokeServer() as Position
+        const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
+        const position = (
+            card2D.FindFirstChild('getPosition') as RemoteFunction
+        ).InvokeServer() as Position
         let tweenGoal: { CFrame: CFrame } = { CFrame: new CFrame() }
 
         tweenGoal.CFrame = positionOrientation[playerField.Name as 'Player' | 'Opponent'][
@@ -156,33 +159,102 @@ const zoneOrientation = {
             zone.ChildAdded.Connect(async (card3D) => {
                 animateZone(card3D as Part, zone as Vector3Value)
 
-                const card2D = ((card3D as Part).FindFirstChild("card2D") as ObjectValue).Value!;
-                
-                while(!card2D.FindFirstChild("getUid")) {
+                const card2D = ((card3D as Part).FindFirstChild('card2D') as ObjectValue).Value!
+
+                while (!card2D.FindFirstChild('getUid')) {
                     await Promise.delay(0)
                 }
-                while(!card2D.FindFirstChild("positionChanged")) {
+                while (!card2D.FindFirstChild('positionChanged')) {
                     await Promise.delay(0)
                 }
-                while(!card2D.FindFirstChild("getLocation")) {
+                while (!card2D.FindFirstChild('getLocation')) {
                     await Promise.delay(0)
                 }
 
-                connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string] =
-                    (card2D.FindFirstChild("positionChanged") as RemoteEvent).OnClientEvent.Connect(() => {
-                        if ((card2D.FindFirstChild("getLocation") as RemoteFunction).InvokeServer() === zone.Name) {
+                connections[
+                    (card2D.FindFirstChild('getUid') as RemoteFunction).InvokeServer() as string
+                ] = (card2D.FindFirstChild('positionChanged') as RemoteEvent).OnClientEvent.Connect(
+                    () => {
+                        if (
+                            (
+                                card2D.FindFirstChild('getLocation') as RemoteFunction
+                            ).InvokeServer() === zone.Name
+                        ) {
                             animateZone(card3D as Part, zone as Vector3Value)
                         }
-                    })
-                })
+                    }
+                )
+            })
             zone.ChildRemoved.Connect(async (card3D) => {
-                const card2D = (card3D.FindFirstChild("card2D") as ObjectValue).Value!;
+                const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
 
-                while(!card2D.FindFirstChild("getUid")) {
+                while (!card2D.FindFirstChild('getUid')) {
                     await Promise.delay(0)
                 }
 
-                connections[(card2D.FindFirstChild("getUid") as RemoteFunction).InvokeServer() as string].Disconnect()
+                connections[
+                    (card2D.FindFirstChild('getUid') as RemoteFunction).InvokeServer() as string
+                ].Disconnect()
             })
         })
+
+    //Fzone
+    const animateZonePart = (card3D: Part, zone: Part) => {
+        const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
+        const position = (
+            card2D.FindFirstChild('getPosition') as RemoteFunction
+        ).InvokeServer() as Position
+        let tweenGoal: { CFrame: CFrame } = { CFrame: new CFrame() }
+
+        tweenGoal.CFrame = positionOrientation[playerField.Name as 'Player' | 'Opponent'][
+            position
+        ].add(zone.Position)
+
+        tweenService
+            .Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>)
+            .Play()
+    }
+
+    const connections: Record<string, RBXScriptConnection> = {}
+
+    playerField.FZone.ChildAdded.Connect(async (card3D) => {
+        animateZonePart(card3D as Part, playerField.FZone)
+
+        const card2D = ((card3D as Part).FindFirstChild('card2D') as ObjectValue).Value!
+
+        while (!card2D.FindFirstChild('getUid')) {
+            await Promise.delay(0)
+        }
+        while (!card2D.FindFirstChild('positionChanged')) {
+            await Promise.delay(0)
+        }
+        while (!card2D.FindFirstChild('getLocation')) {
+            await Promise.delay(0)
+        }
+
+        connections[
+            (card2D.FindFirstChild('getUid') as RemoteFunction).InvokeServer() as string
+        ] = (card2D.FindFirstChild('positionChanged') as RemoteEvent).OnClientEvent.Connect(
+            () => {
+                if (
+                    (
+                        card2D.FindFirstChild('getLocation') as RemoteFunction
+                    ).InvokeServer() === playerField.FZone.Name
+                ) {
+                    animateZonePart(card3D as Part, playerField.FZone)
+                }
+            }
+        )
+    })
+    playerField.FZone.ChildRemoved.Connect(async (card3D) => {
+        const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
+
+        while (!card2D.FindFirstChild('getUid')) {
+            await Promise.delay(0)
+        }
+
+        connections[
+            (card2D.FindFirstChild('getUid') as RemoteFunction).InvokeServer() as string
+        ].Disconnect()
+    })
 })

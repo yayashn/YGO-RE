@@ -1,5 +1,5 @@
 import Roact from '@rbxts/roact'
-import { useEffect, useState, withHooks } from '@rbxts/roact-hooked'
+import { useEffect, useRef, useState, withHooks } from '@rbxts/roact-hooked'
 import Flex from 'shared/components/Flex'
 import Window from 'gui/components/Window'
 import usePlayerData from 'gui/hooks/usePlayerData'
@@ -7,27 +7,78 @@ import theme from 'shared/theme'
 import { useNavigate, useRoute } from 'gui/router'
 import { Dictionary as Object } from '@rbxts/sift'
 import getCardData from 'shared/utils'
-import { addCardToDeck, equipDeck, removeCardFromDeck } from 'server/profile-service/profiles'
+import {
+    equipDeck,
+    getProfile,
+    saveDeck,
+} from 'server/profile-service/profiles'
 import TextboxServer from 'server/popups/TextboxServer'
 import alert from 'server/popups/alert'
+import ResetCanvasPosition from 'server-storage/client-components/ResetCanvasPosition/ResetCanvasPosition'
+import { CardTemplate } from 'server/types'
 
 const gap = 5
 const player = script.FindFirstAncestorWhichIsA('Player')!
 
 export default withHooks(() => {
     const navigate = useNavigate()
-    const playerData = usePlayerData()
+    const playerData = getProfile(player)?.Data
     const route = useRoute()
     const decks = playerData ? Object.entries(playerData.decks) : []
-    const deckName = route.split('/').pop()
+    const deckName = route.split('/').pop()!;
+    const [mainDeck, setMainDeck] = useState(playerData?.decks[deckName].deck || [])
+    const [extraDeck, setExtraDeck] = useState(playerData?.decks[deckName].extra || [])
+    const [cards, setCards] = useState(playerData!.cards);
     const [search, setSearch] = useState('')
+    const searchFrame = useRef<ScrollingFrame>()
+    const [isSaved, setIsSaved] = useState(true)
+
+    useEffect(() => {
+        if (!searchFrame.getValue()) return
+        searchFrame.getValue()!.CanvasPosition = new Vector2(0, 0)
+    }, [search])
+
+    const addCardToMainDeck = (card: CardTemplate) => {
+        if (mainDeck.size() >= 60) return
+        if(mainDeck.filter((c) => c.name === card.name).size() === 3) return
+        setMainDeck([...mainDeck, card])
+    }
+
+    const addCardToExtraDeck = (card: CardTemplate) => {
+        if (extraDeck.size() >= 15) return
+        if(extraDeck.filter((c) => c.name === card.name).size() === 3) return
+        setExtraDeck([...extraDeck, card])   
+    }
+
+    const removeCardFromMainDeck = (card: CardTemplate) => {
+        for(let i = 0; i < mainDeck.size(); i++) {
+            if(mainDeck[i].name === card.name) {
+                mainDeck.remove(i)
+                break
+            }
+        }
+        setMainDeck([...mainDeck])
+    }
+
+    const removeCardFromExtraDeck = (card: CardTemplate) => {
+        for(let i = 0; i < extraDeck.size(); i++) {
+            if(extraDeck[i].name === card.name) {
+                extraDeck.remove(i)
+                break
+            }
+        }
+        setExtraDeck([...extraDeck])
+    }
+
+    useEffect(() => {
+        setIsSaved(false)
+    }, [mainDeck, extraDeck])
 
     if (!deckName) {
         return <Roact.Fragment />
     }
 
     const deck = (decks.find(([name]) => name === deckName) || [])[1]
-    const cards = playerData ? playerData.cards : [];
     const isEquipped = playerData?.equipped.deck === deckName
 
     return (
@@ -54,7 +105,27 @@ export default withHooks(() => {
                 <textbutton
                     Event={{
                         MouseButton1Click: () => {
-                            if(isEquipped) return;
+                            if (isSaved) return
+                            saveDeck(player, deckName, mainDeck, extraDeck)
+                            setIsSaved(true)
+                        }
+                    }}
+                    Text={isSaved ? 'SAVED' : 'SAVE'}
+                    TextColor3={theme.colours.white}
+                    Font={Enum.Font.Code}
+                    BackgroundTransparency={1}
+                    TextSize={14}
+                    TextYAlignment={Enum.TextYAlignment.Center}
+                    AnchorPoint={new Vector2(0, 0)}
+                    Size={new UDim2(0, 100, 1, 0)}
+                    Position={new UDim2(0, 0, 0, 0)}
+                >
+                    <uiaspectratioconstraint AspectRatio={1} />
+                </textbutton>,
+                <textbutton
+                    Event={{
+                        MouseButton1Click: () => {
+                            if (isEquipped) return
                             equipDeck(player, deckName)
                         }
                     }}
@@ -83,7 +154,7 @@ export default withHooks(() => {
                     Size={new UDim2(1, 0, 1, -gap - 83)}
                 >
                     <uigridlayout CellSize={new UDim2(0, 52.15, 0, 83)} />
-                    {deck?.deck.map((card) => {
+                    {mainDeck.map((card) => {
                         const cardData = getCardData(card.name)
                         if (!cardData) {
                             alert(
@@ -96,7 +167,7 @@ export default withHooks(() => {
                             <imagebutton
                                 Event={{
                                     MouseButton1Click: () => {
-                                        removeCardFromDeck(player, card, deckName)
+                                        removeCardFromMainDeck(card)
                                     }
                                 }}
                                 Image={cardData?.art}
@@ -112,14 +183,14 @@ export default withHooks(() => {
                     Size={new UDim2(1, 0, 0, 83)}
                 >
                     <uigridlayout CellSize={new UDim2(0, 52.15, 0, 83)} />
-                    {deck?.extra.map((card) => {
+                    {extraDeck.map((card) => {
                         const cardData = getCardData(card.name)
 
                         return (
                             <imagebutton
                                 Event={{
                                     MouseButton1Click: () => {
-                                        removeCardFromDeck(player, card, deckName)
+                                        removeCardFromExtraDeck(card)
                                     }
                                 }}
                                 Image={cardData?.art}
@@ -149,14 +220,14 @@ export default withHooks(() => {
                     Size={new UDim2(1, 0, 1, -20)}
                 >
                     <Flex flexDirection="column" gap={new UDim(0, gap)} />
-
+                    <ResetCanvasPosition src={search} player={player} />
                     {cards.map((card, i) => {
                         const cardData = getCardData(card.name)!
                         const cardType = cardData.type
-                        const numberOfCardsInDeck = deck?.deck
+                        const numberOfCardsInDeck = mainDeck
                             .filter((c) => c.name === card.name)
                             .size()
-                        const numberOfCardsInExtra = deck?.extra
+                        const numberOfCardsInExtra = extraDeck
                             .filter((c) => c.name === card.name)
                             .size()
                         const numberOfCardsInCards = cards
@@ -167,6 +238,7 @@ export default withHooks(() => {
                             (cardType.match('Fusion').size() > 0
                                 ? numberOfCardsInExtra || 0
                                 : numberOfCardsInDeck || 0)
+                        const textColour = theme.rarities[(card.rarity || 'common') as 'common']
 
                         for (let j = 0; j < i; j++) {
                             const card2 = cards[j]
@@ -184,7 +256,11 @@ export default withHooks(() => {
                                 Event={{
                                     MouseButton1Click: () => {
                                         if (numberOfCardsAvailable > 0) {
-                                            addCardToDeck(player, card, deckName)
+                                            if(cardType.match('Fusion').size() > 0) {
+                                                addCardToExtraDeck(card)
+                                            } else {
+                                                addCardToMainDeck(card)
+                                            }
                                         }
                                     }
                                 }}
@@ -205,7 +281,7 @@ export default withHooks(() => {
                                 >
                                     <Flex flexDirection="column" />
                                     <textlabel
-                                        TextColor3={theme.colours.white}
+                                        TextColor3={textColour}
                                         BackgroundTransparency={1}
                                         TextXAlignment={Enum.TextXAlignment.Left}
                                         Size={new UDim2(1, 0, 0, 20)}
@@ -214,14 +290,14 @@ export default withHooks(() => {
                                     {cardType.match('Monster').size() > 0 && (
                                         <Roact.Fragment>
                                             <textlabel
-                                                TextColor3={theme.colours.white}
+                                                TextColor3={textColour}
                                                 BackgroundTransparency={1}
                                                 TextXAlignment={Enum.TextXAlignment.Left}
                                                 Size={new UDim2(1, 0, 0, 20)}
                                                 Text={`Lv: ${cardData?.level}`}
                                             />
                                             <textlabel
-                                                TextColor3={theme.colours.white}
+                                                TextColor3={textColour}
                                                 BackgroundTransparency={1}
                                                 TextXAlignment={Enum.TextXAlignment.Left}
                                                 Size={new UDim2(1, 0, 0, 20)}

@@ -1,15 +1,13 @@
 import Roact from "@rbxts/roact";
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
-import { Players } from "@rbxts/services";
 import Flex from "shared/components/Flex";
 import Padding from "shared/components/Padding";
-import type { Card } from "server/duel/card";
+import { Card } from "server/duel/card";
 import theme from "shared/theme";
 import { Signal } from "@rbxts/beacon";
+import { RunService } from "@rbxts/services";
 
 export const hoveredCardSignal = new Signal<Card | undefined>()
-
-const DEV = Players.GetChildren().size() === 0;
 
 export default withHooks(() => {
     const [hoveredCard, setHoveredCard] = useState<Card>()
@@ -41,7 +39,7 @@ export default withHooks(() => {
                 <uiaspectratioconstraint AspectRatio={52.15/83}/>
                 <Padding PaddingBottom={new UDim(0, 3)}/>
             </imagelabel>
-            {(hoveredCard || DEV) && <Roact.Fragment>
+            {(hoveredCard || RunService.IsStudio()) && <Roact.Fragment>
                 <textlabel
                     Size={new UDim2(1,0,0,0)}
                     TextSize={20}

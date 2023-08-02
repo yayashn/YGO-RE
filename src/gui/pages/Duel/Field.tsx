@@ -59,10 +59,6 @@ const FieldZoneButton = withHooks(
 		const [selectableZones, includesZone] = useSelectableZones();
 		const duel = getDuel(player)!;
 		const yPlayer = duel.getPlayer(player);
-		const yOpponent = duel.getOpponent(player);
-		const [zoneOccupied, setZoneOccupied] = useState<boolean>(false);
-		const duelChanged = useDuelStat(duel, "changed");
-		const playerChanged = usePlayerStat(yPlayer, "changed");
 
 		useMount(() => {
 			setTween(TweenService.Create(buttonRef.getValue()!, tweenInfo, tweenGoal));
@@ -78,13 +74,6 @@ const FieldZoneButton = withHooks(
 				}
 			}
 		}, [isHovered, selectableZones]);
-
-		useEffect(() => {
-			setZoneOccupied(getFilteredCards(duel, {
-				location: [zoneName as Location],
-				controller: [playerType === "Player" ? player : yOpponent.player],
-			}).size() !== 0)
-		}, [duelChanged, playerChanged])
 
 		return (
 			<textbutton

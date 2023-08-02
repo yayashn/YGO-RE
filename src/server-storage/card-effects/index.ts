@@ -1,49 +1,50 @@
 import type { Card } from "server/duel/card"
-import Sparks from "./Sparks";
-import Hinotama from "./Hinotama";
-import RemoveTrap from "./Remove Trap";
-import RedMedicine from "./Red Medicine";
-import DarkHole from "./Dark Hole";
-import Raigeki from "./Raigeki";
-import Fissure from "./Fissure";
-import GravediggerGhoul from "./Gravedigger Ghoul";
-import StopDefense from "./Stop Defense";
-import GoblinSSecretRemedy from "./Goblin's Secret Remedy";
-import PotOfGreed from "./Pot of Greed";
-import FinalFlame from "./Final Flame";
-import SwordsOfRevealingLight from "./Swords of Revealing Light";
-import MonsterReborn from "./Monster Reborn";
-import TwoProngedAttack from "./Two-Pronged Attack";
-import TrapHole from "./Trap Hole";
-import DragonCaptureJar from "./Dragon Capture Jar";
-import VioletCrystal from "./Violet Crystal";
-import BeastFangs from "./Beast Fangs";
-import BookOfSecretArts from "./Book of Secret Arts";
-import PowerOfKaishin from "./Power of Kaishin";
-import DarkEnergy from "./Dark Energy";
-import LaserCannonArmor from "./Laser Cannon Armor";
-import VileGerms from "./Vile Germs";
-import SilverBowAndArrow from "./Silver Bow and Arrow";
-import DragonTreasure from "./Dragon Treasure";
-import ElectroWhip from "./Electro-Whip";
-import MysticalMoon from "./Mystical Moon";
-import MachineConversionFactory from "./Machine Conversion Factory";
-import RaiseBodyHeat from "./Raise Body Heat";
-import FollowWind from "./Follow Wind";
-import Wasteland from "./Wasteland";
-import Yami from "./Yami";
-import Forest from "./Forest";
-import Mountain from "./Mountain";
-import Sogen from "./Sogen";
-import Umi from "./Umi";
-import ManEaterBug from "./Man-Eater Bug";
-import HaneHane from "./Hane-Hane";
-import ReaperOfTheCards from "./Reaper of the Cards";
-import ArmedNinja from "./Armed Ninja";
-import Polymerization from "./Polymerization";
-import type { Action, Location } from "server/duel/types";
-import HarpieSFeatherDuster from "./Harpie's Feather Duster";
-import LegendarySword from "./Legendary Sword";
+import { Location, Action } from "server/duel/types"
+import HarpieSFeatherDuster from "./Harpie's Feather Duster"
+import ArmedNinja from "./LOB/Armed Ninja"
+import BeastFangs from "./LOB/Beast Fangs"
+import BookOfSecretArts from "./LOB/Book of Secret Arts"
+import DarkEnergy from "./LOB/Dark Energy"
+import DarkHole from "./LOB/Dark Hole"
+import DragonCaptureJar from "./LOB/Dragon Capture Jar"
+import DragonTreasure from "./LOB/Dragon Treasure"
+import ElectroWhip from "./LOB/Electro-Whip"
+import FinalFlame from "./LOB/Final Flame"
+import Fissure from "./LOB/Fissure"
+import FollowWind from "./LOB/Follow Wind"
+import Forest from "./LOB/Forest"
+import GoblinSSecretRemedy from "./LOB/Goblin's Secret Remedy"
+import GravediggerGhoul from "./LOB/Gravedigger Ghoul"
+import HaneHane from "./LOB/Hane-Hane"
+import Hinotama from "./LOB/Hinotama"
+import LaserCannonArmor from "./LOB/Laser Cannon Armor"
+import LegendarySword from "./LOB/Legendary Sword"
+import MachineConversionFactory from "./LOB/Machine Conversion Factory"
+import ManEaterBug from "./LOB/Man-Eater Bug"
+import MonsterReborn from "./LOB/Monster Reborn"
+import Mountain from "./LOB/Mountain"
+import MysticalMoon from "./LOB/Mystical Moon"
+import Polymerization from "./LOB/Polymerization"
+import PotOfGreed from "./LOB/Pot of Greed"
+import PowerOfKaishin from "./LOB/Power of Kaishin"
+import Raigeki from "./LOB/Raigeki"
+import RaiseBodyHeat from "./LOB/Raise Body Heat"
+import ReaperOfTheCards from "./LOB/Reaper of the Cards"
+import RedMedicine from "./LOB/Red Medicine"
+import RemoveTrap from "./LOB/Remove Trap"
+import SilverBowAndArrow from "./LOB/Silver Bow and Arrow"
+import Sogen from "./LOB/Sogen"
+import Sparks from "./LOB/Sparks"
+import StopDefense from "./LOB/Stop Defense"
+import SwordsOfRevealingLight from "./LOB/Swords of Revealing Light"
+import TrapHole from "./LOB/Trap Hole"
+import TwoProngedAttack from "./LOB/Two-Pronged Attack"
+import Umi from "./LOB/Umi"
+import VileGerms from "./LOB/Vile Germs"
+import VioletCrystal from "./LOB/Violet Crystal"
+import Wasteland from "./LOB/Wasteland"
+import Yami from "./LOB/Yami"
+import ChangeOfHeart from "./MRD/Change of Heart"
 
 export type CardEffect = {
     condition?: () => boolean,
@@ -102,6 +103,8 @@ export default {
     "Reaper of the Cards": ReaperOfTheCards,
     "Armed Ninja": ArmedNinja,
     "Polymerization": Polymerization,//
+    //MRD
+    "Change of Heart": ChangeOfHeart
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }

@@ -17,6 +17,10 @@ export default withHooks(() => {
     const targettableCards = usePlayerStat<"targettableCards", Card[]>(yPlayer, 'targettableCards');
     const [shownCards, setShownCards] = useShownCards();
 
+    if(shownCards === undefined && targettableCards.size() === 0) {
+        return <Roact.Fragment/>
+    }
+
     return (
         <frame
             BackgroundTransparency={1}
@@ -29,7 +33,7 @@ export default withHooks(() => {
                 BackgroundColor3={theme.colours.primary}
             >
                 <Flex flexDirection='column' justifyContent='center' alignItems='center' />
-                {shownCards !== undefined && <frame
+                {targettableCards.size() === 0 && shownCards !== undefined && <frame
                     BackgroundTransparency={1}
                     Size={new UDim2(1, 0, .2, 0)}
                 >

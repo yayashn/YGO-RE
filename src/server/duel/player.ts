@@ -124,10 +124,13 @@ export class YPlayer {
     }
 
     handleTarget(target: Card) {
+        const targets = this.targets.get()
         if (this.targettableCards.get().includes(target)) {
-            this.targets.set([...this.targets.get(), target])
-        } else {
-            this.targets.set(this.targets.get().filter((t) => t !== target))
+            if(!targets.includes(target)) {
+                this.targets.set([...targets, target])
+            } else {
+                this.targets.set(targets.filter((t) => t !== target))
+            }
         }
     }
 }

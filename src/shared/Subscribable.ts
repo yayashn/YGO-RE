@@ -31,4 +31,8 @@ export class Subscribable<T> {
     wait() {
         return this.event.Wait()[0]
     }
+
+    refresh() {
+        this.event.Fire(this.value);
+    }
 }

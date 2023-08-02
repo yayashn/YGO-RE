@@ -2,7 +2,7 @@ import Roact from "@rbxts/roact";
 import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
 import Flex from "shared/components/Flex";
 import useDuelStat from "gui/hooks/useDuelStat";
-import { getDuel, type Duel } from "server/duel/duel";
+import { getDuel } from "server/duel/duel";
 import { Phase } from "server/duel/types";
 
 const phasesPart = game.Workspace.Field3D.Phases;
@@ -16,6 +16,7 @@ export default withHooks(() => {
     const [playerLP, setPlayerLp] = useState(8000);
     const [opponentLP, setOpponentLp] = useState(8000);
 
+    
     useEffect(() => {
         if (!YGOPlayer || !YGOOpponent) return;
         const connections = [
@@ -68,6 +69,8 @@ export default withHooks(() => {
                             BorderColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.get() ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254, 17, 14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
                             Event={{
                                 MouseButton1Click: () => {
+                                    if(duel.turnPlayer.get().selectableZones.get().size() !== 0) return;
+                                    if(duel.turnPlayer.get().targettableCards.get().size() !== 0) return;
                                     if (duel!.turnPlayer.get() !== YGOPlayer) return;
                                     if (duel.gameState.get() !== "OPEN") return;
                                     if (duel.battleStep.get() === "DAMAGE") return;

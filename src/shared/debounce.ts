@@ -68,3 +68,21 @@ export default function debounce<F extends Procedure>(
 
   return debounced as unknown as F;
 }
+
+export const throttle = (func: Callback, wait: number, options: DebounceOptions = {}): Callback => {
+  let leading = true,
+    trailing = true;
+  if (typeOf(options) === 'table') {
+    leading = 'leading' in options
+      ? !!options.leading
+      : leading;
+    trailing = 'trailing' in options
+      ? !!options.trailing
+      : trailing;
+  }
+  return debounce(func, wait, {
+    leading,
+    maxWait: wait,
+    trailing,
+  });
+};
