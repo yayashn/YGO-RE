@@ -1,5 +1,5 @@
 import { Lighting } from "@rbxts/services";
-import Remotes from "shared/net";
+import Remotes from "shared/net/remotes";
 
 const workspace = game.GetService("Workspace");
 const player = game.GetService("Players").LocalPlayer;

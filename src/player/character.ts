@@ -4,6 +4,7 @@ const defaultShirt = Lighting.FindFirstChild("Char")!.FindFirstChildWhichIsA("Sh
 const defaultPants = Lighting.FindFirstChild("Char")!.FindFirstChildWhichIsA("Pants")!;
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
+
 const character = player.Character || player.CharacterAdded.Wait()[0];
 const humanoid = character.WaitForChild("Humanoid") as Humanoid;
 const humanoidDescription = humanoid.GetAppliedDescription();

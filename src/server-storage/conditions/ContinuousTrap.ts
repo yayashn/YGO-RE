@@ -2,6 +2,7 @@
 import type { Card } from 'server/duel/card';
 import Trap from './Trap'
 import { getDuel } from 'server/duel/duel';
+import { includes } from 'shared/utils';
 
 export default (card: Card) => {
     const controller = card.getController()

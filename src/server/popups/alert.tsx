@@ -4,7 +4,7 @@ import Dialog from "server/popups/Dialog"
 export default async (message: string, player: Player) => {
     return new Promise<"OK">((resolve) => {
         const prompt = Roact.mount(
-            <screengui Key="Dialog" IgnoreGuiInset>
+            <screengui key="Dialog" IgnoreGuiInset>
                 <Dialog message={message}
                     options={[
                         {

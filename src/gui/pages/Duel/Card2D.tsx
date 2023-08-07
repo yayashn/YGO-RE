@@ -1,120 +1,115 @@
-import Roact from '@rbxts/roact'
-import { useCallback, useEffect, useRef, useState, withHooks } from '@rbxts/roact-hooked'
-import useController from 'gui/hooks/useController'
-import useMount from 'gui/hooks/useMount'
-import useShowArt from 'gui/hooks/useShowArt'
-import { Card } from 'server/duel/card'
-import { getDuel } from 'server/duel/duel'
-import { getEquippedSleeve } from 'server/profile-service/profiles'
-import Remotes from 'shared/net'
-import CardMenu from './CardMenu'
-import { Location, Position } from 'server/duel/types'
-import HoverCard from 'server-storage/animations/HoverCard/HoverCard'
-import useCardStat from 'gui/hooks/useCardStat'
-import { useShowMenu } from './useShowMenu'
-import useIsTarget from 'gui/hooks/useIsTarget'
-import useIsTargettable from 'gui/hooks/useIsTargettable'
-import ImgSrc from 'server-storage/client-components/ImgSrc/ImgSrc'
-import { hoveredCardSignal } from './CardInfo'
+import Roact, { useEffect, useRef, useState } from "@rbxts/roact"
+import { Players } from "@rbxts/services"
+import { CardAction, CardPublic } from "server/duel/types"
+import useIsTargettable from "gui/hooks/useIsTargettable"
+import useIsTarget from "gui/hooks/useIsTarget"
+import CardMenu from "./CardMenu"
+import { get3DZone, includes } from "shared/utils"
+import { useEventListener } from "shared/hooks/useEventListener"
+import { CardRemotes, PlayerRemotes } from "shared/duel/remotes"
+import useShowMenu from "gui/hooks/useShowMenu"
+import useHoveredCard from "gui/hooks/useHoveredCard"
+import { CardStatus } from "./CardStatus"
+
+const card3DTemplate = game.Workspace.Field3D.Card;
 
 interface Props {
-    card: Card
+    card: CardPublic
 }
 
-const player = script.FindFirstAncestorWhichIsA('Player')!
+const player = Players.LocalPlayer
+const tweenService = game.GetService('TweenService')
+const cardChanged = CardRemotes.Client.Get("cardChanged")
+const handleCardClick = PlayerRemotes.Client.Get("handleCardClick")
+const tweenInfoHand = new TweenInfo(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
 
-export default withHooks(({ card }: Props) => {
-    const duel = getDuel(player)!
+export default ({ card: c }: Props) => {
+    const [card, setCard] = useState(c)
+    const location = card.location
     const card2DRef = useRef<SurfaceGui>()
-    const controller = useController(card)
-    const yPlayer = duel.getPlayer(player)
-    const showArt = useShowArt(card)
-    const sleeve = getEquippedSleeve(controller)
-    const isOpponent = () => card.controller.get() !== player
-    const positionChangedRef = useRef<RemoteEvent>()
-    const [hover, setHover] = useState(false)
-    const location = useCardStat<'location', Location>(card, 'location')
-    const isTarget = useIsTarget(card)
     const isTargettable = useIsTargettable(card)
+    const isTarget = useIsTarget(card)
+    const card3DRef = useRef<Part>(card3DTemplate.Clone())
+    const [hoveredCard, setHoveredCard] = useHoveredCard()
+    const [hover, setHover] = useState(false)
     const [showMenu, setShowMenu] = useShowMenu()
-
-    const setHoveredCard = useCallback((c) => {
-        hoveredCardSignal.Fire(c)
-    }, [])
-
-    useMount(
-        () => {
-            if (card2DRef.getValue() === undefined) return
-
-            Remotes.Server.Get('createCard3D').SendToPlayer(
-                player,
-                card2DRef.getValue()!,
-                card.location.get(),
-                isOpponent()
-            )
-
-            const connections = [
-                card.position.changed((position: Position) => {
-                    positionChangedRef.getValue()!.FireClient(player, position)
-                }),
-                card.location.changed((location: Location) => {
-                    Remotes.Server.Get('moveCard3D').SendToPlayer(
-                        player,
-                        card2DRef.getValue()!,
-                        location,
-                        isOpponent()
-                    )
-                })
-            ]
-
-            return () => {
-                connections.forEach((connection) => connection.Disconnect())
-            }
-        },
-        [],
-        card2DRef
-    )
-
-    useEffect(() => {
-        if (showMenu === card) {
-            setShowMenu(undefined)
-        }
-    }, [isTargettable])
-
-    const onClick = () => {
-        print(card)
-        print(duel.cardFloodgates.get())
-        print(card.getFloodgates("FORCE_FACEUP_DEFENSE"))
-        print(card.hasFloodgate("FORCE_FACEUP_DEFENSE"))
-        if (isTargettable) {
-            yPlayer.handleTarget(card)
-        } else {
-            setShowMenu(showMenu === card ? undefined : card)
-        }
-    }
-
-    const onHover = useCallback(() => {
-        setHover(card.location.get() === 'Hand')
-        if (showArt) {
-            setHoveredCard(card)
-        } else {
-            setHoveredCard(undefined)
-        }
-    }, [showArt, setHover, setHoveredCard])
-
-    const onLeave = useCallback(() => {
-        setHover(false)
-    }, [setHover])
+    const sleeveRef = useRef<ImageButton>()
+    const artRef = useRef<ImageButton>()
+    const tweeningRef = useRef<BoolValue>()
+    const positionChangedRef = useRef<BindableEvent>()
+    const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
 
     const ButtonEvents = {
-        MouseButton1Click: () => onClick(),
-        MouseEnter: () => onHover(),
-        MouseLeave: () => onLeave()
+        MouseButton1Click: async () => {
+            const shouldShowMenu = await handleCardClick.CallServerAsync(card);
+            if(shouldShowMenu !== false) {
+                setShowMenu({...card})
+                setEnabledActions(shouldShowMenu)
+            } else {
+                setShowMenu(undefined)
+                setEnabledActions([])
+            }
+        },
+        MouseEnter: () => {
+            if(hoveredCard !== card) {
+                setHoveredCard(card)
+            }
+        },
+        MouseLeave: () => {
+            if(hoveredCard === card) {
+                setHoveredCard(undefined)
+            }
+        },
     }
 
+    useEffect(() => {
+        (card3DRef.current.FindFirstChild("card2D") as ObjectValue).Value = card2DRef.current
+        positionChangedRef.current?.Fire(card.position);
+        new Promise(() => {
+            let count = 0;
+            while (count < 10) {
+                wait(1);
+                (card2DRef.current?.WaitForChild("Status") as BillboardGui).Enabled = true;
+                count++;
+            }
+        })
+    }, [])
+
+    useEventListener(cardChanged, (newCard) => {
+        if(newCard.uid !== c.uid) return
+        setCard({...newCard})
+    })
+
+    useEffect(() => {
+        positionChangedRef.current?.Fire(card.position)
+        wait()
+        card3DRef.current.Parent = get3DZone(card.location, card.controller !== player);
+    }, [card])
+
+    useEffect(() => {
+        if(!artRef.current) return
+        if(!sleeveRef.current) return
+        if(card.location === "Hand") {
+            if(hover) {
+                const tweenGoal = { Size: new UDim2(1, 0, 1, 0) }
+                tweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
+                tweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
+            } else {
+                const tweenGoal = { Size: new UDim2(0.8, 0, 0.8, 0) }
+                tweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
+                tweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
+            }
+        } else {
+            artRef.current.Size = new UDim2(1, 0, 1, 0)
+            sleeveRef.current.Size = new UDim2(1, 0, 1, 0)
+        }
+    }, [hover, card, artRef, sleeveRef])
+
     return (
-        <surfacegui Ref={card2DRef}>
-            <surfacegui ZOffset={-1} AlwaysOnTop Key="Art" Face="Bottom">
+        <surfacegui ref={card2DRef}>
+            <surfacegui 
+            Adornee={card3DRef.current}
+            ZOffset={-1} AlwaysOnTop key="Art" Face="Bottom">
                 <imagebutton
                     Event={ButtonEvents}
                     ImageTransparency={0}
@@ -122,9 +117,9 @@ export default withHooks(({ card }: Props) => {
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
                     Position={new UDim2(0.5, 0, 0.5, 0)}
+                    Image={card.art}
+                    ref={artRef}
                 >
-                    <ImgSrc player={player} src={showArt ? card.art : ''} />
-                    {location === 'Hand' && <HoverCard playAnimation={hover} />}
                     {isTargettable && !isTarget ? (
                         <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
                     ) : isTarget ? (
@@ -135,53 +130,47 @@ export default withHooks(({ card }: Props) => {
                 </imagebutton>
             </surfacegui>
 
-            <surfacegui AlwaysOnTop Key="Sleeve" Face="Top">
+            <surfacegui 
+            Adornee={card3DRef.current}
+            AlwaysOnTop key="Sleeve" Face="Top">
                 <imagebutton
+                    ref={sleeveRef}
                     Event={ButtonEvents}
                     ImageTransparency={0}
                     Size={location !== 'Hand' ? new UDim2(1, 0, 1, 0) : new UDim2(0.8, 0, 0.8, 0)}
                     BackgroundTransparency={1}
                     AnchorPoint={new Vector2(0.5, 0.5)}
                     Position={new UDim2(0.5, 0, 0.5, 0)}
-                >
-                    <ImgSrc player={player} src={sleeve} />
-                    {location === 'Hand' && <HoverCard playAnimation={hover} />}
-                    {isTargettable && !isTarget ? (
-                        <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
-                    ) : isTarget ? (
-                        <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
-                    ) : (
-                        <Roact.Fragment />
-                    )}
-                </imagebutton>
+                    Image="rbxassetid://3955072236"
+                    >
+                        {isTargettable && !isTarget ? (
+                            <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
+                        ) : isTarget ? (
+                            <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
+                        ) : (
+                            <Roact.Fragment />
+                        )}
+                    </imagebutton>
+                </surfacegui>
+                <CardMenu 
+                enabledActions={enabledActions}
+                Adornee={card3DRef.current} card={card} />
+                <CardStatus Adornee={card3DRef.current} card={card}/>
+                <objectvalue key="card3D" Value={card3DRef.current} />
+                <objectvalue key="card2D" Value={card2DRef.current} />
+                <numbervalue key="order" Value={card.order} />
+                <boolvalue 
+                ref={tweeningRef}
+                key="tweening" Value={false} />
+                <bindableevent 
+                ref={positionChangedRef}
+                key="positionChanged" />
+                <bindablefunction 
+                OnInvoke={() => {
+                    return card
+                }}
+                key="getCard"/>
             </surfacegui>
-            <CardMenu card={card} />
-            <objectvalue Key="card3D" />
-            <remotefunction
-                Key="getPosition"
-                OnServerInvoke={() => {
-                    return card.position.get()
-                }}
-            />
-            <remotefunction
-                Key="getLocation"
-                OnServerInvoke={() => {
-                    return card.location.get()
-                }}
-            />
-            <remotefunction
-                Key="getOrder"
-                OnServerInvoke={() => {
-                    return card.order.get()
-                }}
-            />
-            <remotefunction
-                Key="getUid"
-                OnServerInvoke={() => {
-                    return card.uid
-                }}
-            />
-            <remoteevent Key="positionChanged" Ref={positionChangedRef} />
-        </surfacegui>
-    )
-})
+        )
+    }
+    

@@ -1,4 +1,4 @@
-import { setTimeout, clearTimeout } from "@rbxts/roact-hooked-plus";
+import { setTimeout } from "@rbxts/set-timeout";
 
 type Procedure = (...args: unknown[]) => void;
 
@@ -43,7 +43,7 @@ export default function debounce<F extends Procedure>(
 
   function startTimer(time: number, args: unknown[]) {
     if (timeoutId !== undefined) {
-      clearTimeout(timeoutId);
+        timeoutId()
     }
 
     timeoutId = setTimeout(() => {

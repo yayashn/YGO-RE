@@ -4,19 +4,22 @@ export class Subscribable<T> {
     private value: T
     private event = new Signal<[val: T]>();
     private sideEffect?: Callback
+    private getSideEffect?: Callback
 
-    constructor(value: T, sideEffect?: Callback) {
+    constructor(value: T, sideEffect?: Callback, getSideEffect?: Callback) {
         this.value = value;
         this.sideEffect = sideEffect;
+        this.getSideEffect = getSideEffect;
     }
 
     set(newValue: T) {
         this.value = newValue;
         this.event.Fire(newValue);
-        this.sideEffect?.();
+        this.sideEffect?.(newValue);
     }
 
     get() {
+        this.getSideEffect?.(this.value);
         return this.value
     }
 

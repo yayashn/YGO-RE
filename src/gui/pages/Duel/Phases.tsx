@@ -1,40 +1,21 @@
-import Roact from "@rbxts/roact";
-import { useEffect, useState, withHooks } from "@rbxts/roact-hooked";
-import Flex from "shared/components/Flex";
-import useDuelStat from "gui/hooks/useDuelStat";
-import { getDuel } from "server/duel/duel";
+import Roact, { useEffect } from "@rbxts/roact";
+import { Players } from "@rbxts/services";
+import useLP from "gui/hooks/useLP";
+import usePhase from "gui/hooks/usePhase";
+import useTurnPlayer from "gui/hooks/useTurnPlayer";
 import { Phase } from "server/duel/types";
+import Flex from "shared/components/Flex";
+import { DuelRemotes } from "shared/duel/remotes";
 
 const phasesPart = game.Workspace.Field3D.Phases;
-const player = script.FindFirstAncestorWhichIsA("Player")!;
+const player = Players.LocalPlayer
 
-export default withHooks(() => {
-    const duel = getDuel(player)!;
-    const phase = useDuelStat<"phase", Phase>(duel, "phase");
-    const YGOPlayer = duel.getPlayer(player);
-    const YGOOpponent = duel.getOpponent(player);
-    const [playerLP, setPlayerLp] = useState(8000);
-    const [opponentLP, setOpponentLp] = useState(8000);
+const handlePhaseClick = DuelRemotes.Client.Get("handlePhaseClick");
 
-    
-    useEffect(() => {
-        if (!YGOPlayer || !YGOOpponent) return;
-        const connections = [
-            YGOPlayer.lifePoints.changed((newLp) => {
-                setPlayerLp(newLp)
-            }),
-            YGOOpponent.lifePoints.changed((newLp) => {
-                setOpponentLp(newLp)
-            })
-        ]
-
-        setPlayerLp(YGOPlayer.lifePoints.get())
-        setOpponentLp(YGOOpponent.lifePoints.get())
-
-        return () => {
-            connections.forEach((connection) => connection.Disconnect())
-        }
-    }, [YGOPlayer, YGOOpponent])
+export default function Phases() {
+    const { playerLP, opponentLP } = useLP();
+    const phase = usePhase()
+    const turnPlayer = useTurnPlayer()
 
     return (
         <billboardgui
@@ -63,35 +44,13 @@ export default withHooks(() => {
                     return (
                         <textbutton
                             BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
-                            TextColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.get() ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254, 17, 14)) : Color3.fromRGB(255, 255, 255)}
+                            TextColor3={phase === phaseName ? (turnPlayer === player ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254, 17, 14)) : Color3.fromRGB(255, 255, 255)}
                             Size={new UDim2(0, 50, 1, 0)}
                             LayoutOrder={i}
-                            BorderColor3={phase === phaseName ? (YGOPlayer === duel.turnPlayer.get() ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254, 17, 14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
+                            BorderColor3={phase === phaseName ? (turnPlayer === player ? Color3.fromRGB(0, 128, 255) : Color3.fromRGB(254, 17, 14)) : new Color3(26 / 255, 101 / 255, 110 / 255)}
                             Event={{
                                 MouseButton1Click: () => {
-                                    if(duel.turnPlayer.get().selectableZones.get().size() !== 0) return;
-                                    if(duel.turnPlayer.get().targettableCards.get().size() !== 0) return;
-                                    if (duel!.turnPlayer.get() !== YGOPlayer) return;
-                                    if (duel.gameState.get() !== "OPEN") return;
-                                    if (duel.battleStep.get() === "DAMAGE") return;
-                                    if (phase === "MP1") {
-                                        if (phaseName === "BP") {
-                                            if (duel!.turn.get() <= 1) {
-                                                return
-                                            }
-                                            duel!.handlePhase("BP")
-                                        } else if (phaseName === "EP") {
-                                            duel!.handlePhase("EP")
-                                        }
-                                    } else if (phase === "MP2") {
-                                        if (phaseName === "EP") {
-                                            duel!.handlePhase("EP")
-                                        }
-                                    } else if (phase === "BP") {
-                                        if (phaseName === "EP" || phaseName === "MP2") {
-                                            duel!.handlePhase("MP2")
-                                        }
-                                    }
+                                    handlePhaseClick.SendToServer(phaseName)
                                 }
                             }}
                             Text={phaseName} />
@@ -113,4 +72,4 @@ export default withHooks(() => {
             </frame>
         </billboardgui>
     )
-})
+}

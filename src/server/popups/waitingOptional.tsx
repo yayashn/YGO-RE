@@ -3,7 +3,7 @@ import Dialog from "server/popups/Dialog"
 
 export default (message: string, player: Player) => {
     let waiting: Roact.Tree | undefined = Roact.mount(
-        <screengui Key="Dialog" IgnoreGuiInset>
+        <screengui key="Dialog" IgnoreGuiInset>
             <Dialog message={message}
                 options={[
                     {

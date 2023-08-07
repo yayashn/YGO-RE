@@ -1,26 +1,16 @@
-import { useEffect, useState } from "@rbxts/roact-hooked"
-import type { Card } from "server/duel/card"
-import { getDuel } from "server/duel/duel"
+import { useState } from "@rbxts/roact";
+import { CardPublic } from "server/duel/types";
+import { PlayerRemotes } from "shared/duel/remotes";
+import { useEventListener } from "shared/hooks/useEventListener";
 
-const player = script.FindFirstAncestorWhichIsA("Player")!;
+const isTargetChanged = PlayerRemotes.Client.Get("targettedCardsChanged")
 
-export default (card: Card) => {
-    const duel = getDuel(card.owner)!;
-    const yPlayer = duel.getPlayer(player);
-    const [isTarget, setIsTarget] = useState(false)
+export default function useIsTarget(card: CardPublic) {
+    const [value, setValue] = useState(false)
 
-    useEffect(() => {
-        if(!yPlayer) return
-        const connection = yPlayer.targets.changed((newTargets) => {
-            setIsTarget((newTargets as unknown as Card[]).includes(card))
-        })
+    useEventListener(isTargetChanged, (newValue) => {
+        setValue(newValue.find(c => c.uid === card.uid) !== undefined)
+    })
 
-        return () => connection.Disconnect()
-    }, [yPlayer])
-
-    useEffect(() => {
-        if(!isTarget) return
-    }, [isTarget])
-
-    return isTarget
+    return value
 }

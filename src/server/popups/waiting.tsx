@@ -3,7 +3,7 @@ import Dialog from "server/popups/Dialog"
 
 export default (message: string, player: Player) => {
     const waiting = Roact.mount(
-        <screengui Key="Dialog" IgnoreGuiInset>
+        <screengui key="Dialog" IgnoreGuiInset>
             <Dialog message={message}/>
         </screengui>, 
         player.FindFirstChildWhichIsA("PlayerGui")

@@ -6,7 +6,7 @@ import defaultTestData from "./default-test-data";
 import alert from "server/popups/alert";
 import { getDuel } from "server/duel/duel";
 import cards from "shared/sets/cards";
-import { Dictionary as Object } from "@rbxts/sift";
+
 
 const profileStore = ProfileService.GetProfileStore('PlayerData10', defaultPlayerData);
 

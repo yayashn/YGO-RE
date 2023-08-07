@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useState } from "@rbxts/roact-hooked";
-import { getDuel } from "server/duel/duel";
+import { useEventListener } from "shared/hooks/useEventListener";
+import { useCallback, useState } from "@rbxts/roact";
+import { PlayerRemotes } from "shared/duel/remotes";
 import { Location, SelectableZone } from "server/duel/types";
 
-const p = script.FindFirstAncestorWhichIsA("Player")!;
-  
-export default () => {
-    const [selectableZones, setSelectableZones] = useState<SelectableZone[]>([]);
-    const duel = getDuel(p)!;
-    const player = duel.getPlayer(p);
+const selectableZoneChanged = PlayerRemotes.Client.Get("selectableZonesChanged")
+
+export default function useSelectableZones() {
+    const [value, setValue] = useState<SelectableZone[]>([])
+
+    useEventListener(selectableZoneChanged, (value) => {
+        setValue(value)
+    })
 
     const includesZone = useCallback((zoneName: Location, zoneSide: "Player" | "Opponent" | "Both") => {
-        const zone = selectableZones.find((zone) => zone.zone === zoneName);
+        const zone = value.find((zone) => zone.zone === zoneName);
         if(zone) {
             if(zoneSide === "Both") {
                 return zone.opponent === true && zone.player === true;
@@ -19,18 +22,7 @@ export default () => {
             }
         }
         return false;
-    }, [selectableZones])
+    }, [value])
 
-    useEffect(() => {
-        if(!player) return;
-        const connection = player.selectableZones.changed((newValue: SelectableZone[]) => {
-            setSelectableZones(newValue);
-        })
-
-        return () => {
-            connection.Disconnect();
-        }
-    }, [player])
-
-    return [selectableZones, includesZone] as [SelectableZone[], typeof includesZone];
+    return [value, includesZone] as const
 }

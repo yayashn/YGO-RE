@@ -16,8 +16,6 @@ export default (card: Card) => {
     const canActivate = !card.hasFloodgate("CANNOT_ACTIVATE");
     const isFacedown = card.position.get() === "FaceDown";
 
-    print(isActor, (inHand || inBottomRow),!activated, canActivate, isControllersTurn , isMainPhase , duel.gameState.get() === "OPEN" , isSpeedSpell1);
-
     return (isActor && (inHand || inBottomRow) && isFacedown && !activated && canActivate) &&
      isControllersTurn && isMainPhase && duel.gameState.get() === "OPEN" && isSpeedSpell1
 }

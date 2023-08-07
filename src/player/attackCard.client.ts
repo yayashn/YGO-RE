@@ -1,6 +1,6 @@
 import { TweenService } from "@rbxts/services";
 import type { Location } from "server/duel/types";
-import Remotes from "shared/net";
+import Remotes from "shared/net/remotes";
 import { createInstance } from "shared/utils";
 
 const field = game.Workspace.Field3D.Field;

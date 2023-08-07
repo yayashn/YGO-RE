@@ -4,8 +4,8 @@ import { Subscribable } from "shared/Subscribable";
 import { Location, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
-import { getCards } from "./utils";
-import debounce from "shared/debounce";
+import { getFilteredCards } from "./utils";
+import { PlayerRemotes } from "shared/duel/remotes";
 
 export class YPlayer {
     changed = new Subscribable(0);
@@ -13,17 +13,42 @@ export class YPlayer {
     cards = new Subscribable<Card[]>([]);
     floodgates = new Subscribable<Floodgate[]>([]);
     targets = new Subscribable<Card[]>([]);
-    lifePoints = new Subscribable(8000, () => {
+    lifePoints = new Subscribable(8000, (newLP) => {
+        const duel = getDuel(this.player);
+        const opponent = duel!.getOpponent(this.player);
+        PlayerRemotes.Server.Get("lpChanged").SendToPlayer(this.player, {
+            playerLP: newLP,
+            opponentLP: opponent.lifePoints.get(),
+        })
+        PlayerRemotes.Server.Get("lpChanged").SendToPlayer(opponent.player, {
+            playerLP: opponent.lifePoints.get(),
+            opponentLP: newLP,
+        })
         if(this.lifePoints.get() <= 0) {
-            const duel = getDuel(this.player);
             const opponent = duel!.getOpponent(this.player);
             duel!.endDuel(opponent, 'Lifepoints reduced to 0.');
         }
     });
     selectableZones = new Subscribable<SelectableZone[]>([]);
     selectedZone = new Subscribable<Location | undefined>(undefined);
-    targettableCards = new Subscribable<Card[]>([]);
-    targettedCards = new Subscribable<Card[]>([]);
+    targettableCards = new Subscribable<Card[]>([], (cards: Card[]) => {
+        PlayerRemotes.Server.Get("targettableCardsChanged").SendToPlayers([this.player], cards.map(card => ({
+            uid: card.uid,
+            position: card.position.get(),
+            location: card.location.get(),
+            controller: card.controller.get(),
+            order: card.order.get(),
+        })))
+    });
+    targettedCards = new Subscribable<Card[]>([], (cards: Card[]) => {
+        PlayerRemotes.Server.Get("targettedCardsChanged").SendToPlayers([this.player], cards.map(card => ({
+            uid: card.uid,
+            position: card.position.get(),
+            location: card.location.get(),
+            controller: card.controller.get(),
+            order: card.order.get(),
+        })))   
+    });
     selectedPosition = new Subscribable<Position | undefined>(undefined);
     selectedPositionCard = new Subscribable<Card | undefined>(undefined);
 
@@ -35,11 +60,11 @@ export class YPlayer {
         this.cards.set([...this.cards.get(), ...equippedDeck.extra.map((card, i) => new Card(card.name, player, i))]);
     }
 
-    onChanged = debounce(() => {
+    onChanged = () => {
         this.changed.set(this.changed.get() + 1);
-    })
+    }
 
-    shuffle() {
+    async shuffle() {
         const deck = this.cards.get().filter(
             (card) => card.location.get() === 'Deck'
         )
@@ -51,13 +76,14 @@ export class YPlayer {
         for (let i = 0; i < deck.size(); i++) {
             deck[i].order.set(i)
         }
+        await Promise.delay(deck.size() * 0.03)
     }
 
     changeLifePoints(n: number) {
         this.lifePoints.set(this.lifePoints.get() + n);
     }
 
-    draw(n: number) {
+    async draw(n: number) {
         for (let i = 0; i < n; i++) {
             let deck = this.cards.get().filter(
                 (card) => card.location.get() === 'Deck'
@@ -65,6 +91,9 @@ export class YPlayer {
             const topCard = deck.find((card) => card.order.get() === 0)
             if (!topCard) {
                 //end duel
+                const duel = getDuel(this.player);
+                const opponent = duel!.getOpponent(this.player);
+                duel?.endDuel(opponent, 'No cards left in deck.');
                 return
             }
             topCard.location.set('Hand')
@@ -74,7 +103,7 @@ export class YPlayer {
             deck.forEach((_, x) => {
                 deck[x].order.set(deck[x].order.get() - 1)
             })
-            wait(0.3)
+            await Promise.delay(0.3)
         }
     }
 
@@ -123,7 +152,11 @@ export class YPlayer {
         return selectedZone as Location
     }
 
-    handleTarget(target: Card) {
+    handleTarget(targetUid: string) {
+        const duel = getDuel(this.player)!;
+        const target = getFilteredCards(duel, {
+            uid: [targetUid]
+        })[0]
         const targets = this.targets.get()
         if (this.targettableCards.get().includes(target)) {
             if(!targets.includes(target)) {

@@ -1,38 +1,27 @@
-import { useEffect, useState } from "@rbxts/roact-hooked";
-import { Card } from "server/duel/card";
+import { useState, useEffect } from "@rbxts/roact";
+import { Players } from "@rbxts/services";
+import { CardPublic } from "server/duel/types";
 
-const player = script.FindFirstAncestorWhichIsA("Player")!;
+const player = Players.LocalPlayer
 
-export default (card: Card) => {
+export default (card: CardPublic) => {
     const [showArt, setShowArt] = useState(false);
 
     useEffect(() => {
-        const onChange = () => {
-            const position = card.position.get();
-            const controller = card.controller.get();
-            const location = card.location.get();
-            
-            if(position.match("FaceUp").size() > 0) {
-                setShowArt(true);
+        const position = card.position;
+        const controller = card.controller;
+        const location = card.location;
+        
+        if(position.match("FaceUp").size() > 0) {
+            setShowArt(true);
+        } else {
+            if(location !== "Deck") {
+                setShowArt(player === controller);
             } else {
-                if(location !== "Deck") {
-                    setShowArt(player === controller);
-                } else {
-                    setShowArt(false);
-                }
+                setShowArt(false);
             }
         }
-
-        const connections = [card.location, card.position, card.controller].map((value) => {
-            return value.changed(onChange);
-        })
-
-        return () => {
-            connections.forEach((connection) => {
-                connection.Disconnect()
-            })
-        }
-    }, [])
+    }, [card])
 
     return showArt;
 }

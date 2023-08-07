@@ -1,5 +1,4 @@
-import Roact from "@rbxts/roact";
-import { Dispatch, SetStateAction, useEffect, useRef, withHooks } from "@rbxts/roact-hooked";
+import Roact, { Dispatch, SetStateAction, useEffect, useRef } from "@rbxts/roact";
 import { ServerStorage } from "@rbxts/services";
 
 const cardSearchScript = ServerStorage.FindFirstChild('cardSearch') as LocalScript;
@@ -8,17 +7,17 @@ interface Props {
     setTextboxState: Dispatch<SetStateAction<string>>
 }
 
-export default withHooks((props: Props) => {
+export default (props: Props) => {
     const ref = useRef<RemoteEvent>();
 
     useEffect(() => {
-        if(!ref.getValue()) return;
-        const connection = ref.getValue()!.OnServerEvent.Connect((player, text) => {
+        if(!ref.current) return;
+        const connection = ref.current!.OnServerEvent.Connect((player, text) => {
             props.setTextboxState(text as string);
         })
 
         const textboxScript = cardSearchScript.Clone();
-        textboxScript.Parent = ref.getValue()!;
+        textboxScript.Parent = ref.current!;
 
         return () => {
             connection.Disconnect();
@@ -29,4 +28,4 @@ export default withHooks((props: Props) => {
     return (
         <remoteevent Ref={ref} />
     )
-})
+}

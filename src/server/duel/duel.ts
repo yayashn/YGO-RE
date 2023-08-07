@@ -2,7 +2,7 @@ import { Subscribable } from "shared/Subscribable";
 import type { YPlayer } from "./player";
 import { Action, CardFloodgate, ChainedEffect, Location, MZone, Phase, SZone, SelectableZone } from "./types";
 import { Dictionary as Object } from "@rbxts/sift";
-import Remotes from "shared/net";
+import Remotes from "shared/net/remotes";
 import { getCards, getFilteredCards } from "./utils";
 import confirm from "server/popups/confirm";
 import { getFieldZonePart, includes } from "shared/utils";
@@ -10,6 +10,8 @@ import type { Card } from "./card";
 import waiting from "server/popups/waiting";
 import { throttle } from "@rbxts/set-timeout";
 import alert from "server/popups/alert";
+import { DuelRemotes } from "shared/duel/remotes";
+import confirmSync from "server/popups/confirmSync";
 
 export let duels: Record<string, Duel> = {}
 
@@ -17,7 +19,9 @@ export class Duel {
     changed = new Subscribable(0);
     player1: YPlayer;
     player2: YPlayer;
-    phase: Subscribable<Phase> = new Subscribable<Phase>("DP");
+    phase: Subscribable<Phase> = new Subscribable<Phase>("DP", (p) => {
+        DuelRemotes.Server.Get("phaseChanged").SendToPlayers([this.player1.player, this.player2.player], p);
+    });
     turn = new Subscribable(0);
     gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN");
     turnPlayer: Subscribable<YPlayer>;
@@ -30,26 +34,23 @@ export class Duel {
     attackingCard = new Subscribable<Card | undefined>(undefined);
     defendingCard = new Subscribable<Card | undefined>(undefined);
     handlingResponses = false;
-    action: Subscribable<Action[]> = new Subscribable([]);
+    action: Subscribable<Action[]> = new Subscribable([], () => {
+        this.player1.handleFloodgates()
+        this.player2.handleFloodgates()
+    });
     cardFloodgates: Subscribable<Record<string, CardFloodgate[]>> = new Subscribable({});
 
     constructor(player1: YPlayer, player2: YPlayer) {
         this.player1 = player1;
         this.player2 = player2;
         duels[`${player1.player.UserId}:${player2.player.UserId}`] = this;
-        this.turnPlayer = new Subscribable<YPlayer>(this.player1);
+        this.turnPlayer = new Subscribable<YPlayer>(this.player1, (p: YPlayer) => {
+            DuelRemotes.Server.Get("turnPlayerChanged").SendToPlayers([this.player1.player, this.player2.player], p.player);
+        });
+        DuelRemotes.Server.Get("turnPlayerChanged").SendToPlayers([this.player1.player, this.player2.player], this.turnPlayer.get().player);
         this.actor = new Subscribable<YPlayer>(this.player1);
 
         Remotes.Server.Get("showField").SendToPlayers([player1.player, player2.player], true);
-
-        [player1, player2].forEach(async player => {
-            (player.player.FindFirstChild("startDuel", true) as BindableEvent).Fire();
-            const route = () => player.player.GetDescendants().find(descendant => descendant.IsA("StringValue") && descendant.Name === "route") as StringValue | undefined;
-            while (route() === undefined) {
-                await Promise.delay(0);
-            }
-            route()!.Value = "/duel/";
-        })
 
         this.handlePhase("DP");
         this.action.changed(() => {
@@ -89,13 +90,6 @@ export class Duel {
 
     endDuel(winner: YPlayer, message: string) {
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
-        [this.player1, this.player2].forEach(async player => {
-            (player.player.FindFirstChild("endDuel", true) as BindableEvent).Fire();
-            while(!player.player.FindFirstChild("route", true)) {
-                wait()
-            }
-            (player.player.FindFirstChild("route", true) as StringValue).Value = "/";
-        })
         duels = Object.fromEntries(Object.entries(duels).filter(([key, value]) => value !== this));
 
         const loser = this.getOpponent(winner.player);
@@ -120,7 +114,9 @@ export class Duel {
     }
 
     getResponses(player: YPlayer) {
-        return getCards(this).filter(card => card.getController() === player && card.checkEffectConditions())
+        return getCards(this).filter(card => {
+            return card.getController() === player && card.checkEffectConditions()
+        })
     }
 
     addCardFloodgate(floodgateName: string, floodgate: CardFloodgate) {
@@ -155,7 +151,7 @@ export class Duel {
         });
     });
 
-    async handleResponses(player: YPlayer) {
+    handleResponses(player: YPlayer) {
         if(this.handlingResponses) return
         this.handlingResponses = true
         
@@ -163,6 +159,7 @@ export class Duel {
         this.gameState.set('CLOSED')
         let passes = 0;
         this.actor.set(player)
+        this.handleCardFloodgates()
         
         while(passes < 2) {
             const numberOfResponses = this.getResponses(this.actor.get()).size()
@@ -178,7 +175,7 @@ export class Duel {
                 }" is activated. Chain another card or effect?`
 
                 const stopWaiting = waiting("Waiting for response...", this.getOpponent(this.actor.get().player).player)
-                const response = await confirm(
+                const response = confirmSync(
                     numberOfResponses >= 1
                         ? chainStartMessage
                         : chainResponseMessage || chainStartMessage,
@@ -203,7 +200,6 @@ export class Duel {
             }
 
         }
-
         this.handlingResponses = false
         this.resolveChain()
     }
@@ -270,14 +266,14 @@ export class Duel {
         this.chain.set(newChain)
         this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
-
-        await this.handleResponses(this.getOpponent(card.controller.get()))
+        this.handleResponses(this.getOpponent(card.controller.get()))
     }
 
     async handlePhase(p: Phase) {
         this.gameState.set('OPEN')
         if (p === 'DP') {
             this.turn.set(this.turn.get() + 1)
+            await Promise.delay(0.15)
             if(this.turn.get() === 1) {
                 this.turnPlayer.get().addFloodgate("CANNOT_ENTER_BP", () => {
                     return this.turn.get() !== 1
@@ -290,23 +286,22 @@ export class Duel {
             await Promise.delay(0.15)
             if (this.turn.get() === 1) {
                 const thread = [this.player1, this.player2].map((player) =>
-                    coroutine.wrap(() => {
-                        player.shuffle()
-                        wait(player.cards.get().size() * 0.03)
-                        player.draw(5)
+                    coroutine.wrap(async () => {
+                        await player.shuffle()
+                        await player.draw(5)
                     })
                 )
                 thread[0]()
                 thread[1]()
-                await Promise.delay(0.25 * 5)
             } 
             this.turnPlayer.get().draw(1)
-            await this.handleResponses(this.turnPlayer.get())
+            this.handleResponses(this.turnPlayer.get())
+            await Promise.delay(0.15)
             await this.handlePhase('SP')
         } else if (p === 'SP') {
             this.phase.set(p)
             await Promise.delay(0.15)
-            await this.handleResponses(this.turnPlayer.get())
+            this.handleResponses(this.turnPlayer.get())
             await this.handlePhase('MP1')
         } else if (p === 'MP1') {
             this.phase.set(p)
@@ -315,7 +310,7 @@ export class Duel {
             this.phase.set(p)
             await Promise.delay(0.15)
             this.battleStep.set('START')
-            await this.handleResponses(this.turnPlayer.get())
+            this.handleResponses(this.turnPlayer.get())
             this.battleStep.set('BATTLE')
         } else if (p === 'MP2') {
             this.phase.set(p)
@@ -324,7 +319,7 @@ export class Duel {
             if (this.phase.get() === 'MP1' || this.phase.get() === 'MP2') {
                 this.phase.set(p)
                 await Promise.delay(0.15)
-                await this.handleResponses(this.turnPlayer.get())
+                this.handleResponses(this.turnPlayer.get())
 
                 const cardsInHand = getFilteredCards(this, {
                     location: ['Hand'],
@@ -341,7 +336,7 @@ export class Duel {
 
                 await this.handlePhase('DP')
             } else if (this.phase.get() === 'BP') {
-                await this.handleResponses(this.turnPlayer.get())
+                this.handleResponses(this.turnPlayer.get())
                 await this.handlePhase('MP2')
             }
         }

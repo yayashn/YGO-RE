@@ -1,7 +1,7 @@
 /node_modules
 /out
 /include
-*.tsbuildinfo
+*buildinfo
 
 node_modules
 lob-images

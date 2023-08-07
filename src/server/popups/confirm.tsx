@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact"
 import Dialog from "server/popups/Dialog"
 
-export default async (message: string, player: Player) => {
+const confirm = async (message: string, player: Player) => {
     return new Promise<"YES" | "NO">((resolve) => {
         const prompt = Roact.mount(
             <screengui Key="Dialog" IgnoreGuiInset>
@@ -28,3 +28,5 @@ export default async (message: string, player: Player) => {
         )
     })
 }
+
+export default confirm

@@ -12,6 +12,12 @@ const defaultCards: CardTemplate[] = [
     { name: "Dragon Capture Jar" },
     { name: "Dragon Capture Jar" },
     { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
+    { name: "Dragon Capture Jar" },
 ]
 
 const defaultExtra: CardTemplate[] = [

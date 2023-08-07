@@ -6,8 +6,8 @@ import cardEffects from "server-storage/card-effects/index";
 import { getFilteredCards } from "./utils";
 import { getDuel } from "./duel";
 import { Dictionary as Object } from "@rbxts/sift";
-import Remotes from "shared/net";
-import debounce from "shared/debounce";
+import Remotes from "shared/net/remotes";
+import { CardRemotes } from "shared/duel/remotes";
 
 export class Card {
     changed = new Subscribable(0);
@@ -45,11 +45,17 @@ export class Card {
         this.name = new Subscribable(name);
         this.race = new Subscribable(cardData.race);
         this.desc = new Subscribable(cardData.desc);
-        this.position = new Subscribable<Position>("FaceDown");
+        this.position = new Subscribable<Position>("FaceDown", () => {
+            this.refreshClientCard();
+        });
         this.art = cardData.art;
         this.owner = owner;
-        this.controller = new Subscribable<Player>(owner);
-        this.order = new Subscribable<number>(order);
+        this.controller = new Subscribable<Player>(owner, () => {
+            this.refreshClientCard()
+        });
+        this.order = new Subscribable<number>(order, () => {
+            this.refreshClientCard()
+        });
         this["type"] = new Subscribable<string>(cardData["type"]);
         this.attribute = new Subscribable<string>(cardData["attribute"] || cardData.type.split(" ")[0]);
 
@@ -69,20 +75,38 @@ export class Card {
         }
     }
 
-    onChanged = debounce(() => {
+    onChanged = () => {
         this.handleFloodgates();
         this.changed.set(this.changed.get() + 1);
-    })
+        this.refreshClientCard();
+    }
 
-    handlingFloodgates = false;
+    refreshClientCard = async () => {
+        const duel = getDuel(this.owner)!;
+        const player1 = duel.player1;
+        const player2 = duel.player2;
+        const showAtkDef = includes(this.position.get(), "FaceUp") && includes(this.location.get(), "MZone");
+
+        [player1.player, player2.player].forEach(p => {
+            const publicKnowledge = includes(this.position.get(), "FaceUp") || (this.location.get() !== "Deck" ? p === this.controller.get() : false)
+
+
+            CardRemotes.Server.Get("cardChanged").SendToPlayer(p, {
+                uid: this.uid,
+                position: this.position.get(),
+                location: this.location.get(),
+                controller: this.controller.get(),
+                order: this.order.get(),
+                atk: publicKnowledge && showAtkDef ? this.getAtk() : undefined,
+                def: publicKnowledge && showAtkDef ? this.getDef() : undefined,
+                art: publicKnowledge ? this.art : "",
+                name: publicKnowledge ? this.name.get() : "",
+            })
+        })
+    }
+
     handleFloodgates = async () => {
-        if(this.handlingFloodgates) return;
-        this.handlingFloodgates = true;
-        if(this.location.get() === "MZone3") {
-            print("HANDLING FLOODGATES")
-        }
         if (this.hasFloodgate("FORCE_FACEUP_DEFENSE")) {
-            print('test')
             this.position.set("FaceUpDefense");
         }
         if (this.hasFloodgate("MODIFY_ATK")) {
@@ -111,11 +135,6 @@ export class Card {
         } else {
             this.defModifier.set({});
         }
-        if(this.location.get() === "MZone3") {
-            print("END FLOODGATES")
-        }
-        await Promise.delay(.3)
-        this.handlingFloodgates = false;
     }
 
     getAtk() {
@@ -144,6 +163,7 @@ export class Card {
     getFloodgates(floodgateName: string) {
         const duel = getDuel(this.owner)!;
         const floodgates = duel.cardFloodgates.get();
+
         if(!floodgates[floodgateName]) return [];
 
         const floodgatesFound = floodgates[floodgateName].filter((floodgate) => {
@@ -381,7 +401,9 @@ export class Card {
                     floodgateFilter: {
                         card: [this],
                     },
-                    expiry: () => duel.turn.get() !== turn,
+                    expiry: () => {
+                        return duel.turn.get() !== turn
+                    },
                 })
             }
             if(this.race.get() === "Field") {

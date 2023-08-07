@@ -1,5 +1,4 @@
-import Roact from '@rbxts/roact'
-import { useRef, useState, withHooks } from '@rbxts/roact-hooked'
+import Roact, { useRef, useState } from '@rbxts/roact'
 import theme from 'shared/theme'
 import TextboxServer from './TextboxServer'
 
@@ -15,7 +14,7 @@ export interface DialogProps {
     player?: Player;
 }
 
-export default withHooks<DialogProps>(({ message, options, handleInput, player }) => {
+export default ({ message, options, handleInput, player }: DialogProps) => {
     const [input, setInput] = useState<string>('')
     const inputRef = useRef<TextBox>()
     const hasButtons = options && options.size() > 0
@@ -86,7 +85,7 @@ export default withHooks<DialogProps>(({ message, options, handleInput, player }
             </frame>
         </frame>
     )
-})
+}
 
 const Container: JSX.IntrinsicElement<Frame> = {
     BackgroundTransparency: 1,

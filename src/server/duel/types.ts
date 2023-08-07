@@ -1,3 +1,4 @@
+import { Signal } from "@rbxts/beacon";
 import type { Card } from "./card";
 import type { YPlayer } from "./player";
 
@@ -60,3 +61,31 @@ export type FloodgateValueAtkDefModifier = {
     value: number,
     modifierId: string
 }
+
+export type CardPublic = {
+    uid: string,
+    controller: Player,
+    location: Location,
+    position: Position
+    order: number,
+    atk?: number | undefined,
+    def?: number | undefined,
+    level?: number | undefined,
+    desc?: string | undefined,
+    name?: string | undefined,
+    art?: string | undefined,
+    type?: string | undefined,
+    chainLink?: number,
+    attribute?: string | undefined,
+}
+
+export type CardAction =
+    | 'Activate'
+    | 'Attack'
+    | 'Normal Summon'
+    | 'Tribute Summon'
+    | 'Special Summon'
+    | 'Set'
+    | 'Flip Summon'
+    | 'Change Position'
+
