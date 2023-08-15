@@ -482,6 +482,21 @@ export class Card {
                     includes(this.position.get(), 'FaceDown') ||
                     !includes(this.location.get(), 'MZone')
             })
+            duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
+                floodgateFilter: {
+                    card: [this]
+                },
+                expiry: () =>
+                    duel.turn.get() !== turn || !includes(this.location.get(), 'MZone')
+            })
+            duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
+                floodgateFilter: {
+                    card: [this]
+                },
+                expiry: () =>
+                    duel.turn.get() !== turn ||
+                    includes(this.position.get(), 'FaceDown') || !includes(this.location.get(), 'MZone')
+            })
 
             duel.battleStep.set('DAMAGE')
             duel.damageStep.set('START')
