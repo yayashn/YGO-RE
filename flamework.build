@@ -6,7 +6,10 @@
 		"YGORE:out/server/duel/floodgate@Floodgate": "server/duel/floodgate@Floodgate",
 		"YGORE:out/server/duel/player@YPlayer": "server/duel/player@YPlayer",
 		"YGORE:out/server/duel/duel@Duel": "server/duel/duel@Duel",
-		"YGORE:out/server/duel/card@Card": "server/duel/card@Card"
+		"YGORE:out/server/duel/card@Card": "server/duel/card@Card",
+		"YGORE:out/server/duel/player copy@YPlayer": "server/duel/player copy@YPlayer",
+		"YGORE:out/server/duel/aiPlayer@YPlayer": "server/duel/aiPlayer@YPlayer",
+		"YGORE:out/server/duel/aiPlayer@AIPlayer": "server/duel/aiPlayer@AIPlayer"
 	},
 	"metadata": {}
 }

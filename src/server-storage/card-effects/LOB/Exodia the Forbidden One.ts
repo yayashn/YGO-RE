@@ -38,9 +38,9 @@ export default (card: Card) => {
 
     const effects: CardEffect[] = [
         {
-            condition: exodia,
-            effect: () => {},
-            location: ['SZone']
+            condition: () => false,
+            effect: () => exodia(),
+            location: ['Hand']
         }
     ]
 

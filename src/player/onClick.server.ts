@@ -1,10 +1,10 @@
-import { Duel, getDuel } from "server/duel/duel";
+import { Duel, duels, getDuel } from "server/duel/duel";
 import alert from "server/popups/alert";
 import confirm from "server/popups/confirm";
 import waitingOptional from "server/popups/waitingOptional";
-import { getEquippedDeck } from "server/profile-service/profiles";
 import { YPlayer } from "server/duel/player";
-import { RunService } from "@rbxts/services";
+import { HttpService, RunService } from "@rbxts/services";
+import { getEquippedDeck } from "server/profile-service/functions/getEquippedDeck";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
@@ -12,6 +12,7 @@ const clickDetector = character.FindFirstChildWhichIsA("ClickDetector")!;
 const onClickBusy = new Instance("BoolValue");
 onClickBusy.Name = "onClickBusy";
 onClickBusy.Parent = player;
+
 
 clickDetector.MouseClick.Connect(async (opponent) => {
     const opponentOnClickBusy = opponent.FindFirstChild("onClickBusy") as BoolValue;
@@ -61,5 +62,13 @@ clickDetector.MouseClick.Connect(async (opponent) => {
     opponentOnClickBusy.Value = false;
     onClickBusy.Value = false;
 
-    const duel = new Duel(new YPlayer(player), new YPlayer(opponent));
+    const random = new Random()
+    const player1 = random.NextInteger(1, 2) === 1 ? player : opponent;
+    const player2 = player1 === player ? opponent : player;
+
+    const yPlayer1 = new YPlayer(player1);
+    print(yPlayer1)
+    const yPlayer2 = new YPlayer(player2);
+    print(yPlayer2)
+    const duel = new Duel(yPlayer1, yPlayer2);
 })

@@ -38,4 +38,11 @@ export class Subscribable<T> {
     refresh() {
         this.event.Fire(this.value);
     }
+
+    destroy() {
+        this.value = undefined as unknown as T;
+        this.event.Destroy();
+        this.sideEffect = undefined;
+        this.getSideEffect = undefined;
+    }
 }

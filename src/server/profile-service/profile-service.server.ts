@@ -1,16 +1,24 @@
 import ProfileService  from "@rbxts/profileservice";
 import defaultPlayerData from "./default-data";
 import { Players, RunService } from "@rbxts/services";
-import { profiles } from "./profiles";
 import defaultTestData from "./default-test-data";
 import alert from "server/popups/alert";
 import { getDuel } from "server/duel/duel";
 import cards from "shared/sets/cards";
-
+import Remotes from "shared/net/remotes";
+import { profiles } from "./profiles";
+import { createInstance } from "shared/utils";
 
 const profileStore = ProfileService.GetProfileStore('PlayerData10', defaultPlayerData);
+const profileChanged = Remotes.Server.Get("profileChanged");
+const getProfile = Remotes.Server.Get("getProfile");
+
+getProfile.SetCallback(plr => {
+	return profiles[plr.UserId]?.Data!;
+})
 
 Players.PlayerAdded.Connect(async player => {
+	createInstance("StringValue", "duel", player);
     const profile = profileStore.LoadProfileAsync(`player_${player.UserId}`);
 	if(profile !== undefined) {
 		profile.AddUserId(player.UserId);
@@ -25,38 +33,29 @@ Players.PlayerAdded.Connect(async player => {
 				profile.Data = {...defaultTestData}
 			}
 
-			if(player.Name === "kirito56789012") {
-				if(!profile.Data.cards.find(card => card.name === "Dark Magician")) {
-					profile.Data.cards = [...profile.Data.cards, { name: "Dark Magician", rarity: "super" }];
-					alert(`You have been gifted a Dark Magician card!`, player)
-				}
-			}
-
-			if(profile.Data.cards.find(card => card.name === "Typhone")) {
-				profile.Data.cards = profile.Data.cards.filter(card => card.name !== "Typhone");
-			}
-
 			if(player.Name === "YGO_Group") {
 				profile.Data.cards = [...cards, ...cards, ...cards]
 			}
 
-			//const resetData = await confirm(`Would you like to reset your data and gain 100K DP?`, player);
-			//if(resetData === "YES") {
-			//	profile.Data = {...defaultPlayerData};
-			//	profile.Data.dp = 100000;	
-			//}
+			profileChanged.SendToPlayer(player, profile.Data);
 
-			const profileChanged = new Instance("BindableEvent");
-			profileChanged.Name = "profileChanged";
-			profileChanged.Parent = player;
-
-			profileChanged.Fire(profile.Data);
-
+			const dpGain = 40;
 			new Promise(async () => {
 				while (true) {
+					let todaysDP = profile.Data.afkDailyDp[DateTime.now().FormatLocalTime("L", "en-us") as `${number}/${number}/${number}`];
+					if(!todaysDP) {
+						profile.Data.afkDailyDp = {
+							[DateTime.now().FormatLocalTime("L", "en-us")]: {
+								earnt: 0,
+								max: 43200
+							}
+						};
+					} else if(todaysDP.earnt < todaysDP.max) {
+						profile.Data.dp = profile.Data.dp + dpGain;
+						profile.Data.afkDailyDp[DateTime.now().FormatLocalTime("L", "en-us") as `${number}/${number}/${number}`].earnt = todaysDP.earnt + dpGain;
+						profileChanged.SendToPlayer(player, profile.Data);
+					}
 					await Promise.delay(10);
-					profile.Data.dp = profile.Data.dp + 40;
-					profileChanged.Fire(profile.Data);
 				}
 			})
 		} else {

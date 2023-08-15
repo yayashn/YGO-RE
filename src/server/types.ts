@@ -27,4 +27,8 @@ export type PlayerData = {
     avatars: string[];
     disks: string[];
     equipped: EquippedTemplate;
+    afkDailyDp: Record<`${number}/${number}/${number}`, {
+        earnt: number;
+        max: number;
+    }>
 }

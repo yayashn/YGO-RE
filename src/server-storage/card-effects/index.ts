@@ -45,15 +45,19 @@ import VioletCrystal from "./LOB/Violet Crystal"
 import Wasteland from "./LOB/Wasteland"
 import Yami from "./LOB/Yami"
 import ChangeOfHeart from "./MRD/Change of Heart"
+import ExodiaTheForbiddenOne from "./LOB/Exodia the Forbidden One"
 
 export type CardEffect = {
     condition?: () => boolean,
-    effect?: Callback,
+    effect?: (card: Card) => void,
     location?: (Location | "SZone" | "MZone" | "Hand")[],
-    cost?: Callback
-    target?: Callback
+    cost?: () => boolean | void,
+    target?: () => boolean | void,
     fusionMaterials?: Record<string, number>,
     action?: Action
+    trigger?: "FLIP"
+    optional?: boolean
+    description?: string
 }
 
 export default {
@@ -103,8 +107,9 @@ export default {
     "Reaper of the Cards": ReaperOfTheCards,
     "Armed Ninja": ArmedNinja,
     "Polymerization": Polymerization,//
+    "Exodia the Forbidden One": ExodiaTheForbiddenOne,
     //MRD
-    "Change of Heart": ChangeOfHeart
+    "Change of Heart": ChangeOfHeart,
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }

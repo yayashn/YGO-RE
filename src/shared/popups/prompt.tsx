@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import Dialog from "server/popups/Dialog";
+import Dialog from "./Dialog"
 
 export default async (message: string, player: Player) => {
     return new Promise<string>((resolve) => {
@@ -8,7 +8,7 @@ export default async (message: string, player: Player) => {
         };
 
         const prompt = Roact.mount(
-            <screengui Key="Dialog" IgnoreGuiInset>
+            <screengui key="Dialog" IgnoreGuiInset>
                 <Dialog
                     message={message}
                     player={player}

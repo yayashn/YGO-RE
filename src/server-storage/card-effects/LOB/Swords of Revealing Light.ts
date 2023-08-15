@@ -18,7 +18,7 @@ export default (card: Card) => {
     const opponent = duel.getOpponent(controller.player)
 
     const expiration = (turn: number) => {
-        return (duel.turn.get() >= turn + 6 && duel.phase.get() === "EP") || card.position.get() !== "FaceUp" || !includes(card.location.get(), "SZone")
+        return (duel.turn.get() >= turn + 5 && duel.phase.get() === "EP") || card.position.get() !== "FaceUp" || !includes(card.location.get(), "SZone")
     }
 
     const effect = () => {

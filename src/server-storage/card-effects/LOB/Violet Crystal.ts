@@ -1,7 +1,7 @@
 import { getFilteredCards } from "server/duel/utils";
 import type { Card } from "server/duel/card"
 import { getDuel } from "server/duel/duel"
-import NormalSpell from "server-storage/conditions/NormalSpell";
+import EquipSpell from "server-storage/conditions/EquipSpell";
 import { CardEffect } from "..";
 import { includes } from "shared/utils";
 
@@ -85,7 +85,7 @@ export default (card: Card) => {
 
     const effects: CardEffect[] = [
         {
-            condition: () => NormalSpell(card) && condition(),
+            condition: () => EquipSpell(card) && condition(),
             effect: () => effect(),
             target: () => target(),
             location: ['SZone']

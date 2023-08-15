@@ -58,19 +58,20 @@ const pickZone = PlayerRemotes.Client.Get('pickZone')
 const FieldZoneButton = ({ zoneName, layoutOrder, playerType }: FieldZoneButtonProps) => {
     const buttonRef = useRef<TextButton>()
     const [isHovered, setIsHovered] = useState(false)
+    const [selectableZones, includesZone] = useSelectableZones()
 
     useEffect(() => {
         if (!buttonRef.current) return
         const button = buttonRef.current
 
-        if (isHovered) {
+        if (isHovered || includesZone(zoneName as Location, playerType)) {
             const tweenInfo = new TweenInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true)
             TweenService.Create(button, tweenInfo, { BackgroundTransparency: 0.5 }).Play()
         } else {
             const tweenInfo = new TweenInfo(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             TweenService.Create(button, tweenInfo, { BackgroundTransparency: 1 }).Play()
         }
-    }, [isHovered])
+    }, [isHovered, selectableZones])
 
     return (
         <textbutton
@@ -86,6 +87,7 @@ const FieldZoneButton = ({ zoneName, layoutOrder, playerType }: FieldZoneButtonP
                     pickZone.SendToServer(zoneName as Location, playerType.lower() as "player")
                 },
                 MouseEnter: () => {
+                    if(includesZone(zoneName as Location, playerType)) return;
                     setIsHovered(true)
                 },
                 MouseLeave: () => {

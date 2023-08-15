@@ -20,16 +20,6 @@ export const getAmountOfRarity = (rarity: keyof typeof rarities | "common") => {
     return amount
 }
 
-export const alertInfo = async (player: Player) => {
-    const amountOfGold = getAmountOfRarity("gold")
-    const amountOfSecret = getAmountOfRarity("secret")
-    const amountOfUltra = getAmountOfRarity("ultra")
-    const amountOfSuper = getAmountOfRarity("super")
-    const amountOfRare = getAmountOfRarity("rare")
-    const ammountOfCommons = getAmountOfRarity("common")
-    alert(`This pack guarantees you: 8 commons + 1 rare or higher. Chances of obtaining: rare (${amountOfRare}) - ${rarities.rare*100}%, super (${amountOfSuper}) - ${rarities.super*100}%, ultra (${amountOfUltra}) - ${rarities.ultra*100}%, secret (${amountOfSecret}) - ${rarities.secret*100}%, gold (${amountOfGold}) - ${rarities.gold*100}%.`, player)
-}
-
 export const cards: CardTemplate[] = [
     { name: "Tri-Horned Dragon", rarity: "ultra" },
     { name: "Blue-Eyes White Dragon", rarity: "secret" },
@@ -193,7 +183,16 @@ const pack: Pack = {
 
         return pack.map(card => card);
     },
-    price: 1000
+    price: 1000,
+    alert: (player: Player) => {
+        const amountOfGold = getAmountOfRarity("gold")
+        const amountOfSecret = getAmountOfRarity("secret")
+        const amountOfUltra = getAmountOfRarity("ultra")
+        const amountOfSuper = getAmountOfRarity("super")
+        const amountOfRare = getAmountOfRarity("rare")
+        alert(`This pack guarantees you: 8 commons + 1 rare or higher. Chances of obtaining: rare (${amountOfRare}) - ${rarities.rare*100}%, super (${amountOfSuper}) - ${rarities.super*100}%, ultra (${amountOfUltra}) - ${rarities.ultra*100}%, secret (${amountOfSecret}) - ${rarities.secret*100}%, gold (${amountOfGold}) - ${rarities.gold*100}%.`, player)
+    }
+
 }
 
 export default pack;

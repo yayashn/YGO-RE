@@ -1,5 +1,5 @@
 import Roact, { useEffect, useRef, useState } from "@rbxts/roact"
-import { Players } from "@rbxts/services"
+import { Players, TweenService } from "@rbxts/services"
 import { CardAction, CardPublic } from "server/duel/types"
 import useIsTargettable from "gui/hooks/useIsTargettable"
 import useIsTarget from "gui/hooks/useIsTarget"
@@ -14,16 +14,15 @@ import { CardStatus } from "./CardStatus"
 const card3DTemplate = game.Workspace.Field3D.Card;
 
 interface Props {
-    card: CardPublic
+    c: CardPublic
 }
 
 const player = Players.LocalPlayer
-const tweenService = game.GetService('TweenService')
 const cardChanged = CardRemotes.Client.Get("cardChanged")
 const handleCardClick = PlayerRemotes.Client.Get("handleCardClick")
 const tweenInfoHand = new TweenInfo(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
 
-export default ({ card: c }: Props) => {
+export default ({ c }: Props) => {
     const [card, setCard] = useState(c)
     const location = card.location
     const card2DRef = useRef<SurfaceGui>()
@@ -39,28 +38,10 @@ export default ({ card: c }: Props) => {
     const positionChangedRef = useRef<BindableEvent>()
     const [enabledActions, setEnabledActions] = useState<CardAction[]>([]);
 
-    const ButtonEvents = {
-        MouseButton1Click: async () => {
-            const shouldShowMenu = await handleCardClick.CallServerAsync(card);
-            if(shouldShowMenu !== false) {
-                setShowMenu({...card})
-                setEnabledActions(shouldShowMenu)
-            } else {
-                setShowMenu(undefined)
-                setEnabledActions([])
-            }
-        },
-        MouseEnter: () => {
-            if(hoveredCard !== card) {
-                setHoveredCard(card)
-            }
-        },
-        MouseLeave: () => {
-            if(hoveredCard === card) {
-                setHoveredCard(undefined)
-            }
-        },
-    }
+    useEventListener(cardChanged, (newCard) => {
+        if(newCard.uid !== c.uid) return
+        setCard(newCard)
+    })
 
     useEffect(() => {
         (card3DRef.current.FindFirstChild("card2D") as ObjectValue).Value = card2DRef.current
@@ -75,15 +56,24 @@ export default ({ card: c }: Props) => {
         })
     }, [])
 
-    useEventListener(cardChanged, (newCard) => {
-        if(newCard.uid !== c.uid) return
-        setCard({...newCard})
-    })
-
     useEffect(() => {
         positionChangedRef.current?.Fire(card.position)
         wait()
         card3DRef.current.Parent = get3DZone(card.location, card.controller !== player);
+        const clickDetector = card3DRef.current.FindFirstChild("Menu") as ClickDetector
+        const connections = [
+            clickDetector.MouseHoverEnter.Connect(async () => {
+                setHover(true)
+                setHoveredCard(card)
+            }),
+            clickDetector.MouseHoverLeave.Connect(() => {
+                setHover(false)
+            })
+        ]
+
+        return () => {
+            connections.forEach((connection) => connection.Disconnect())
+        }
     }, [card])
 
     useEffect(() => {
@@ -92,12 +82,12 @@ export default ({ card: c }: Props) => {
         if(card.location === "Hand") {
             if(hover) {
                 const tweenGoal = { Size: new UDim2(1, 0, 1, 0) }
-                tweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
-                tweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
+                TweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
+                TweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
             } else {
                 const tweenGoal = { Size: new UDim2(0.8, 0, 0.8, 0) }
-                tweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
-                tweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
+                TweenService.Create(artRef.current, tweenInfoHand, tweenGoal).Play()
+                TweenService.Create(sleeveRef.current, tweenInfoHand, tweenGoal).Play()
             }
         } else {
             artRef.current.Size = new UDim2(1, 0, 1, 0)
@@ -109,9 +99,22 @@ export default ({ card: c }: Props) => {
         <surfacegui ref={card2DRef}>
             <surfacegui 
             Adornee={card3DRef.current}
-            ZOffset={-1} AlwaysOnTop key="Art" Face="Bottom">
+            ZOffset={-1} 
+            AlwaysOnTop={location !== "GZone"}
+            key="Art" Face="Bottom">
                 <imagebutton
-                    Event={ButtonEvents}
+                    Event={{
+                        MouseButton1Click: async () => {
+                            const shouldShowMenu = await handleCardClick.CallServerAsync(card);
+                            if(shouldShowMenu !== false) {
+                                setShowMenu(card)
+                                setEnabledActions(shouldShowMenu)
+                            } else {
+                                setShowMenu(undefined)
+                                setEnabledActions([])
+                            }
+                        },
+                    }}
                     ImageTransparency={0}
                     Size={location !== 'Hand' ? new UDim2(1, 0, 1, 0) : new UDim2(0.8, 0, 0.8, 0)}
                     BackgroundTransparency={1}
@@ -121,9 +124,9 @@ export default ({ card: c }: Props) => {
                     ref={artRef}
                 >
                     {isTargettable && !isTarget ? (
-                        <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
+                        <uistroke LineJoinMode="Miter"  Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
                     ) : isTarget ? (
-                        <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
+                        <uistroke LineJoinMode="Miter"  Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
                     ) : (
                         <Roact.Fragment />
                     )}
@@ -131,11 +134,25 @@ export default ({ card: c }: Props) => {
             </surfacegui>
 
             <surfacegui 
+            ZOffset={-1}
             Adornee={card3DRef.current}
-            AlwaysOnTop key="Sleeve" Face="Top">
+            AlwaysOnTop={location !== "GZone"}
+             key="Sleeve" 
+             Face="Top">
                 <imagebutton
                     ref={sleeveRef}
-                    Event={ButtonEvents}
+                    Event={{
+                        MouseButton1Click: async () => {
+                            const shouldShowMenu = await handleCardClick.CallServerAsync(card);
+                            if(shouldShowMenu !== false) {
+                                setShowMenu(card)
+                                setEnabledActions(shouldShowMenu)
+                            } else {
+                                setShowMenu(undefined)
+                                setEnabledActions([])
+                            }
+                        },
+                    }}
                     ImageTransparency={0}
                     Size={location !== 'Hand' ? new UDim2(1, 0, 1, 0) : new UDim2(0.8, 0, 0.8, 0)}
                     BackgroundTransparency={1}
@@ -144,9 +161,9 @@ export default ({ card: c }: Props) => {
                     Image="rbxassetid://3955072236"
                     >
                         {isTargettable && !isTarget ? (
-                            <uistroke Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
+                            <uistroke LineJoinMode="Miter"  Color={Color3.fromRGB(255, 165, 0)} Thickness={30} />
                         ) : isTarget ? (
-                            <uistroke Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
+                            <uistroke LineJoinMode="Miter" Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />
                         ) : (
                             <Roact.Fragment />
                         )}

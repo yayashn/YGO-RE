@@ -1,10 +1,9 @@
 import { Subscribable } from "shared/Subscribable";
 import type { YPlayer } from "./player";
-import { Action, CardFloodgate, ChainedEffect, Location, MZone, Phase, SZone, SelectableZone } from "./types";
+import { Action, CardFloodgate, ChainedEffect, Location, MZone, PendingEffect, Phase, SZone, SelectableZone } from "./types";
 import { Dictionary as Object } from "@rbxts/sift";
 import Remotes from "shared/net/remotes";
 import { getCards, getFilteredCards } from "./utils";
-import confirm from "server/popups/confirm";
 import { getFieldZonePart, includes } from "shared/utils";
 import type { Card } from "./card";
 import waiting from "server/popups/waiting";
@@ -12,8 +11,9 @@ import { throttle } from "@rbxts/set-timeout";
 import alert from "server/popups/alert";
 import { DuelRemotes } from "shared/duel/remotes";
 import confirmSync from "server/popups/confirmSync";
+import { CardEffect } from "server-storage/card-effects";
 
-export let duels: Record<string, Duel> = {}
+export let duels: Map<string, Duel> = new Map();
 
 export class Duel {
     changed = new Subscribable(0);
@@ -29,6 +29,7 @@ export class Duel {
     battleStep = new Subscribable('');
     damageStep = new Subscribable('');
     chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({});
+    pendingEffects: Subscribable<PendingEffect[]> = new Subscribable([]);
     chainResolving = new Subscribable(false);
     speedSpell = new Subscribable(1);
     attackingCard = new Subscribable<Card | undefined>(undefined);
@@ -39,11 +40,16 @@ export class Duel {
         this.player2.handleFloodgates()
     });
     cardFloodgates: Subscribable<Record<string, CardFloodgate[]>> = new Subscribable({});
+    busy = new Subscribable(false);
 
     constructor(player1: YPlayer, player2: YPlayer) {
         this.player1 = player1;
         this.player2 = player2;
-        duels[`${player1.player.UserId}:${player2.player.UserId}`] = this;
+        
+        duels.set(`${player1.player.UserId}:${player2.player.UserId}`, this);
+        (this.player1.player.FindFirstChild("duel") as StringValue).Value = `${player1.player.UserId}:${player2.player.UserId}`;
+        (this.player2.player.FindFirstChild("duel") as StringValue).Value = `${player1.player.UserId}:${player2.player.UserId}`;
+        
         this.turnPlayer = new Subscribable<YPlayer>(this.player1, (p: YPlayer) => {
             DuelRemotes.Server.Get("turnPlayerChanged").SendToPlayers([this.player1.player, this.player2.player], p.player);
         });
@@ -59,6 +65,12 @@ export class Duel {
             try {
                 this.handleResponses(this.getOpponent(this.actor.get().player));
             }catch{}
+        })
+    }
+
+    destroy() {
+        Object.entries(this).forEach(([key, value]) => {
+            (this[key] as unknown) = undefined;
         })
     }
 
@@ -88,13 +100,20 @@ export class Duel {
         }
     }
 
-    endDuel(winner: YPlayer, message: string) {
+    async endDuel(winner: YPlayer, message: string) {
+        [this.player1, this.player2].forEach((player) => {
+            (player.player.FindFirstChild("duel") as StringValue).Value = "";
+            player.cards.set([])
+        })
+        duels.delete(`${this.player1.player.UserId}:${this.player2.player.UserId}`);
+
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
-        duels = Object.fromEntries(Object.entries(duels).filter(([key, value]) => value !== this));
 
         const loser = this.getOpponent(winner.player);
         alert(message || `You lost the duel! ${message ? `Reason: ${message}` : ''}`, loser.player);
         alert(message || `You won the duel! ${message ? `Reason: ${message}` : ''}`, winner.player);
+        this.destroy()
+        print(duels)
     }
 
     getOpponent(player: Player) {
@@ -114,9 +133,10 @@ export class Duel {
     }
 
     getResponses(player: YPlayer) {
-        return getCards(this).filter(card => {
+        const activatableCards = getCards(this).filter(card => {
             return card.getController() === player && card.checkEffectConditions()
         })
+        return activatableCards
     }
 
     addCardFloodgate(floodgateName: string, floodgate: CardFloodgate) {
@@ -146,16 +166,19 @@ export class Duel {
         }
     
         this.cardFloodgates.refresh();
+
         getCards(this).forEach(card => {
             card.handleFloodgates();
         });
     });
 
     handleResponses(player: YPlayer) {
+        print(10)
         if(this.handlingResponses) return
+        this.busy.set(true)
         this.handlingResponses = true
         
-        this.speedSpell.set(2)
+        this.speedSpell.set(this.speedSpell.get() === 1 ? 2 : this.speedSpell.get())
         this.gameState.set('CLOSED')
         let passes = 0;
         this.actor.set(player)
@@ -184,7 +207,9 @@ export class Duel {
 
                 if(response === "YES") {
                     passes = 0;
+                    this.busy.set(false)
                     this.action.wait()
+                    this.busy.set(true)
                 } else if(response === "NO") {
                     passes++
                 }
@@ -202,6 +227,7 @@ export class Duel {
         }
         this.handlingResponses = false
         this.resolveChain()
+        this.busy.set(false)
     }
 
     resolveChain() {
@@ -237,7 +263,6 @@ export class Duel {
         
         this.chain.set({})
         this.gameState.set('OPEN')
-        this.chainResolving.set(false)
         this.actor.set(this.turnPlayer.get())
         this.speedSpell.set(1)
         this.player1.targets.set([])
@@ -250,9 +275,65 @@ export class Duel {
         }
         this.attackingCard.set(undefined)
         this.defendingCard.set(undefined)
+        this.action.set([])
+        this.handleCardFloodgates()
+        this.chainResolving.set(false)
+        this.handlePendingEffects()
     }
 
-    async addToChain(card: Card, effect: Callback, action: Action) {
+    handlingPendingEffects = false
+    async handlePendingEffects() {
+        if(this.handlingPendingEffects) return
+        this.handlingPendingEffects = true
+        const opponent = this.getOpponent(this.turnPlayer.get().player);
+        [this.turnPlayer.get(), opponent].forEach((player) => {
+            const mandatoryEffect = () => this.pendingEffects.get().filter((pendingEffect) => {
+                return pendingEffect.card.controller.get() === player.player && !pendingEffect.effect.optional
+            })
+            const pickedMandatoryEffectsSize = mandatoryEffect().size();
+            if(pickedMandatoryEffectsSize >= 2) {
+                player.pickEffects(mandatoryEffect()).then(pickedMandatoryEffects => {
+                    for(const i of $range(1, pickedMandatoryEffectsSize)) {
+                        const pickedMandatoryEffect = pickedMandatoryEffects[i];
+                        const cost = pickedMandatoryEffect.effect.cost;
+                        if (cost) {
+                            cost();
+                        }
+                        const target = pickedMandatoryEffect.effect.target;
+                        if (target) {
+                            target();
+                        }
+                        this.addToChain(pickedMandatoryEffect.card, () => pickedMandatoryEffect.effect.effect!(pickedMandatoryEffect.card), undefined, false);
+                    }
+                })
+            } else if(pickedMandatoryEffectsSize === 1) {
+                const pickedMandatoryEffects = mandatoryEffect();
+                pickedMandatoryEffects[0];
+                const cost = pickedMandatoryEffects[0].effect.cost;
+                if (cost) {
+                    cost();
+                }
+                const target = pickedMandatoryEffects[0].effect.target;
+                if (target) {
+                    target();
+                }
+                this.addToChain(pickedMandatoryEffects[0].card, () => pickedMandatoryEffects[0].effect.effect!(pickedMandatoryEffects[0].card), undefined, false);
+            }
+        })
+        this.pendingEffects.set([])
+        this.handleResponses(this.turnPlayer.get())
+        this.handlingPendingEffects = false
+    }
+
+    addPendingEffect(effect: PendingEffect) {
+        this.pendingEffects.set([...this.pendingEffects.get(), effect])
+    }
+
+    async addToChain(card: Card, effect: Callback, action: Action = {
+        action: "ACTIVATE",
+        cards: [],
+        player: this.actor.get()
+    }, handleResponses: boolean = true) {
         this.gameState.set('CLOSED')
         card.activated.set(true)
         const chainLink = Object.keys(this.chain.get()).size() + 1
@@ -266,13 +347,17 @@ export class Duel {
         this.chain.set(newChain)
         this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
-        this.handleResponses(this.getOpponent(card.controller.get()))
+        if(handleResponses) {
+            this.handleResponses(this.getOpponent(card.controller.get()))
+        }
     }
 
     async handlePhase(p: Phase) {
         this.gameState.set('OPEN')
         if (p === 'DP') {
             this.turn.set(this.turn.get() + 1)
+            this.player1.handleFloodgates()
+            this.player2.handleFloodgates()
             await Promise.delay(0.15)
             if(this.turn.get() === 1) {
                 this.turnPlayer.get().addFloodgate("CANNOT_ENTER_BP", () => {
@@ -288,16 +373,18 @@ export class Duel {
                 const thread = [this.player1, this.player2].map((player) =>
                     coroutine.wrap(async () => {
                         await player.shuffle()
+                        await Promise.delay(player.cards.get().size() * 0.04)
                         await player.draw(5)
                     })
                 )
                 thread[0]()
                 thread[1]()
             } 
+            await Promise.delay(1)
             this.turnPlayer.get().draw(1)
             this.handleResponses(this.turnPlayer.get())
             await Promise.delay(0.15)
-            await this.handlePhase('SP')
+            await this.handlePhase('SP') 
         } else if (p === 'SP') {
             this.phase.set(p)
             await Promise.delay(0.15)
@@ -400,5 +487,8 @@ export class Duel {
 }
 
 export function getDuel(player: Player) {
-    return Object.values(duels).find(duel => duel.player1.player === player || duel.player2.player === player)
+    const duel = duels.get((player.FindFirstChild("duel") as StringValue).Value);
+    if (duel) {
+        return duel;
+    }
 }

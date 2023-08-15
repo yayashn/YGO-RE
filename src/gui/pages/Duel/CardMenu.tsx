@@ -1,14 +1,12 @@
-import Roact, { useEffect, useRef, useState } from '@rbxts/roact'
-import { Players } from '@rbxts/services'
-import { includes } from 'shared/utils'
+import Roact, { useEffect, useRef } from '@rbxts/roact'
 import useCloseMenu from 'gui/hooks/useCloseMenu'
 import type { CardAction, CardPublic } from 'server/duel/types'
 import { CardRemotes } from 'shared/duel/remotes'
 import useShowMenu from 'gui/hooks/useShowMenu'
+import { black } from 'shared/colours'
+import Padding from 'shared/components/Padding'
 
 const doAction = CardRemotes.Client.Get('doAction')
-
-const player = Players.LocalPlayer
 
 export default ({
     card,
@@ -48,29 +46,38 @@ export default ({
                 ExtentsOffset={new Vector3(0, 0.2, 2)}
                 ZIndexBehavior={Enum.ZIndexBehavior.Sibling}
             >
-                <uilistlayout Padding={new UDim(0.05, 0)} VerticalAlignment="Center" />
+                <uilistlayout Padding={new UDim(0.05, 0)} VerticalAlignment="Center" HorizontalAlignment="Center" />
                 {enabledActions?.map((button: CardAction) => {
                     return (
                         <textbutton
-                            Size={new UDim2(1, 0, 0, 30)}
+                            Size={new UDim2(.9, 0, 
+                                card.location === "Hand" ? 0.15 : 0.3
+                                , 0)}
                             Text={button}
+                            BackgroundTransparency={.2}
                             TextColor3={Color3.fromRGB(255, 255, 255)}
-                            TextSize={14}
+                            TextSize={card.location === "Hand" ? 20 : 30}
+                            TextWrap
+                            TextScaled={card.location !== "Hand"}
                             TextStrokeColor3={Color3.fromRGB(0, 0, 0)}
+                            BackgroundColor3={black}
                             TextStrokeTransparency={0}
                             TextXAlignment={Enum.TextXAlignment.Center}
                             TextYAlignment={Enum.TextYAlignment.Center}
                             Font={Enum.Font.ArialBold}
-                            BorderSizePixel={1}
-                            BackgroundColor3={new Color3(6 / 255, 52 / 255, 63 / 255)}
-                            BorderColor3={new Color3(26 / 255, 101 / 255, 110 / 255)}
+                            BorderSizePixel={0}
                             Event={{
                                 MouseButton1Click: async (e) => {
                                     setShowMenu(undefined)
                                     doAction.SendToServer(card, button)
                                 }
                             }}
-                        />
+                        >
+                            <uicorner CornerRadius={new UDim(0, 5)} />
+                            <Padding PaddingBlock={new UDim(0, 
+                                card.location === "Hand" ? 10 : 0
+                                )} />
+                        </textbutton>
                     )
                 })}
             </billboardgui>

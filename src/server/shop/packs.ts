@@ -4,7 +4,8 @@ import LOB from "./LOB";
 export type Pack = {
     price: number;
     cards: CardTemplate[],
-    getFullRandomPack: () => CardTemplate[]
+    getFullRandomPack: () => CardTemplate[],
+    alert: Callback
 }
 
 const packs: Record<string, Pack> = {

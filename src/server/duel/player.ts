@@ -1,18 +1,23 @@
-import { getEquippedDeck } from "server/profile-service/profiles";
 import { Card } from "./card";
 import { Subscribable } from "shared/Subscribable";
-import { Location, Position, SelectableZone } from "./types";
+import { Location, PendingEffect, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
-import { getFilteredCards } from "./utils";
+import { getFilteredCards, getPublicCard } from "./utils";
 import { PlayerRemotes } from "shared/duel/remotes";
+import { getEquippedDeck } from "server/profile-service/functions/getEquippedDeck";
+import confirm from "server/popups/confirm";
 
 export class YPlayer {
     changed = new Subscribable(0);
     player: Player;
     cards = new Subscribable<Card[]>([]);
     floodgates = new Subscribable<Floodgate[]>([]);
-    targets = new Subscribable<Card[]>([]);
+    targets = new Subscribable<Card[]>([], (cards: Card[]) => {
+        PlayerRemotes.Server.Get("targettedCardsChanged").SendToPlayers([this.player], cards.map(card => {
+            return getPublicCard(this.player, card)
+        }))   
+    });
     lifePoints = new Subscribable(8000, (newLP) => {
         const duel = getDuel(this.player);
         const opponent = duel!.getOpponent(this.player);
@@ -29,25 +34,19 @@ export class YPlayer {
             duel!.endDuel(opponent, 'Lifepoints reduced to 0.');
         }
     });
-    selectableZones = new Subscribable<SelectableZone[]>([]);
+    selectableZones = new Subscribable<SelectableZone[]>([], () => {
+        PlayerRemotes.Server.Get("selectableZonesChanged").SendToPlayer(this.player, this.selectableZones.get())
+    });
     selectedZone = new Subscribable<Location | undefined>(undefined);
     targettableCards = new Subscribable<Card[]>([], (cards: Card[]) => {
-        PlayerRemotes.Server.Get("targettableCardsChanged").SendToPlayers([this.player], cards.map(card => ({
-            uid: card.uid,
-            position: card.position.get(),
-            location: card.location.get(),
-            controller: card.controller.get(),
-            order: card.order.get(),
-        })))
+        PlayerRemotes.Server.Get("targettableCardsChanged").SendToPlayers([this.player], cards.map(card => {
+            return getPublicCard(this.player, card)
+        }))
     });
     targettedCards = new Subscribable<Card[]>([], (cards: Card[]) => {
-        PlayerRemotes.Server.Get("targettedCardsChanged").SendToPlayers([this.player], cards.map(card => ({
-            uid: card.uid,
-            position: card.position.get(),
-            location: card.location.get(),
-            controller: card.controller.get(),
-            order: card.order.get(),
-        })))   
+        PlayerRemotes.Server.Get("targettedCardsChanged").SendToPlayers([this.player], cards.map(card => {
+            return getPublicCard(this.player, card)
+        }))
     });
     selectedPosition = new Subscribable<Position | undefined>(undefined);
     selectedPositionCard = new Subscribable<Card | undefined>(undefined);
@@ -127,6 +126,9 @@ export class YPlayer {
     }
 
     pickTargets(n: number, targettables: Card[]) {
+        const duel = getDuel(this.player)!;
+        const currentBusy = duel.busy.get()
+        duel.busy.set(false)
         this.targets.set([])
         this.targettableCards.set(targettables)
         let pickedTargets: Card[] = [];
@@ -140,10 +142,52 @@ export class YPlayer {
             wait()
         }
         this.targettableCards.set([])
+        duel.busy.set(currentBusy)
         return pickedTargets
     }
 
+    async pickEffects(pendingEffects: PendingEffect[], optional: boolean = true) {
+        const duel = getDuel(this.player)!;
+        const currentBusy = duel.busy.get()
+        duel.busy.set(false)
+        this.targets.set([])
+        const targettables = pendingEffects.map((pendingEffect) => pendingEffect.card)
+        this.targettableCards.set(targettables)
+        let pickedEffects: Record<number, PendingEffect> = {};
+        let wantsToActivate: "YES" | "NO" = "YES";
+        if(optional) {
+            const wantsToActivatePrompt = confirm(`Activate an effect?`, this.player);
+            wantsToActivate = await wantsToActivatePrompt
+        }
+        if(wantsToActivate === "YES") {
+            const connection = this.targets.changed(async (targets: Card[]) => {
+                if (optional ? targets.size() >= 1 : targets.size() === pendingEffects.size()) {
+                    if(optional && targets.size() < pendingEffects.size()) {
+                        const pickAnotherEffectPrompt = await confirm(`Activate another effect?`, this.player);
+                        if (pickAnotherEffectPrompt === "YES") {
+                            return
+                        }
+                    }
+                    targets.forEach((target, i) => {
+                        pickedEffects[i + 1] = {
+                            card: target,
+                            effect: pendingEffects.find((pendingEffect) => pendingEffect.card === target)!.effect
+                        }
+                    })
+                    connection.Disconnect()
+                }
+            })
+            while (connection.Connected) {
+                wait()
+            }
+        }
+        this.targettableCards.set([])
+        duel.busy.set(currentBusy)
+        return pickedEffects
+    }
+
     pickZone(zones: SelectableZone[] = []) {
+        const duel = getDuel(this.player)!;
         this.selectableZones.set(zones)
         this.selectedZone.wait()
         const selectedZone = this.selectedZone.get()

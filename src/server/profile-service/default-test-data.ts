@@ -1,23 +1,20 @@
 import { CardTemplate, PlayerData } from "../types";
 
 const defaultCards: CardTemplate[] = [
-    { name: "Man-Eater Bug" },
-    { name: "Petit Dragon" },
-    { name: "Dark Magician" },
-    { name: "Man-Eater Bug" },
-    { name: "Petit Dragon" },
-    { name: "Dark Magician" },
-    { name: "Man-Eater Bug" },
-    { name: "Petit Dragon" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
-    { name: "Dragon Capture Jar" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
+    { name: "Trap Hole" },
 ]
 
 const defaultExtra: CardTemplate[] = [
@@ -42,6 +39,12 @@ export const defaultPlayerData: PlayerData = {
         disk: '',
         deck: 'default',
     },
+    afkDailyDp: {
+        [DateTime.now().FormatLocalTime("L", "en-us")]: {
+            earnt: 0,
+            max: 43200
+        },
+    }
 }
 
 export default defaultPlayerData;

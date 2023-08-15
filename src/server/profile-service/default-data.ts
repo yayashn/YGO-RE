@@ -61,6 +61,12 @@ export const defaultPlayerData: PlayerData = {
         disk: '',
         deck: 'default',
     },
+    afkDailyDp: {
+        [DateTime.now().FormatLocalTime("L", "en-us")]: {
+            earnt: 0,
+            max: 43200
+        },
+    }
 }
 
 export default defaultPlayerData;

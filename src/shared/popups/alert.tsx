@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact"
-import Dialog from "server/popups/Dialog"
+import Dialog from "./Dialog"
 
 export default async (message: string, player: Player) => {
     return new Promise<"OK">((resolve) => {

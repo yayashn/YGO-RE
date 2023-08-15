@@ -1,316 +1,334 @@
-import { HttpService } from "@rbxts/services";
-import getCardData, { includes } from "shared/utils";
-import { Action, CardFloodgate, FloodgateValueAtkDefModifier, Location, Position } from "./types";
-import { Subscribable } from "shared/Subscribable";
-import cardEffects from "server-storage/card-effects/index";
-import { getFilteredCards } from "./utils";
-import { getDuel } from "./duel";
-import { Dictionary as Object } from "@rbxts/sift";
-import Remotes from "shared/net/remotes";
-import { CardRemotes } from "shared/duel/remotes";
+import { HttpService } from '@rbxts/services'
+import getCardData, { areCardsEqual, includes } from 'shared/utils'
+import {
+    Action,
+    CardFloodgate,
+    CardPublic,
+    FloodgateValueAtkDefModifier,
+    Location,
+    Position
+} from './types'
+import { Subscribable } from 'shared/Subscribable'
+import cardEffects from 'server-storage/card-effects/index'
+import { getFilteredCards, getPublicCard } from './utils'
+import { getDuel } from './duel'
+import { Dictionary as Object } from '@rbxts/sift'
+import Remotes from 'shared/net/remotes'
+import { CardRemotes } from 'shared/duel/remotes'
 
 export class Card {
-    changed = new Subscribable(0);
-    uid: string;
-    name: Subscribable<string>;
-    atk = new Subscribable<number | undefined>(undefined);
-    def = new Subscribable<number | undefined>(undefined);
-    originalData: Subscribable<Record<string, unknown>>;
-    race: Subscribable<string>;
-    desc: Subscribable<string>;
-    level = new Subscribable<number | undefined>(undefined);
-    art: string;
-    owner: Player;
-    controller: Subscribable<Player>;
-    position: Subscribable<Position>;
-    location: Subscribable<Location>;
-    order: Subscribable<number>;
-    "type": Subscribable<string>;
-    chainLink = new Subscribable<number>(0);
-    targets = new Subscribable<Card[]>([]);
-    activated = new Subscribable(false);
-    attackNegated = new Subscribable(false);
-    status = new Subscribable<string>("");
-    attribute: Subscribable<string>;
-    atkModifier = new Subscribable<Record<string, number>>({});
-    defModifier = new Subscribable<Record<string, number>>({});
+    changed = new Subscribable(0)
+    uid: string
+    name: Subscribable<string>
+    atk = new Subscribable<number | undefined>(undefined)
+    def = new Subscribable<number | undefined>(undefined)
+    originalData: Subscribable<Record<string, unknown>>
+    race: Subscribable<string>
+    desc: Subscribable<string>
+    level = new Subscribable<number | undefined>(undefined)
+    art: string
+    owner: Player
+    controller: Subscribable<Player>
+    position: Subscribable<Position>
+    location: Subscribable<Location>
+    order: Subscribable<number>
+    'type': Subscribable<string>
+    chainLink = new Subscribable<number>(0)
+    targets = new Subscribable<Card[]>([])
+    activated = new Subscribable(false)
+    attackNegated = new Subscribable(false)
+    status = new Subscribable<string>('')
+    attribute: Subscribable<string>
+    atkModifier = new Subscribable<Record<string, number>>({})
+    defModifier = new Subscribable<Record<string, number>>({})
+    clientCardCachePlayer1: CardPublic | undefined
+    clientCardCachePlayer2: CardPublic | undefined
 
     constructor(name: string, owner: Player, order: number) {
-        const cardData = getCardData(name)!;
-        if(!cardData) {
-            error(`Card ${name} does not exist!`);
+        const cardData = getCardData(name)!
+        if (!cardData) {
+            error(`Card ${name} does not exist!`)
         }
-        this.originalData = new Subscribable(cardData);
-        this.uid = HttpService.GenerateGUID(false);
-        this.name = new Subscribable(name);
-        this.race = new Subscribable(cardData.race);
-        this.desc = new Subscribable(cardData.desc);
-        this.position = new Subscribable<Position>("FaceDown", () => {
-            this.refreshClientCard();
-        });
-        this.art = cardData.art;
-        this.owner = owner;
+        this.originalData = new Subscribable(cardData)
+        this.uid = HttpService.GenerateGUID(false)
+        this.name = new Subscribable(name)
+        this.race = new Subscribable(cardData.race)
+        this.desc = new Subscribable(cardData.desc)
+        this.position = new Subscribable<Position>('FaceDown', () => {
+            this.refreshClientCard()
+        })
+        this.art = cardData.art
+        this.owner = owner
         this.controller = new Subscribable<Player>(owner, () => {
             this.refreshClientCard()
-        });
+        })
         this.order = new Subscribable<number>(order, () => {
             this.refreshClientCard()
-        });
-        this["type"] = new Subscribable<string>(cardData["type"]);
-        this.attribute = new Subscribable<string>(cardData["attribute"] || cardData.type.split(" ")[0]);
+        })
+        this['type'] = new Subscribable<string>(cardData['type'])
+        this.attribute = new Subscribable<string>(
+            cardData['attribute'] || cardData.type.split(' ')[0]
+        )
 
-        if (cardData["type"].match("Fusion").size() > 0) {
-            this.location = new Subscribable<Location>("EZone", () => {
+        if (cardData['type'].match('Fusion').size() > 0) {
+            this.location = new Subscribable<Location>('EZone', () => {
                 this.onChanged()
-            });
+            })
         } else {
-            this.location = new Subscribable<Location>("Deck", () => {
+            this.location = new Subscribable<Location>('Deck', () => {
                 this.onChanged()
-            });
+            })
         }
-        if (cardData["type"].match("Monster").size() > 0) {
-            this.atk.set(cardData.atk!);
-            this.def.set(cardData.def!);
-            this.level.set(cardData.level!);
+        if (cardData['type'].match('Monster').size() > 0) {
+            this.atk.set(cardData.atk!)
+            this.def.set(cardData.def!)
+            this.level.set(cardData.level!)
         }
     }
 
     onChanged = () => {
-        this.handleFloodgates();
-        this.changed.set(this.changed.get() + 1);
-        this.refreshClientCard();
+        this.handleFloodgates()
+        this.changed.set(this.changed.get() + 1)
+        this.refreshClientCard()
     }
 
     refreshClientCard = async () => {
-        const duel = getDuel(this.owner)!;
-        const player1 = duel.player1;
-        const player2 = duel.player2;
-        const showAtkDef = includes(this.position.get(), "FaceUp") && includes(this.location.get(), "MZone");
+        const duel = getDuel(this.owner)!
+        const player1 = duel.player1
+        const player2 = duel.player2
 
-        [player1.player, player2.player].forEach(p => {
-            const publicKnowledge = includes(this.position.get(), "FaceUp") || (this.location.get() !== "Deck" ? p === this.controller.get() : false)
-
-
-            CardRemotes.Server.Get("cardChanged").SendToPlayer(p, {
-                uid: this.uid,
-                position: this.position.get(),
-                location: this.location.get(),
-                controller: this.controller.get(),
-                order: this.order.get(),
-                atk: publicKnowledge && showAtkDef ? this.getAtk() : undefined,
-                def: publicKnowledge && showAtkDef ? this.getDef() : undefined,
-                art: publicKnowledge ? this.art : "",
-                name: publicKnowledge ? this.name.get() : "",
-            })
+        ;[player1.player, player2.player].forEach((p, i) => {
+            const publicCard = getPublicCard(p, this)
+            const cachedCard = this[`clientCardCachePlayer${(i + 1) as 1 | 2}`]
+            if (!areCardsEqual(publicCard, cachedCard || ({} as CardPublic))) {
+                CardRemotes.Server.Get('cardChanged').SendToPlayer(p, publicCard)
+                this[`clientCardCachePlayer${(i + 1) as 1}`] = publicCard
+            }
         })
     }
 
-    handleFloodgates = async () => {
-        if (this.hasFloodgate("FORCE_FACEUP_DEFENSE")) {
-            this.position.set("FaceUpDefense");
+    handleFloodgates = () => {
+        this.exodia()
+        if (this.hasFloodgate('FORCE_FACEUP_DEFENSE')) {
+            this.position.set('FaceUpDefense')
         }
-        if (this.hasFloodgate("MODIFY_ATK")) {
-            const modifyAtkFloodgates = this.getFloodgates("MODIFY_ATK")!;
+        if (this.hasFloodgate('MODIFY_ATK')) {
+            const modifyAtkFloodgates = this.getFloodgates('MODIFY_ATK')!
 
-            const modifier: Record<string, number>= {};
+            const modifier: Record<string, number> = {}
 
             modifyAtkFloodgates.forEach((floodgate) => {
-                const modifierData = floodgate.floodgateValue as FloodgateValueAtkDefModifier;
-                modifier[modifierData.modifierId] = modifierData.value;
+                const modifierData = floodgate.floodgateValue as FloodgateValueAtkDefModifier
+                modifier[modifierData.modifierId] = modifierData.value
             })
-            this.atkModifier.set(modifier);
+            this.atkModifier.set(modifier)
         } else {
-            this.atkModifier.set({});
+            this.atkModifier.set({})
         }
-        if (this.hasFloodgate("MODIFY_DEF")) {
-            const modifyDefFloodgates = this.getFloodgates("MODIFY_DEF")!;
+        if (this.hasFloodgate('MODIFY_DEF')) {
+            const modifyDefFloodgates = this.getFloodgates('MODIFY_DEF')!
 
-            const modifier: Record<string, number>= {};
+            const modifier: Record<string, number> = {}
 
             modifyDefFloodgates.forEach((floodgate) => {
-                const modifierData = floodgate.floodgateValue as FloodgateValueAtkDefModifier;
-                modifier[modifierData.modifierId] = modifierData.value;
+                const modifierData = floodgate.floodgateValue as FloodgateValueAtkDefModifier
+                modifier[modifierData.modifierId] = modifierData.value
             })
-            this.defModifier.set(modifier);
+            this.defModifier.set(modifier)
         } else {
-            this.defModifier.set({});
+            this.defModifier.set({})
         }
+        new Promise(() => this.refreshClientCard())
     }
 
     getAtk() {
-        const totalModifier = Object.values(this.atkModifier.get()).reduce((a, b) => a + b, 0);
+        const totalModifier = Object.values(this.atkModifier.get()).reduce((a, b) => a + b, 0)
         if (this.atk.get()! + totalModifier <= 0) {
-            return 0;
+            return 0
         } else {
-            return this.atk.get()! + totalModifier;
+            return this.atk.get()! + totalModifier
         }
     }
 
     getDef() {
-        const totalModifier = Object.values(this.defModifier.get()).reduce((a, b) => a + b, 0);
+        const totalModifier = Object.values(this.defModifier.get()).reduce((a, b) => a + b, 0)
         if (this.def.get()! + totalModifier <= 0) {
-            return 0;
+            return 0
         } else {
-            return this.def.get()! + totalModifier;
+            return this.def.get()! + totalModifier
         }
     }
 
     getController() {
-        const duel = getDuel(this.owner)!;
-        return duel.getPlayer(this.controller.get());
+        const duel = getDuel(this.owner)!
+        return duel.getPlayer(this.controller.get())
     }
-    
-    getFloodgates(floodgateName: string) {
-        const duel = getDuel(this.owner)!;
-        const floodgates = duel.cardFloodgates.get();
 
-        if(!floodgates[floodgateName]) return [];
+    getFloodgates(floodgateName: string) {
+        const duel = getDuel(this.owner)!
+        const floodgates = duel.cardFloodgates.get()
+
+        if (!floodgates[floodgateName]) return []
 
         const floodgatesFound = floodgates[floodgateName].filter((floodgate) => {
             return Object.entries(floodgate.floodgateFilter).every(([key, values]) => {
-                if (key === "type") {
-                    return values!.some((value) => this["type"].get().match(value as string).size() > 0)
+                if (key === 'type') {
+                    return values!.some(
+                        (value) =>
+                            this['type']
+                                .get()
+                                .match(value as string)
+                                .size() > 0
+                    )
                 }
-                if (key === "name" || key === "uid") {
+                if (key === 'name' || key === 'uid') {
                     return values!.some((value) => this[key] === value)
                 }
-                if (key === "card") {
+                if (key === 'card') {
                     return (values as Card[]).includes(this)
                 }
                 return values!.some((value) => this[key].get() === value)
             })
         })
 
-        return floodgatesFound;
+        return floodgatesFound
     }
-    
+
     hasFloodgate(floodgateName: string) {
-        const duel = getDuel(this.owner)!;
-        const floodgates = duel.cardFloodgates.get();
-
-        if(!floodgates[floodgateName]) return false;
-
-        const floodgatesFound = floodgates[floodgateName].some((floodgate) => {
-            return Object.entries(floodgate.floodgateFilter).every(([key, values]) => {
-                if (key === "type") {
-                    return values!.some((value) => this["type"].get().match(value as string).size() > 0)
-                }
-                if (key === "name" || key === "uid") {
-                    return values!.some((value) => this[key] === value)
-                }
-                if (key === "card") {
-                    return (values as Card[]).includes(this)
-                }
-                return values!.some((value) => this[key].get() === value)
+        try {
+            const duel = getDuel(this.owner)!
+            const floodgates = duel.cardFloodgates.get()
+    
+            if (!floodgates[floodgateName]) return false
+    
+            const floodgatesFound = floodgates[floodgateName].some((floodgate) => {
+                return Object.entries(floodgate.floodgateFilter).every(([key, values]) => {
+                    if (key === 'type') {
+                        return values!.some(
+                            (value) =>
+                                this['type']
+                                    .get()
+                                    .match(value as string)
+                                    .size() > 0
+                        )
+                    }
+                    if (key === 'name' || key === 'uid') {
+                        return values!.some((value) => this[key] === value)
+                    }
+                    if (key === 'card') {
+                        return (values as Card[]).includes(this)
+                    }
+                    return values!.some((value) => this[key].get() === value)
+                })
             })
-        })
-
-        return floodgatesFound;
+    
+            return floodgatesFound
+        } catch (e) {
+            print(e)
+        }
     }
 
     normalSummon(location: Location) {
         this.position.set('FaceUpAttack')
-        const duel = getDuel(this.owner)!;
-        const turn = duel.turn.get();
+        const duel = getDuel(this.owner)!
+        const turn = duel.turn.get()
         duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
             floodgateFilter: {
-                card: [this],
+                card: [this]
             },
-            expiry: () => duel.turn.get() !== turn,
+            expiry: () => duel.turn.get() !== turn
         })
         this.location.set(location)
         duel.setAction({
-            action: "Normal Summon",
+            action: 'Normal Summon',
             cards: [this],
-            player: this.getController(),
+            player: this.getController()
         })
     }
 
     tributeSummon(location: Location) {
-        const duel = getDuel(this.owner)!;
+        const duel = getDuel(this.owner)!
         this.normalSummon(location)
         wait(1)
         duel.setAction({
-            action: "Tribute Summon",
+            action: 'Tribute Summon',
             cards: [this],
-            player: this.getController(),
+            player: this.getController()
         })
     }
 
     specialSummon(location: Location, newPosition: Position) {
-        const duel = getDuel(this.owner)!;
-        const turn = duel.turn.get();
+        const duel = getDuel(this.owner)!
+        const turn = duel.turn.get()
         duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
             floodgateFilter: {
-                card: [this],
+                card: [this]
             },
-            expiry: () => duel.turn.get() !== turn,
+            expiry: () => duel.turn.get() !== turn
         })
         this.position.set(newPosition)
         this.location.set(location)
         duel.setAction({
-            action: "Special Summon",
+            action: 'Special Summon',
             cards: [this],
-            player: this.getController(),
+            player: this.getController()
         })
     }
 
     reveal() {
-        const oldPosition = this.position.get();
+        const oldPosition = this.position.get()
         this.position.set('FaceUp')
         wait(2)
         this.position.set(oldPosition)
     }
 
     toHand() {
-        this.controller.set(this.owner);
-        this.position.set('FaceUp');
-        if (includes(this.type.get(), "Fusion")) {
-            this.location.set('EZone');
+        this.controller.set(this.owner)
+        this.position.set('FaceUp')
+        if (includes(this.type.get(), 'Fusion')) {
+            this.location.set('EZone')
         } else {
-            this.location.set('Hand');
+            this.location.set('Hand')
         }
     }
 
     banish(position: Position) {
-        this.controller.set(this.owner);
-        this.position.set(position);
-        this.location.set('BZone');
+        this.controller.set(this.owner)
+        this.position.set(position)
+        this.location.set('BZone')
     }
 
     tributeSet(location: Location) {
-        this.set(location);
+        this.set(location)
     }
 
     changePosition(forcePosition?: Position) {
-        const duel = getDuel(this.owner)!;
-        const turn = duel.turn.get();
+        const duel = getDuel(this.owner)!
+        const turn = duel.turn.get()
+
+        const flipEffect = this.getTriggerEffect("FLIP");
 
         if (forcePosition) {
-            const oldPosition = this.position.get();
+            const oldPosition = this.position.get()
             this.position.set(forcePosition)
-            if(oldPosition === "FaceDownDefense" && includes(this["type"].get(), "Flip") && includes(forcePosition, "FaceUp")) {
-                const cost = this.getCost()
-                if (cost) {
-                    cost()
-                }
-                const target = this.getTarget()
-                if (target) {
-                    target()
-                }
+            if (
+                oldPosition === 'FaceDownDefense' &&
+                flipEffect !== undefined &&
+                includes(forcePosition, 'FaceUp')
+            ) {
                 this.activateEffect({
-                    action: "Flip",
+                    action: 'Flip',
                     cards: [this],
-                    player: this.getController(),
+                    player: this.getController()
                 })
             }
-            return;
+            return
         }
         duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
             floodgateFilter: {
-                card: [this],
+                card: [this]
             },
-            expiry: () => duel.turn.get() !== turn,
+            expiry: () => duel.turn.get() !== turn
         })
         if (this.position.get() === 'FaceUpAttack') {
             this.position.set('FaceUpDefense')
@@ -321,36 +339,28 @@ export class Card {
 
     flip(inBattle?: boolean) {
         this.position.set('FaceUpDefense')
-        if (!inBattle && includes(this["type"].get(), "Flip")) {
-            const cost = this.getCost()
-            if (cost) {
-                cost()
-            }
-            const target = this.getTarget()
-            if (target) {
-                target()
-            }
+        if (!inBattle && this.getTriggerEffect("FLIP") !== undefined) {
             this.activateEffect({
-                action: "Flip",
+                action: 'Flip',
                 cards: [this],
-                player: this.getController(),
+                player: this.getController()
             })
         }
     }
 
     flipSummon() {
-        const duel = getDuel(this.owner)!;
-        const turn = duel.turn.get();
+        const duel = getDuel(this.owner)!
+        const turn = duel.turn.get()
 
         duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
             floodgateFilter: {
-                card: [this],
+                card: [this]
             },
-            expiry: () => duel.turn.get() !== turn,
+            expiry: () => duel.turn.get() !== turn
         })
         this.position.set('FaceUpAttack')
 
-        if (includes(this['type'].get(), "Flip")) {
+        if (includes(this['type'].get(), 'Flip')) {
             const cost = this.getCost()
             if (cost) {
                 cost()
@@ -361,126 +371,130 @@ export class Card {
             }
 
             this.activateEffect({
-                action: "Flip Summon",
+                action: 'Flip Summon',
                 cards: [this],
-                player: this.getController(),
+                player: this.getController()
             })
         } else {
             duel.setAction({
-                action: "Flip Summon",
+                action: 'Flip Summon',
                 cards: [this],
-                player: this.getController(),
+                player: this.getController()
             })
         }
     }
 
     set(location: Location) {
-        const duel = getDuel(this.owner)!;
-        const turn = duel.turn.get();
+        const duel = getDuel(this.owner)!
+        const turn = duel.turn.get()
         if (this.type.get().match('Monster').size() > 0) {
             this.position.set('FaceDownDefense')
 
             duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
                 floodgateFilter: {
-                    card: [this],
+                    card: [this]
                 },
-                expiry: () => duel.turn.get() !== turn,
+                expiry: () => duel.turn.get() !== turn
             })
 
             this.location.set(location)
             wait(1)
             duel.setAction({
-                action: "Set Monster",
+                action: 'Set Monster',
                 cards: [this],
-                player: this.getController(),
+                player: this.getController()
             })
         } else {
             this.position.set('FaceDown')
-            if (this["type"].get().match("Trap").size() > 0 || this["type"].get().match("Quick").size() > 0) {
-                duel.addCardFloodgate("CANNOT_ACTIVATE", {
+            if (
+                this['type'].get().match('Trap').size() > 0 ||
+                this['type'].get().match('Quick').size() > 0
+            ) {
+                duel.addCardFloodgate('CANNOT_ACTIVATE', {
                     floodgateFilter: {
-                        card: [this],
+                        card: [this]
                     },
                     expiry: () => {
                         return duel.turn.get() !== turn
-                    },
+                    }
                 })
             }
-            if(this.race.get() === "Field") {
+            if (this.race.get() === 'Field') {
                 const fieldSpells = getFilteredCards(duel, {
-                    location: ["FZone"]
+                    location: ['FZone']
                 })
-                fieldSpells.forEach(fieldSpell => {
-                    fieldSpell.destroy("Mechanic")
+                fieldSpells.forEach((fieldSpell) => {
+                    fieldSpell.destroy('Mechanic')
                 })
-                this.location.set("FZone")
+                this.location.set('FZone')
             } else {
                 this.location.set(location)
             }
             wait(1)
             duel.setAction({
-                action: "Set",
+                action: 'Set',
                 cards: [this],
-                player: this.getController(),
+                player: this.getController()
             })
         }
     }
 
     toGraveyard() {
-        this.controller.set(this.owner);
-        this.position.set('FaceUp');
-        this.location.set("GZone");
+        this.controller.set(this.owner)
+        this.position.set('FaceUp')
+        this.location.set('GZone')
     }
 
     attack(defender?: Card) {
-        const duel = getDuel(this.owner)!;
-        const isDirectAttack = !defender;
+        const duel = getDuel(this.owner)!
+        const isDirectAttack = !defender
         const defenderLocation = isDirectAttack ? '' : defender.location.get()
         const defenderAtk = isDirectAttack ? 0 : defender.getAtk()
-        const turn = duel.turn.get();
+        const turn = duel.turn.get()
 
-        const opponent = duel.getOpponent(this.controller.get());
+        const opponent = duel.getOpponent(this.controller.get())
 
-        let defenderIsFlip = false;
+        let defenderIsFlip = false
 
         const attackCancelled = () => {
-            const isDefensePosition = includes(this.position.get(), "Defense");
-            const isMzone = includes(this.location.get(), "MZone");
-            const cancelled = isDefensePosition || !isMzone;
-            return cancelled;
+            const isDefensePosition = includes(this.position.get(), 'Defense')
+            const isMzone = includes(this.location.get(), 'MZone')
+            const cancelled = isDefensePosition || !isMzone
+            return cancelled
         }
 
         const startOfDamageStep = () => {
-            duel.addCardFloodgate("CANNOT_ATTACK",{
+            duel.addCardFloodgate('CANNOT_ATTACK', {
                 floodgateFilter: {
-                    card: [this],
+                    card: [this]
                 },
-                expiry: () => duel.turn.get() !== turn 
-                || includes(this.position.get(), "FaceDown")
-                || !includes(this.location.get(), "MZone") 
+                expiry: () =>
+                    duel.turn.get() !== turn ||
+                    includes(this.position.get(), 'FaceDown') ||
+                    !includes(this.location.get(), 'MZone')
             })
-            duel.addCardFloodgate("CANNOT_ATTACK", {
+            duel.addCardFloodgate('CANNOT_ATTACK', {
                 floodgateFilter: {
-                    card: [this],
+                    card: [this]
                 },
-                expiry: () => duel.turn.get() !== turn 
-                || includes(this.position.get(), "FaceDown")
-                || !includes(this.location.get(), "MZone") 
+                expiry: () =>
+                    duel.turn.get() !== turn ||
+                    includes(this.position.get(), 'FaceDown') ||
+                    !includes(this.location.get(), 'MZone')
             })
 
+            duel.battleStep.set('DAMAGE')
+            duel.damageStep.set('START')
 
-            duel.battleStep.set('DAMAGE');
-            duel.damageStep.set('START');
-
-            wait(.5)
+            wait(0.5)
 
             duel.handleResponses(duel.turnPlayer.get())
             //during damage step only effects
             //start of damage step effects
             //ATK/DEF change effects
             //check if players finished effects
-            
-            if(!attackCancelled()) {
+
+            if (!attackCancelled()) {
                 beforeDamageCalculation()
             } else {
                 endOfDamageStep()
@@ -488,14 +502,26 @@ export class Card {
         }
 
         const beforeDamageCalculation = () => {
-            Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-            Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                this.controller.get(),
+                false,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                opponent.player,
+                true,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
 
             duel.damageStep.set('BEFORE')
             if (!isDirectAttack && defender.position.get() === 'FaceDownDefense') {
                 defender.flip(true)
-                if (includes(defender.type.get(), "Flip")) {
-                    defenderIsFlip = true;
+                if (includes(defender.type.get(), 'Flip')) {
+                    defenderIsFlip = true
                 }
                 wait(1)
             }
@@ -516,10 +542,22 @@ export class Card {
         }
 
         const damageCalculation = () => {
-            Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-            Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                this.controller.get(),
+                false,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                opponent.player,
+                true,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
 
-            duel.damageStep.set('DURING');
+            duel.damageStep.set('DURING')
             //during damage calculation only effects immediately
             //during damage calculation effects
             duel.handleResponses(duel.turnPlayer.get())
@@ -552,11 +590,22 @@ export class Card {
         }
 
         const afterDamageCalculation = () => {
-            Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-            Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-
-            duel.damageStep.set('AFTER'
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                this.controller.get(),
+                false,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
             )
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                opponent.player,
+                true,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
+
+            duel.damageStep.set('AFTER')
             //self destruction continuous effects immediately
             //after damage calculation effects
             //battle damage effects
@@ -571,9 +620,9 @@ export class Card {
                     target()
                 }
                 defender!.activateEffect({
-                    action: "Flip",
+                    action: 'Flip',
                     player: defender!.getController(),
-                    cards: [defender!],
+                    cards: [defender!]
                 })
             } else {
                 duel.handleResponses(duel.turnPlayer.get())
@@ -582,10 +631,22 @@ export class Card {
         }
 
         const endOfDamageStep = () => {
-            Remotes.Server.Get("attackCard3D").SendToPlayer(this.controller.get(), false, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-            Remotes.Server.Get("attackCard3D").SendToPlayer(opponent.player, true, this.location.get(), isDirectAttack ? undefined : defender.location.get(), true);
-            
-            duel.damageStep.set('END');
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                this.controller.get(),
+                false,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
+            Remotes.Server.Get('attackCard3D').SendToPlayer(
+                opponent.player,
+                true,
+                this.location.get(),
+                isDirectAttack ? undefined : defender.location.get(),
+                true
+            )
+
+            duel.damageStep.set('END')
             if (!isDirectAttack) {
                 if (defender.status.get() === 'destroyedByBattle') {
                     defender.toGraveyard()
@@ -609,7 +670,7 @@ export class Card {
 
     destroy(cause: string) {
         this.status.set(`destroyedBy${cause}`)
-        if (!includes(cause, "Battle")) {
+        if (!includes(cause, 'Battle')) {
             this.toGraveyard()
         }
     }
@@ -618,53 +679,105 @@ export class Card {
         if (cardEffects[this.name.get()] === undefined) return false
         const effects = cardEffects[this.name.get()](this)
         return effects.some(({ condition }) => {
-            if (!condition) return false;
+            if (!condition) return false
             return condition() === true
         })
     }
 
-    async activateEffect(action: Action = {
-        action: "Activate Effect",
-        cards: [],
-        player: this.getController(),
-    }) {
-        const duel = getDuel(this.owner)!;
+    exodia() {
+        if(this.name.get() === "Exodia the Forbidden One" && this.location.get() === "Hand") {
+            cardEffects![this.name.get()](this)[0].effect!(this);
+        }
+    }
+
+    async activateEffect(
+        action: Action = {
+            action: 'Activate Effect',
+            cards: [],
+            player: this.getController()
+        }
+    ) {
+        const duel = getDuel(this.owner)!
         const effects = cardEffects[this.name.get()](this)
-        const ifMoreThanOneEffect = effects.map(({ condition }) => {
-            return condition ? condition() : false;
-        }).size() > 1
+        const ifMoreThanOneEffect =
+            effects
+                .map(({ condition }) => {
+                    return condition ? condition() : false
+                })
+                .size() > 1
 
         if (ifMoreThanOneEffect) {
-            // show effect selection menu
-        } else {
-            const { location: locationCondition, effect, action: customAction } = effects[0]
-            const directActivationFromHand = locationCondition?.includes("Hand")
 
-            if (this["type"].get() === "Spell Card") {
-                if (this.location.get() === "Hand" && !directActivationFromHand) {
-                    if (includes(this.race.get(), "Field")) {
+        } else {
+            const { location: locationCondition, effect, action: customAction, trigger, cost, target } = effects[0]
+            const directActivationFromHand = locationCondition?.includes('Hand')
+
+            if(trigger !== undefined) {          
+                if(duel.chainResolving.get()) {
+                    duel.addPendingEffect({
+                        card: this,
+                        effect: effects[0],
+                    })
+                } else {
+                    if(cost) {
+                        cost()
+                    }
+                    if(target) {
+                        target()
+                    }
+                    duel.addToChain(this, effect!, customAction || action)
+                }
+            } else if (this['type'].get() === 'Spell Card') {
+                if (this.location.get() === 'Hand' && !directActivationFromHand) {
+                    if (includes(this.race.get(), 'Field')) {
                         //check if there's already a field spell on the field
                         const fieldSpells = getFilteredCards(duel, {
-                            location: ["FZone"]
+                            location: ['FZone']
                         })
-                        fieldSpells.forEach((fieldSpell) => fieldSpell.destroy("Mechanic"))
-                        this.location.set("FZone")
+                        fieldSpells.forEach((fieldSpell) => fieldSpell.destroy('Mechanic'))
+                        this.location.set('FZone')
                         this.position.set('FaceUp')
                     } else {
-                        this.getController().selectableZones.set(duel.getEmptyFieldZones('SZone', this.getController().player, "Player"))
+                        this.getController().selectableZones.set(
+                            duel.getEmptyFieldZones('SZone', this.getController().player, 'Player')
+                        )
                         const zone = this.getController().selectedZone.wait()!
                         this.location.set(zone)
                         this.position.set('FaceUp')
                         this.getController().selectedZone.set(undefined)
                         this.getController().selectableZones.set([])
                     }
-                } else if (this.location.get().match("SZone").size() > 0 || this.location.get().match("MZone").size() > 0 || this.location.get().match("FZone").size() > 0) {
-                    this.position.set('FaceUp')
+                    if(cost) {
+                        cost()
+                    }
+                    if(target) {
+                        target()
+                    }
+                    duel.addToChain(this, effect!, customAction || action)
+                } else if (
+                    this.location.get().match('SZone').size() > 0 ||
+                    this.location.get().match('MZone').size() > 0 ||
+                    this.location.get().match('FZone').size() > 0
+                ) {
+                    this.position.set('FaceUp');
+                    if(cost) {
+                        cost()
+                    }
+                    if(target) {
+                        target()
+                    }
+                    duel.addToChain(this, effect!, customAction || action)
                 }
-            } else if (this['type'].get() === "Trap Card") {
+            } else if (this['type'].get() === 'Trap Card') {
                 this.position.set('FaceUp')
+                if(cost) {
+                    cost()
+                }
+                if(target) {
+                    target()
+                }
+                duel.addToChain(this, effect!, customAction || action)
             }
-            duel.addToChain(this, effect!, customAction || action)
         }
         this.activated.set(true)
     }
@@ -675,7 +788,7 @@ export class Card {
         if (effects.size() === 1) {
             return effects[0].cost
         }
-        return false;
+        return false
     }
 
     getTarget() {
@@ -684,6 +797,12 @@ export class Card {
         if (effects.size() === 1) {
             return effects[0].target
         }
-        return false;
+        return false
+    }
+
+    getTriggerEffect(triggerType: string) {
+        if (cardEffects[this.name.get()] === undefined) return
+        const effects = cardEffects[this.name.get()](this)
+        return effects.find(({ trigger }) => trigger === triggerType);
     }
 }

@@ -11,15 +11,7 @@ export const cardActions = (player: Player, cardUid: string) => {
     const yOpponent = duel.getOpponent(player);
 
     return {
-        Activate: () => {
-            const cost = card.getCost()
-            const target_ = card.getTarget()
-            if (cost) {
-                cost()
-            }
-            if (target_) {
-                target_()
-            }
+        Activate: async () => {
             card.activateEffect()
         },
         'Normal Summon': () => {

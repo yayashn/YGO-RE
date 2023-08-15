@@ -48,55 +48,11 @@ const zoneOrientation = {
 }
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
-    ;['GZone', 'BZone', 'EZone', 'Deck', 'FZone'].forEach((zoneName) => {
-        const zone = playerField[zoneName as keyof typeof playerField] as Part
-        const position = zone.Position
-
-        const stackCards = debounce(async () => {
-            const card3Ds = zone.GetChildren()
-
-            const promises = card3Ds.map((card3D) => {
-                return new Promise(async (resolve) => {
-                    const card2D = card3D.WaitForChild('card2D') as ObjectValue
-                    while (!card2D.Value) {
-                        await Promise.delay(0)
-                    }
-                    while (card2D.Value.FindFirstChild('getCard') === undefined) {
-                        await Promise.delay(0)
-                    }
-                    const cardButton = card2D.Value as SurfaceGui
-
-                    const { order, position: pos, location } = (cardButton.FindFirstChild("getCard") as BindableFunction).Invoke() as CardPublic
-                    const typedOrder = order as number
-                    const typedPos = pos as keyof (typeof zoneOrientation)['Player']
-                    const typedLocation = location as string
-
-                    const tweenGoal = {
-                        Position: new Vector3(position.X, position.Y + typedOrder * 0.5, position.Z)
-                    } as Partial<ExtractMembers<Instance, Tweenable>>
-
-                    const tween = tweenService.Create(card3D, tweenInfo, tweenGoal)
-                    if (typedLocation === zoneName) {
-                        ;(card3D as Part).Orientation =
-                            zoneOrientation[playerField.Name as 'Player' | 'Opponent'][typedPos]
-                        tween.Play()
-                    }
-
-                    resolve('')
-                })
-            })
-            await Promise.all(promises)
-        }, 100)
-
-        zone.ChildAdded.Connect(stackCards)
-        zone.ChildRemoved.Connect(stackCards)
-    })
-
     // Hand animations
     const center = playerField.Hand.Center.Position
     const orientation = playerField.Hand.Center.Orientation
-    const margin = playerField === field.Player ? 20 : 10
     const layoutCards = (child: Instance) => {
+        let margin = playerField === field.Player ? 20 : 10
         const parentSize = playerField.Hand.Center.Size
         const childSize = (child as Part).Size
 
@@ -105,6 +61,9 @@ const zoneOrientation = {
             (card3D) => card3D.Name === 'Card'
         ) as Part[]
 
+        margin = handCards.size() > 6 ? margin + (handCards.size() * (playerField === field.Player ? .5 : .25)) : margin;
+        if(margin > 35) margin = 35;
+
         handCards.forEach((card3D) => {
             totalWidth += card3D.Size.X - margin
         })
@@ -112,7 +71,6 @@ const zoneOrientation = {
         let currentX = parentSize.X / 2 - totalWidth / 2
 
         handCards.forEach((card3D, index) => {
-            // Subtract center's X value from the desired X position
             const tweenGoal = {
                 Position: new Vector3(
                     currentX +
@@ -185,50 +143,51 @@ const zoneOrientation = {
     //Fzone
     const animateZonePart = (card3D: Part, zone: Part) => {
         const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
-        const { position } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
-            position: Position
-        }
+        const { position, order } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as CardPublic
+        
         let tweenGoal: { CFrame: CFrame } = { CFrame: new CFrame() }
 
         tweenGoal.CFrame = positionOrientation[playerField.Name as 'Player' | 'Opponent'][
             position
-        ].add(zone.Position)
+        ].add(zone.Position).add(new Vector3(0, order * .5, 0))
 
         tweenService
             .Create(card3D, tweenInfo, tweenGoal as Partial<ExtractMembers<Instance, Tweenable>>)
             .Play()
     }
 
-    const connections: Record<string, RBXScriptConnection> = {}
+    const connections: Record<string, RBXScriptConnection> = {};
 
-    playerField.FZone.ChildAdded.Connect(async (card3D) => {
-        animateZonePart(card3D as Part, playerField.FZone)
-
-        const card2D = ((card3D as Part).FindFirstChild('card2D') as ObjectValue).Value!
-
-        const { uid } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
-            uid: string
-            location: string
-        }
-
-        connections[uid] = (
-            card2D.FindFirstChild('positionChanged') as BindableEvent
-        ).Event.Connect(() => {
-            const { location } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
+    ["FZone", "EZone", "BZone", "GZone", "Deck"].forEach((zoneName) => {
+        playerField[zoneName as "FZone"].ChildAdded.Connect(async (card3D) => {
+            animateZonePart(card3D as Part, playerField[zoneName as "FZone"])
+    
+            const card2D = ((card3D as Part).FindFirstChild('card2D') as ObjectValue).Value!
+    
+            const { uid } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
+                uid: string
                 location: string
             }
-            if (location === playerField.FZone.Name) {
-                animateZonePart(card3D as Part, playerField.FZone)
-            }
+    
+            connections[uid] = (
+                card2D.FindFirstChild('positionChanged') as BindableEvent
+            ).Event.Connect(() => {
+                const { location } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
+                    location: string
+                }
+                if (location === playerField[zoneName as "FZone"].Name) {
+                    animateZonePart(card3D as Part, playerField[zoneName as "FZone"])
+                }
+            })
         })
-    })
-    playerField.FZone.ChildRemoved.Connect(async (card3D) => {
-        const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
-
-        const { uid } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
-            uid: string
-        }
-
-        connections[uid].Disconnect()
+        playerField[zoneName as "FZone"].ChildRemoved.Connect(async (card3D) => {
+            const card2D = (card3D.FindFirstChild('card2D') as ObjectValue).Value!
+    
+            const { uid } = (card2D.WaitForChild('getCard') as BindableFunction).Invoke() as {
+                uid: string
+            }
+    
+            connections[uid].Disconnect()
+        })
     })
 })

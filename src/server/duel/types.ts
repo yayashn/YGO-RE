@@ -1,6 +1,7 @@
 import { Signal } from "@rbxts/beacon";
 import type { Card } from "./card";
 import type { YPlayer } from "./player";
+import type { CardEffect } from "server-storage/card-effects";
 
 export type Phase = "DP" | "SP" | "MP1" | "BP" | "MP2" | "EP";
 export type CardData = {
@@ -25,6 +26,12 @@ export type ChainedEffect = {
     negated: boolean,
     card: Card
 }
+
+export type PendingEffect = {
+    card: Card,
+    effect: CardEffect,
+}
+
 export type SelectableZone = {
     zone: Location;
     opponent: boolean;
@@ -77,6 +84,7 @@ export type CardPublic = {
     type?: string | undefined,
     chainLink?: number,
     attribute?: string | undefined,
+    race?: string | undefined,
 }
 
 export type CardAction =

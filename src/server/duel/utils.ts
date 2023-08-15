@@ -2,6 +2,7 @@ import { Dictionary as Object } from "@rbxts/sift"
 import { Duel } from "./duel"
 import { CardFilter } from "./types"
 import { Card } from "./card"
+import { includes } from "shared/utils"
 
 export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
     const cards = getCards(duel);
@@ -24,19 +25,40 @@ export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
 const cardCache = new Map<string, Card[]>();
 
 export const getCards = (duel: Duel): Card[] => {
-    // Generate a unique key based on the UserId of player1 and the players' card counts
-    const key = `${duel.player1.player.UserId},${duel.player1.cards.get().size()},${duel.player2.cards.get().size()}`;
+   // const key = `${duel.player1.player.UserId},${duel.player1.cards.get().size()},${duel.player2.cards.get().size()}`;
     
     // If we've already computed the result for this duel, return it
-    if (cardCache.has(key)) {
-        return cardCache.get(key)!;
-    }
+  //  if (cardCache.has(key)) {
+  //      return cardCache.get(key)!;
+  //  }
     
     // Otherwise, compute the result and store it in the cache
     const cards1 = duel.player1.cards.get();
     const cards2 = duel.player2.cards.get();
     const result = [...cards1, ...cards2];
-    cardCache.set(key, result);
+ //   cardCache.set(key, result);
 
     return result;
+}
+
+export const getPublicCard = (player: Player, card: Card)=> {
+    const showArt = includes(card.position.get(), "FaceUp") || (["Hand", "BZone", "EZone", "GZone", "FZone", "MZone", "SZone"].some(z => includes(card.location.get(), z)) && card.controller.get() === player);
+    const showAtkDef = includes(card.position.get(), "FaceUp") && includes(card.location.get(), "MZone");
+
+    return {
+        uid: card.uid,
+        position: card.position.get(),
+        location: card.location.get(),
+        controller: card.controller.get(),
+        order: card.order.get(),
+        atk: showArt && showAtkDef ? card.getAtk() : undefined,
+        def: showArt && showAtkDef ? card.getDef() : undefined,
+        art: showArt ? card.art : undefined,
+        name: showArt ? card.name.get() : undefined,
+        race: showArt ? card.race.get() : undefined,
+        attribute: showArt ? card.attribute.get() : undefined,
+        level: showArt ? card.level.get() : undefined,
+        type: showArt ? card["type"].get() : undefined,
+        desc: showArt ? card.desc.get() : undefined,
+    }
 }

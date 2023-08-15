@@ -27,7 +27,8 @@ export default (card: Card) => {
             condition: () => false,
             target: () => target(),
             effect: () => effect(),
-            location: ['SZone']
+            location: ['SZone'],
+            trigger: "FLIP"
         }
     ]
 

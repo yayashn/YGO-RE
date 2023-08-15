@@ -31,6 +31,7 @@ export default (card: Card) => {
         const lowestATK = targettableCards.reduce((lowest, card) => {
             return card.getAtk()! < lowest.getAtk()! ? card : lowest
         })
+        
         const tiedCards = targettableCards.filter(card => card.getAtk() === lowestATK.getAtk())
         if (tiedCards.size() > 1) {
             const targets = controller.pickTargets(1, tiedCards)

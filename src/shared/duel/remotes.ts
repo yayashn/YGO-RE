@@ -7,6 +7,8 @@ export const DuelRemotes = Net.CreateDefinitions({
     handlePhaseClick: Definitions.ClientToServerEvent<[phase: Phase]>(),
     getCards: Definitions.ServerFunction<() => CardPublic[]>(),
     duelChanged: Definitions.ServerToClientEvent(),
+    surrender: Definitions.ClientToServerEvent(),
+    viewZone: Definitions.ServerFunction<(zone: Location, isOpponent: boolean) => CardPublic[]>(),
 })
 
 export const PlayerRemotes = Net.CreateDefinitions({
@@ -17,6 +19,7 @@ export const PlayerRemotes = Net.CreateDefinitions({
     closeMenu: Definitions.ServerToClientEvent(),
     targettableCardsChanged: Definitions.ServerToClientEvent<[cards: CardPublic[]]>(),
     targettedCardsChanged: Definitions.ServerToClientEvent<[cards: CardPublic[]]>(),
+    getTargettedCards: Definitions.ServerAsyncFunction<() => CardPublic[]>(),
     handleCardClick: Definitions.ServerAsyncFunction<(card: CardPublic) => CardAction[] | false>(),
     playerChanged: Definitions.ServerToClientEvent(),
 })

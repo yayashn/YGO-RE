@@ -1,4 +1,4 @@
-import { Lighting } from "@rbxts/services";
+import { Lighting, Workspace } from "@rbxts/services";
 import Remotes from "shared/net/remotes";
 
 const workspace = game.GetService("Workspace");
@@ -48,6 +48,11 @@ Remotes.Client.OnEvent("showField", (bool) => {
 		skyCurrent.SkyboxRt = skyDefault.SkyboxRt;
 		skyCurrent.SkyboxUp = skyDefault.SkyboxUp;
 		camera.CameraSubject = character.FindFirstChild("Head") as Part;
+		Workspace.Field3D.Field.GetDescendants().forEach((child) => {
+			if(child.Name === "Card") {
+				child.Destroy();
+			}
+		})
 		showField.Disconnect();
 	}
 });

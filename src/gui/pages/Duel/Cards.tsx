@@ -11,7 +11,7 @@ export default () => {
         <Roact.Fragment>
             {cards?.map((card) => {
                 return (
-                    <Card2D card={card} />
+                    <Card2D c={card} />
                 )
             })}
         </Roact.Fragment>
