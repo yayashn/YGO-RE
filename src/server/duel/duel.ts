@@ -110,8 +110,8 @@ export class Duel {
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
 
         const loser = this.getOpponent(winner.player);
-        alert(message || `You lost the duel! ${message ? `Reason: ${message}` : ''}`, loser.player);
-        alert(message || `You won the duel! ${message ? `Reason: ${message}` : ''}`, winner.player);
+        alert(`You lost the duel! Reason: ${message ? `${message}` : ''}`, loser.player);
+        alert(`You won the duel! Reason: ${message ? `${message}` : ''}`, winner.player);
         this.destroy()
         print(duels)
     }
