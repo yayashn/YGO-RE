@@ -5,6 +5,7 @@ import {
     CardFloodgate,
     CardPublic,
     FloodgateValueAtkDefModifier,
+    FloodgateValueTakeControl,
     Location,
     Position
 } from './types'
@@ -15,6 +16,7 @@ import { getDuel } from './duel'
 import { Dictionary as Object } from '@rbxts/sift'
 import Remotes from 'shared/net/remotes'
 import { CardRemotes } from 'shared/duel/remotes'
+import { YPlayer } from './player'
 
 export class Card {
     changed = new Subscribable(0)
@@ -107,8 +109,30 @@ export class Card {
         })
     }
 
+    handlingTakeControl = false
     handleFloodgates = () => {
         this.exodia()
+        if(!this.handlingTakeControl) {
+            this.handlingTakeControl = true
+            if(this.hasFloodgate("TAKE_CONTROL")) {
+                const takeControlFloodgates = this.getFloodgates("TAKE_CONTROL") as CardFloodgate<FloodgateValueTakeControl>[];
+                const highestPriorityFloodgate = takeControlFloodgates.reduce((a, b) => {
+                    return a.floodgateValue!.priority > b.floodgateValue!.priority ? a : b;
+                })
+                const controller = highestPriorityFloodgate.floodgateValue!.controller;
+                this.controller.set(controller)
+            } else if(includes(this.location.get(), "MZone") && this.controller.get() !== this.owner) {
+                const duel = getDuel(this.owner)!
+                const hasEmptyZones = duel.getEmptyFieldZones('MZone', this.owner, 'Player').size() > 0;
+                if(hasEmptyZones) {
+                    const controller = duel.getPlayer(this.owner)
+                    const pickZone = duel.pickZone(controller);
+                    this.location.set(pickZone)
+                    this.controller.set(this.owner)
+                }
+            }
+            this.handlingTakeControl = false
+        }
         if (this.hasFloodgate('FORCE_FACEUP_DEFENSE')) {
             this.position.set('FaceUpDefense')
         }
@@ -225,6 +249,7 @@ export class Card {
             return floodgatesFound
         } catch (e) {
             print(e)
+            return []
         }
     }
 
@@ -257,17 +282,20 @@ export class Card {
         })
     }
 
-    specialSummon(location: Location, newPosition: Position) {
+    specialSummon(location: Location, newPosition: Position, controller?: Player) {
         const duel = getDuel(this.owner)!
         const turn = duel.turn.get()
+        this.position.set(newPosition)
+        if(controller) {
+            this.controller.set(controller)
+        }
+        this.location.set(location)
         duel.addCardFloodgate('CANNOT_CHANGE_POSITION', {
             floodgateFilter: {
                 card: [this]
             },
             expiry: () => duel.turn.get() !== turn
         })
-        this.position.set(newPosition)
-        this.location.set(location)
         duel.setAction({
             action: 'Special Summon',
             cards: [this],
@@ -720,20 +748,19 @@ export class Card {
                     return condition ? condition() : false
                 })
                 .size() > 1
-
         if (ifMoreThanOneEffect) {
-
         } else {
             const { location: locationCondition, effect, action: customAction, trigger, cost, target } = effects[0]
             const directActivationFromHand = locationCondition?.includes('Hand')
-
-            if(trigger !== undefined) {          
+            if(trigger !== undefined) {    
+                print(5)      
                 if(duel.chainResolving.get()) {
                     duel.addPendingEffect({
                         card: this,
                         effect: effects[0],
                     })
                 } else {
+                    print(6)
                     if(cost) {
                         cost()
                     }
@@ -785,6 +812,14 @@ export class Card {
                 }
             } else if (this['type'].get() === 'Trap Card') {
                 this.position.set('FaceUp')
+                if(cost) {
+                    cost()
+                }
+                if(target) {
+                    target()
+                }
+                duel.addToChain(this, effect!, customAction || action)
+            } else {
                 if(cost) {
                     cost()
                 }

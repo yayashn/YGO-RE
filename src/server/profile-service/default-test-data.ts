@@ -1,20 +1,20 @@
 import { CardTemplate, PlayerData } from "../types";
 
 const defaultCards: CardTemplate[] = [
-    { name: "Uraby" },
-    { name: "Uraby" },
-    { name: "Uraby" },
-    { name: "Uraby" },
-    { name: "Uraby" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
-    { name: "Trap Hole" },
+    { name: "Time Wizard" },
+    { name: "Time Wizard" },
+    { name: "Time Wizard" },
+    { name: "Time Wizard" },
+    { name: "Time Wizard" },
+    { name: "Change of Heart" },
+    { name: "Change of Heart" },
+    { name: "Change of Heart" },
+    { name: "Change of Heart" },
+    { name: "Monster Reborn" },
+    { name: "Monster Reborn" },
+    { name: "Monster Reborn" },
+    { name: "Monster Reborn" },
+    { name: "Monster Reborn" },
 ]
 
 const defaultExtra: CardTemplate[] = [

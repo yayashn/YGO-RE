@@ -58,15 +58,23 @@ export type CardFilter = {
     card?: Card[]
 }
 
-export type CardFloodgate = {
+export type CardFloodgate<T = unknown> = {
     floodgateFilter: CardFilter,
     expiry: () => boolean,
-    floodgateValue?: unknown
+    floodgateValue?: T
 }
+
+export type ANY = Record<string, unknown>
 
 export type FloodgateValueAtkDefModifier = {
     value: number,
     modifierId: string
+}
+
+export type FloodgateValueTakeControl = {
+    target: Card,
+    priority: number,
+    controller: Player,
 }
 
 export type CardPublic = {

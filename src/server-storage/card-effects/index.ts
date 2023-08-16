@@ -46,6 +46,7 @@ import Wasteland from "./LOB/Wasteland"
 import Yami from "./LOB/Yami"
 import ChangeOfHeart from "./MRD/Change of Heart"
 import ExodiaTheForbiddenOne from "./LOB/Exodia the Forbidden One"
+import TimeWizard from "./MRD/Time Wizard"
 
 export type CardEffect = {
     condition?: () => boolean,
@@ -110,6 +111,7 @@ export default {
     "Exodia the Forbidden One": ExodiaTheForbiddenOne,
     //MRD
     "Change of Heart": ChangeOfHeart,
+    "Time Wizard": TimeWizard
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }

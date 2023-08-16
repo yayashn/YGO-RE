@@ -113,7 +113,6 @@ export class Duel {
         alert(`You lost the duel! Reason: ${message ? `${message}` : ''}`, loser.player);
         alert(`You won the duel! Reason: ${message ? `${message}` : ''}`, winner.player);
         this.destroy()
-        print(duels)
     }
 
     getOpponent(player: Player) {

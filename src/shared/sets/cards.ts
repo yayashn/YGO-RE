@@ -1,9 +1,11 @@
 import legendOfBlueEyesWhiteDragon from "./legend-of-blue-eyes-white-dragon";
+import metalRaiders from "./metal-raiders";
 import unreleased from "./unreleased";
 
 export default [
     ...unreleased,
-    ...legendOfBlueEyesWhiteDragon
+    ...legendOfBlueEyesWhiteDragon,
+    ...metalRaiders
 ] as {
     "name": string,
     "art": string,

@@ -11,12 +11,14 @@ export default (card: Card) => {
     const controller = card.getController()
     const duel = getDuel(controller.player)!
     const opponent = duel.getOpponent(controller.player)
-
+    
     const condition = () => {
+        const hasEmptyZones = duel.getEmptyFieldZones('MZone', controller.player, 'Player').size() > 0;
+
         return getFilteredCards(duel, {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             controller: [opponent.player],
-        }).size() > 0;
+        }).size() > 0 && hasEmptyZones;
     }
 
     const target = () => {
@@ -29,16 +31,27 @@ export default (card: Card) => {
 
     const effect = () => {
         const target = card.targets.get()[0]
+        const takeControlFloodgates = card.getFloodgates(`TAKE_CONTROL`);
+        const newTakeControlFloodgateIndex = takeControlFloodgates.size();
 
+        const zone = controller.pickZone(
+            duel.getEmptyFieldZones('MZone', controller.player, 'Player')
+        )
+        
         duel.addCardFloodgate(`TAKE_CONTROL`, {
             floodgateFilter: {
-                location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
+                card: [target],
             },
-            floodgateValue: target,
+            floodgateValue: {
+                target: target,
+                priority: newTakeControlFloodgateIndex + 1,
+                controller: controller.player,
+            },
             expiry: () => {
-                return duel.phase.get() === "EP";
+               return duel.phase.get() === "EP";
             }
         })
+        target.location.set(zone)
     }
 
     const effects: CardEffect[] = [

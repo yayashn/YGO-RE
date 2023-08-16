@@ -48,44 +48,52 @@ const zoneOrientation = {
 }
 
 ;[field.Player, field.Opponent].forEach((playerField) => {
-    // Hand animations
-    const center = playerField.Hand.Center.Position
-    const orientation = playerField.Hand.Center.Orientation
-    const layoutCards = (child: Instance) => {
-        let margin = playerField === field.Player ? 20 : 10
-        const parentSize = playerField.Hand.Center.Size
-        const childSize = (child as Part).Size
+// Hand animations
+const center = playerField.Hand.Center.Position;
+const orientation = playerField.Hand.Center.Orientation;
 
-        let totalWidth = 0
-        const handCards = playerField.Hand.GetChildren().filter(
-            (card3D) => card3D.Name === 'Card'
-        ) as Part[]
+const CARD_WIDTH = 20; 
 
-        margin = handCards.size() > 6 ? margin + (handCards.size() * (playerField === field.Player ? .5 : .25)) : margin;
-        if(margin > 35) margin = 35;
+const layoutCards = () => {
+    const handCards = playerField.Hand.GetChildren().filter(
+        (card3D) => card3D.Name === 'Card'
+    ) as Part[];
 
-        handCards.forEach((card3D) => {
-            totalWidth += card3D.Size.X - margin
-        })
-
-        let currentX = parentSize.X / 2 - totalWidth / 2
-
-        handCards.forEach((card3D, index) => {
-            const tweenGoal = {
-                Position: new Vector3(
-                    currentX +
-                        index * (childSize.X - margin) +
-                        (playerField === field.Player ? center.X / 2 : center.X),
-                    center.Y,
-                    center.Z
-                )
-            }
-            card3D.Orientation = orientation
-            tweenService.Create(card3D, tweenInfo, tweenGoal).Play()
-        })
+    let gap = 35;
+    if (handCards.size() > 5) {
+        // Decrease the gap by a multiplier for every card beyond the fifth.
+        // In this case, we decrease the gap by 10 units for each additional card.
+        gap -= (handCards.size() - 5) * 10;
     }
-    playerField.Hand.ChildAdded.Connect(layoutCards)
-    playerField.Hand.ChildRemoved.Connect(layoutCards)
+
+    const totalCardsWidth = CARD_WIDTH * handCards.size();
+    const totalGapWidth = gap * (handCards.size() - 1);
+    const totalWidth = totalCardsWidth + totalGapWidth;
+
+    let currentX = center.X - totalWidth / 2 + CARD_WIDTH / 2; // Adjusted start position for the first card.
+
+    handCards.forEach((card3D) => {
+        const tweenGoal = {
+            Position: new Vector3(
+                currentX,
+                center.Y,
+                center.Z
+            )
+        };
+        card3D.Orientation = orientation;
+        tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
+
+        currentX += CARD_WIDTH + gap;
+    });
+};
+
+
+
+playerField.Hand.ChildAdded.Connect(layoutCards);
+playerField.Hand.ChildRemoved.Connect(layoutCards);
+
+
+
 
     // Field zone animations
     const animateZone = (card3D: Part, zone: Vector3Value) => {

@@ -38,7 +38,8 @@ export default (card: Card) => {
     }
 
     const condition = () => {
-        return getEligibleFusionMonsters().size() > 0
+        const hasEmptyZones = duel.getEmptyFieldZones('MZone', controller.player, 'Player').size() > 0;
+        return getEligibleFusionMonsters().size() > 0 && hasEmptyZones;
     }
     
     const effect = async () => {
