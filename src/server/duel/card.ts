@@ -734,11 +734,7 @@ export class Card {
     }
 
     async activateEffect(
-        action: Action = {
-            action: 'Activate Effect',
-            cards: [],
-            player: this.getController()
-        }
+        action?: Action
     ) {
         const duel = getDuel(this.owner)!
         const effects = cardEffects[this.name.get()](this)
@@ -752,22 +748,24 @@ export class Card {
         } else {
             const { location: locationCondition, effect, action: customAction, trigger, cost, target } = effects[0]
             const directActivationFromHand = locationCondition?.includes('Hand')
-            if(trigger !== undefined) {    
-                print(5)      
+            if(trigger !== undefined) {        
                 if(duel.chainResolving.get()) {
                     duel.addPendingEffect({
                         card: this,
                         effect: effects[0],
                     })
                 } else {
-                    print(6)
                     if(cost) {
                         cost()
                     }
                     if(target) {
                         target()
                     }
-                    duel.addToChain(this, effect!, customAction || action)
+                    duel.addToChain(this, effect!, customAction || action || {
+                        action: 'Activate Effect',
+                        cards: [this],
+                        player: this.getController()
+                    })
                 }
             } else if (this['type'].get() === 'Spell Card') {
                 if (this.location.get() === 'Hand' && !directActivationFromHand) {
@@ -795,7 +793,11 @@ export class Card {
                     if(target) {
                         target()
                     }
-                    duel.addToChain(this, effect!, customAction || action)
+                    duel.addToChain(this, effect!, {
+                        action: 'Activate Spell',
+                        cards: [this],
+                        player: this.getController()
+                    })
                 } else if (
                     this.location.get().match('SZone').size() > 0 ||
                     this.location.get().match('MZone').size() > 0 ||
@@ -808,7 +810,11 @@ export class Card {
                     if(target) {
                         target()
                     }
-                    duel.addToChain(this, effect!, customAction || action)
+                    duel.addToChain(this, effect!,  {
+                        action: 'Activate Spell',
+                        cards: [this],
+                        player: this.getController()
+                    })
                 }
             } else if (this['type'].get() === 'Trap Card') {
                 this.position.set('FaceUp')
@@ -818,7 +824,11 @@ export class Card {
                 if(target) {
                     target()
                 }
-                duel.addToChain(this, effect!, customAction || action)
+                duel.addToChain(this, effect!,  {
+                    action: 'Activate Trap',
+                    cards: [this],
+                    player: this.getController()
+                })
             } else {
                 if(cost) {
                     cost()
@@ -826,7 +836,11 @@ export class Card {
                 if(target) {
                     target()
                 }
-                duel.addToChain(this, effect!, customAction || action)
+                duel.addToChain(this, effect!, {
+                    action: 'Activate Effect',
+                    cards: [this],
+                    player: this.getController()
+                })
             }
         }
         this.activated.set(true)

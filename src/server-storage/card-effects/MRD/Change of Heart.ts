@@ -3,6 +3,7 @@ import NormalSpell from "server-storage/conditions/NormalSpell";
 import { getDuel } from "server/duel/duel";
 import { CardEffect } from "..";
 import { getFilteredCards } from "server/duel/utils";
+import { includes } from "shared/utils";
 
 /*
 Target 1 monster your opponent controls; take control of it until the End Phase.
@@ -48,7 +49,7 @@ export default (card: Card) => {
                 controller: controller.player,
             },
             expiry: () => {
-               return duel.phase.get() === "EP";
+               return duel.phase.get() === "EP" || !includes(target.location.get(), "MZone")
             }
         })
         target.location.set(zone)

@@ -91,6 +91,10 @@ export class Duel {
         return this.action.get()[this.action.get().size() - 1];
     }
 
+    getSecondLastAction(): Action | undefined {
+        return this.action.get()[this.action.get().size() - 2];
+    }
+
     getAction(actionNames: string[]): Action | undefined {
         const actions = this.action.get();
         for (let i = actions.size() - 1; i >= 0; i--) {
@@ -153,7 +157,8 @@ export class Duel {
         for (const [floodgateName, floodgateArray] of pairs(floodgates)) {
             let newFloodgates = [];
             for (const floodgate of floodgateArray) {
-                if (!floodgate.expiry()) {
+                const expired = floodgate.expiry();
+                if (!expired) {
                     newFloodgates.push(floodgate);
                 }
             }
@@ -172,7 +177,6 @@ export class Duel {
     });
 
     handleResponses(player: YPlayer) {
-        print(10)
         if(this.handlingResponses) return
         this.busy.set(true)
         this.handlingResponses = true

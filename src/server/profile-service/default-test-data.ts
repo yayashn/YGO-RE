@@ -1,20 +1,20 @@
 import { CardTemplate, PlayerData } from "../types";
 
 const defaultCards: CardTemplate[] = [
-    { name: "Time Wizard" },
-    { name: "Time Wizard" },
-    { name: "Time Wizard" },
-    { name: "Time Wizard" },
-    { name: "Time Wizard" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
+    { name: "Uraby" },
     { name: "Change of Heart" },
     { name: "Change of Heart" },
     { name: "Change of Heart" },
     { name: "Change of Heart" },
-    { name: "Monster Reborn" },
-    { name: "Monster Reborn" },
-    { name: "Monster Reborn" },
-    { name: "Monster Reborn" },
-    { name: "Monster Reborn" },
+    { name: "Solemn Judgment" },
+    { name: "Solemn Judgment" },
+    { name: "Solemn Judgment" },
+    { name: "Solemn Judgment" },
+    { name: "Solemn Judgment" },
 ]
 
 const defaultExtra: CardTemplate[] = [

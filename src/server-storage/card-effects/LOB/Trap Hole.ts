@@ -43,11 +43,6 @@ export default (card: Card) => {
             target: () => target(),
             effect: () => effect(),
             location: ['SZone'],
-            action: {
-                action: "EFFECT_DESTROY_MONSTER",
-                cards: [card],
-                player: controller
-            }
         }
     ]
 
