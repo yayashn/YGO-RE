@@ -4,10 +4,10 @@ import { CardEffect } from "..";
 import { includes } from "shared/utils";
 import Object from "@rbxts/object-utils";
 import CounterTrap from "server-storage/conditions/CounterTrap";
+import { getFilteredCards } from "server/duel/utils";
 
 /*
-    When a monster(s) would be Summoned, OR a Spell/Trap Card is activated: 
-    Pay half your LP; negate the Summon or activation, and if you do, destroy that card.
+    When a monster(s) would be Summoned: Tribute 1 monster; negate the Summon, and if you do, destroy that monster(s).
 */
 export default (card: Card) => {
     const controller = card.getController()
@@ -19,8 +19,13 @@ export default (card: Card) => {
         if(action === undefined) return false;
         if(action.cards === undefined) return false;
 
-        if(includes(action.action, "Summon") || includes(action.action, "Activate Spell") || includes(action.action, "Activate Trap")) {
-            return (action.cards.size() >= 1 && includes(action.action, "Summon")) || action.cards.size() === 1;
+        const monstersInField = getFilteredCards(duel, {
+            location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+            controller: [controller.player],
+        })
+
+        if(includes(action.action, "Summon")) {
+            return action.cards.size() >= 1 &&  monstersInField.size() >= 1
         }
         return false
     }
@@ -29,16 +34,19 @@ export default (card: Card) => {
         if(duel.speedSpell.get() < 3) {
             duel.speedSpell.set(3)
         }
-        controller.changeLifePoints(-math.floor(controller.lifePoints.get() / 2))
+        
+        const monstersInField = getFilteredCards(duel, {
+            location: ["MZone1", "MZone2", "MZone3", "MZone4", "MZone5"],
+            controller: [controller.player],
+        })
+
+        const tributes = controller.pickTargets(1, monstersInField)
+        tributes.forEach(tribute => tribute.toGraveyard())
     }
 
     const effect = () => {
         const targets = duel.getSecondLastAction()!.cards
 
-        if(includes(targets[0].type.get(), "Spell") || includes(targets[0].type.get(), "Trap")) {
-            const chain = duel.chain.get()
-            chain[Object.keys(chain).size() - 1].negated = true
-        }
         targets.forEach(target => target.destroy("Effect"))
     }
 

@@ -479,6 +479,7 @@ export class Card {
         const defenderLocation = isDirectAttack ? '' : defender.location.get()
         const defenderAtk = isDirectAttack ? 0 : defender.getAtk()
         const turn = duel.turn.get()
+        const attackerLocation = this.location.get()
 
         const opponent = duel.getOpponent(this.controller.get())
 
@@ -528,9 +529,7 @@ export class Card {
 
             duel.battleStep.set('DAMAGE')
             duel.damageStep.set('START')
-
-            wait(0.5)
-
+            wait(.5)
             duel.handleResponses(duel.turnPlayer.get())
             //during damage step only effects
             //start of damage step effects

@@ -131,8 +131,6 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
                     card.location.get(),
                     defender.location.get()
                 )
-
-                duel.handleResponses(duel.getOpponent(card.getController().player))
             } else {
                 duel!.attackingCard.set(card)
 
@@ -148,9 +146,14 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
                     card.location.get(),
                     undefined
                 )
-
-                duel.handleResponses(duel.getOpponent(card.getController().player))
             }
+
+            duel.setAction({
+                action: 'Attack',
+                cards: [card],
+                player: card.getController()
+            })
+            duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Tribute Summon': () => {
             const turn = duel.turn.get()

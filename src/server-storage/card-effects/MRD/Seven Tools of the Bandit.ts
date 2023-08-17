@@ -6,8 +6,7 @@ import Object from "@rbxts/object-utils";
 import CounterTrap from "server-storage/conditions/CounterTrap";
 
 /*
-    When a monster(s) would be Summoned, OR a Spell/Trap Card is activated: 
-    Pay half your LP; negate the Summon or activation, and if you do, destroy that card.
+    When a Trap Card is activated: Pay 1000 LP; negate the activation, and if you do, destroy it.
 */
 export default (card: Card) => {
     const controller = card.getController()
@@ -15,12 +14,13 @@ export default (card: Card) => {
 
     const condition = () => {
         const action = duel.getLastAction()
-
+        
         if(action === undefined) return false;
         if(action.cards === undefined) return false;
+        if(controller.lifePoints.get() < 1000) return false;
 
-        if(includes(action.action, "Summon") || includes(action.action, "Activate Spell") || includes(action.action, "Activate Trap")) {
-            return (action.cards.size() >= 1 && includes(action.action, "Summon")) || action.cards.size() === 1;
+        if(includes(action.action, "Activate Trap")) {
+            return action.cards.size() === 1;
         }
         return false
     }
@@ -29,13 +29,14 @@ export default (card: Card) => {
         if(duel.speedSpell.get() < 3) {
             duel.speedSpell.set(3)
         }
-        controller.changeLifePoints(-math.floor(controller.lifePoints.get() / 2))
+
+        controller.changeLifePoints(-1000)
     }
 
     const effect = () => {
         const targets = duel.getSecondLastAction()!.cards
 
-        if(includes(targets[0].type.get(), "Spell") || includes(targets[0].type.get(), "Trap")) {
+        if(includes(targets[0].type.get(), "Trap")) {
             const chain = duel.chain.get()
             chain[Object.keys(chain).size() - 1].negated = true
         }

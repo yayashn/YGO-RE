@@ -28,16 +28,14 @@ export default (card: Card) => {
     }
 
     const effect = () => {
-        try {
-            const target = card.targets.get()[0]
-            if(target.position.get() === "FaceDown") {
-                target.reveal()
-            }
-            if(target.type.get() === "Spell Card") {
-                target.destroy("Effect")
-            }
-        } catch {
-            print("No target")
+        const target = card.targets.get()[0]
+        if(!target) return;
+        
+        if(target.position.get() === "FaceDown") {
+            target.reveal()
+        }
+        if(target.type.get() === "Spell Card") {
+            target.destroy("Effect")
         }
     }
 

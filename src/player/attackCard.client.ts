@@ -1,7 +1,7 @@
 import { TweenService } from "@rbxts/services";
 import type { Location } from "server/duel/types";
 import Remotes from "shared/net/remotes";
-import { createInstance } from "shared/utils";
+import { createInstance, includes } from "shared/utils";
 
 const field = game.Workspace.Field3D.Field;
 
@@ -15,15 +15,19 @@ const field = game.Workspace.Field3D.Field;
 Remotes.Client.OnEvent("attackCard3D", (opponent: boolean, zone1: Location, zone2?: Location, cleanup: boolean = false) => {
     const attacker = opponent ? "Opponent" : "Player"
     const defender = opponent ? "Player" : "Opponent"
-    const pointer = field[attacker].Attack[`${zone1 as "MZone1"}P`]
-    const pointerGui = pointer.Gui
-    const pointerOriginalPosition = pointer.FindFirstChild("OriginalPosition") as Vector3Value
 
     if(cleanup) {
-        pointerGui.Enabled = false
-        pointer.Position = pointerOriginalPosition.Value
+        field[attacker].Attack.GetChildren().filter(v => includes(v.Name, "MZone")).forEach((p) => {
+            const po = p as typeof pointer
+            const poOriginalPosition = po.FindFirstChild("OriginalPosition") as Vector3Value
+            po.Gui.Enabled = false
+            po.Position = poOriginalPosition.Value
+        })
         return
     }
+
+    const pointer = field[attacker].Attack[`${zone1 as "MZone1"}P`]
+    const pointerGui = pointer.Gui
 
     const isDirectAttack = !zone2;
 

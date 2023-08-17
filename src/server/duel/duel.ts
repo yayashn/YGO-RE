@@ -178,16 +178,25 @@ export class Duel {
 
     handleResponses(player: YPlayer) {
         if(this.handlingResponses) return
+        print(1)
         this.busy.set(true)
+        print(2)
         this.handlingResponses = true
-        
+        print(3)
         this.speedSpell.set(this.speedSpell.get() === 1 ? 2 : this.speedSpell.get())
+        print(4)
         this.gameState.set('CLOSED')
+        print(5)
         let passes = 0;
+        print(6)
         this.actor.set(player)
+        print(7)
         this.handleCardFloodgates()
+        print(8)
         
         while(passes < 2) {
+            print(9)
+            print(this.action.get())
             const numberOfResponses = this.getResponses(this.actor.get()).size()
             const chain = this.chain.get()
 

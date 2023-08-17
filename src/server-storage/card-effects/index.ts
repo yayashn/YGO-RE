@@ -49,6 +49,10 @@ import ExodiaTheForbiddenOne from "./LOB/Exodia the Forbidden One"
 import TimeWizard from "./MRD/Time Wizard"
 import BarrelDragon from "./MRD/Barrel Dragon"
 import SolemnJudgment from "./MRD/Solemn Judgment"
+import MagicJammer from "./MRD/Magic Jammer"
+import HornOfHeaven from "./MRD/Horn of Heaven"
+import SevenToolsOfTheBandit from "./MRD/Seven Tools of the Bandit"
+import MirrorForce from "./MRD/Mirror Force"
 
 export type CardEffect = {
     condition?: () => boolean,
@@ -115,7 +119,11 @@ export default {
     "Change of Heart": ChangeOfHeart,
     "Time Wizard": TimeWizard,
     "Barrel Dragon": BarrelDragon,
-    "Solemn Judgment": SolemnJudgment
+    "Solemn Judgment": SolemnJudgment,
+    "Magic Jammer": MagicJammer,
+    "Horn of Heaven": HornOfHeaven,
+    "Seven Tools of the Bandit": SevenToolsOfTheBandit,
+    "Mirror Force": MirrorForce
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }
