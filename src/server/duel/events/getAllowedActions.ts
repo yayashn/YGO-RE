@@ -13,6 +13,7 @@ export const getAllowedActions = (player: Player, cardPublic: CardPublic) => {
     const phase = duel.phase.get()
     const gameState = duel.gameState.get()
     const position = card.position.get()
+    const controller = card.getController()
 
     const inHand = card.location.get() === 'Hand'
     const inMonsterZone = includes(card.location.get(), "MZone");
@@ -20,9 +21,11 @@ export const getAllowedActions = (player: Player, cardPublic: CardPublic) => {
     const isSpellTrap = !isMonster;
     const isActor = actor === yPlayer;
     const isSelecting = yPlayer.selectableZones.get().size() !== 0;
-    const conditionMet = card.checkEffectConditions()
+    const cannotActivateEffect = controller.getFloodgates("CANNOT_ACTIVATE_EFFECT")?.some(f => f.value === card.name.get());
+    const cannotActivateCard = controller.getFloodgates("CANNOT_ACTIVATE_CARD")?.some(f => f.value === card.name.get());
+    const conditionMet = !cannotActivateCard && !cannotActivateEffect && card.checkEffectConditions()
 
-    const isController = card.getController() === yPlayer
+    const isController = controller === yPlayer
     const szoneAvailable = getFilteredCards(duel, {
         location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
         controller: [yPlayer.player]
@@ -41,6 +44,7 @@ export const getAllowedActions = (player: Player, cardPublic: CardPublic) => {
 
     // Normal Summon & Set
     if (inHand && isMonster && includes(phase, "MP") && !yPlayer.getFloodgates("CANNOT_NORMAL_SUMMON") 
+    && !card.hasSomeRestrictions(["CANNOT_NORMAL_SUMMON"])
     && gameState === "OPEN" && mzoneAvailable) {
         if(card.level.get()! <= 4) {
             actions.push("Normal Summon")
@@ -57,7 +61,6 @@ export const getAllowedActions = (player: Player, cardPublic: CardPublic) => {
     else if (inHand && isSpellTrap && includes(phase, "MP") && gameState === "OPEN" && szoneAvailable) {
         actions.push("Set")
     }
-    
 
     // Flip Summon
     if(inMonsterZone && includes(phase, "MP") && gameState === "OPEN" && position === "FaceDownDefense" && !card.hasFloodgate("CANNOT_CHANGE_POSITION")) {
@@ -70,11 +73,12 @@ export const getAllowedActions = (player: Player, cardPublic: CardPublic) => {
 
     // Activate
     if(conditionMet) {
-        actions.push("Activate")
+        actions.push(conditionMet === true ? "Activate" : conditionMet)
     }
 
     // Attack
-    if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" && !yPlayer.getFloodgates("CANNOT_ATTACK") && !card.hasFloodgate("CANNOT_ATTACK")) {
+    if(inMonsterZone && phase === "BP" && gameState === "OPEN" && position === "FaceUpAttack" &&
+    !card.hasSomeRestrictions(["CANNOT_ATTACK"]) && !yPlayer.getFloodgates("CANNOT_ATTACK") && !card.hasFloodgate("CANNOT_ATTACK")) {
         actions.push("Attack")
     } 
 

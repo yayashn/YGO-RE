@@ -29,7 +29,7 @@ export default (card: Card) => {
             },
             expiry: () => {
                 if(expiration(turn)) {
-                    card.destroy("Effect")
+                    card.destroy("Effect", card)
                     return true
                 }
                 return false

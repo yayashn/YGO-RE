@@ -242,6 +242,7 @@ export default function DeckEditor() {
                                     (cardType.match('Fusion').size() > 0
                                         ? numberOfCardsInExtra || 0
                                         : numberOfCardsInDeck || 0)
+                                
                                 const textColour =
                                     theme.rarities[(c.rarity || 'common') as 'common']
 

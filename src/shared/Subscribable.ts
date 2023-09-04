@@ -35,6 +35,10 @@ export class Subscribable<T> {
         return this.event.Wait()[0]
     }
 
+    increment() {
+        this.set(this.get() as number + 1 as unknown as T);
+    }
+
     refresh() {
         this.event.Fire(this.value);
     }

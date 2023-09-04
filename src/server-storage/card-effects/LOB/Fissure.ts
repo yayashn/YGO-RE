@@ -36,9 +36,9 @@ export default (card: Card) => {
         if (tiedCards.size() > 1) {
             const targets = controller.pickTargets(1, tiedCards)
             const target = targets[0]
-            target.destroy("Effect")
+            target.destroy("Effect", card)
         } else {
-            lowestATK.destroy("Effect")
+            lowestATK.destroy("Effect", card)
         }
     }
 

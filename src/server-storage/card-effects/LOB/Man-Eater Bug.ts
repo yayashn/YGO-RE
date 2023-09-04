@@ -19,7 +19,7 @@ export default (card: Card) => {
 
     const effect = () => {
         const targets = card.targets.get()
-        targets[0].destroy("Effect")
+        targets[0].destroy("Effect", card)
     }
 
     const effects: CardEffect[] = [

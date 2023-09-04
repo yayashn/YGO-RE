@@ -25,11 +25,13 @@ export type ChainedEffect = {
     effect: Callback,
     negated: boolean,
     card: Card
+    prediction: Record<string, unknown>
 }
 
 export type PendingEffect = {
     card: Card,
     effect: CardEffect,
+    prediction: Record<string, unknown>,
 }
 
 export type SelectableZone = {
@@ -45,17 +47,22 @@ export type Action = {
     action: string,
     cards: Card[],
     player: YPlayer,
+    prediction: Record<string, unknown>
 }
 
 export type CardFilter = {
     name?: string[]
     uid?: string[]
+    exclude?: string[]
     location?: Location[]
     controller?: Player[]
     type?: string[]
     race?: string[]
     position?: string[]
     card?: Card[]
+    atk?: (`<=${number}` | number | `>=${number}`)[]
+    attribute?: string[]
+    def?: (`<=${number}` | number | `>=${number}`)[]
 }
 
 export type CardFloodgate<T = unknown> = {
@@ -69,6 +76,10 @@ export type ANY = Record<string, unknown>
 export type FloodgateValueAtkDefModifier = {
     value: number,
     modifierId: string
+}
+
+export type FloodgateValueCannotBeDestroyedBy = {
+    target: Card,
 }
 
 export type FloodgateValueTakeControl = {

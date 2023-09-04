@@ -12,6 +12,7 @@ import alert from "server/popups/alert";
 import { DuelRemotes } from "shared/duel/remotes";
 import confirmSync from "server/popups/confirmSync";
 import { CardEffect } from "server-storage/card-effects";
+import QuickEffectAtkDef from "server-storage/conditions/QuickEffectAtkDef";
 
 export let duels: Map<string, Duel> = new Map();
 
@@ -26,7 +27,7 @@ export class Duel {
     gameState = new Subscribable<"OPEN" | "CLOSED">("OPEN");
     turnPlayer: Subscribable<YPlayer>;
     actor: Subscribable<YPlayer>;
-    battleStep = new Subscribable('');
+    battleStep = new Subscribable<'' | 'START' | 'BATTLE' | 'DAMAGE'>('');
     damageStep = new Subscribable('');
     chain: Subscribable<Record<number, ChainedEffect>> = new Subscribable({});
     pendingEffects: Subscribable<PendingEffect[]> = new Subscribable([]);
@@ -114,8 +115,8 @@ export class Duel {
         Remotes.Server.Get("showField").SendToPlayers([this.player1.player, this.player2.player], false);
 
         const loser = this.getOpponent(winner.player);
-        alert(`You lost the duel! Reason: ${message ? `${message}` : ''}`, loser.player);
-        alert(`You won the duel! Reason: ${message ? `${message}` : ''}`, winner.player);
+        await alert(`You lost the duel! Reason: ${message ? `${message}` : ''}`, loser.player)
+        await alert(`You won the duel! Reason: ${message ? `${message}` : ''}`, winner.player);
         this.destroy()
     }
 
@@ -135,9 +136,20 @@ export class Duel {
         return zone;
     }
 
-    getResponses(player: YPlayer) {
+    getResponses(player: YPlayer, debug?: boolean) {
         const activatableCards = getCards(this).filter(card => {
-            return card.getController() === player && card.checkEffectConditions()
+            try {
+                if(debug) {
+                    print(
+                    includes(card.location.get(), 'Hand'),
+                    this.attackingCard.get() !== undefined,
+                    this.attackingCard.get()!.controller.get() !== player.player,
+                    this.damageStep.get() === "DURING")
+                }
+            } catch (e) {
+                print(e)
+            }
+            return card.getController() === player && !!card.checkEffectConditions()
         })
         return activatableCards
     }
@@ -151,7 +163,7 @@ export class Duel {
         this.cardFloodgates.refresh();
     }
 
-    handleCardFloodgates = throttle(() => {
+    handleCardFloodgates = () => {
         const floodgates = this.cardFloodgates.get();
     
         for (const [floodgateName, floodgateArray] of pairs(floodgates)) {
@@ -173,30 +185,22 @@ export class Duel {
 
         getCards(this).forEach(card => {
             card.handleFloodgates();
+            card.handleContinuousEffects();
         });
-    });
+    };
 
-    handleResponses(player: YPlayer) {
+    async handleResponses(player: YPlayer, debug?: boolean) {
         if(this.handlingResponses) return
-        print(1)
+
         this.busy.set(true)
-        print(2)
         this.handlingResponses = true
-        print(3)
         this.speedSpell.set(this.speedSpell.get() === 1 ? 2 : this.speedSpell.get())
-        print(4)
         this.gameState.set('CLOSED')
-        print(5)
         let passes = 0;
-        print(6)
         this.actor.set(player)
-        print(7)
         this.handleCardFloodgates()
-        print(8)
         
         while(passes < 2) {
-            print(9)
-            print(this.action.get())
             const numberOfResponses = this.getResponses(this.actor.get()).size()
             const chain = this.chain.get()
 
@@ -238,11 +242,11 @@ export class Duel {
 
         }
         this.handlingResponses = false
-        this.resolveChain()
+        await this.resolveChain()
         this.busy.set(false)
     }
 
-    resolveChain() {
+    async resolveChain() {
         if (this.chainResolving.get() === true) return
         this.chainResolving.set(true)
 
@@ -252,7 +256,7 @@ export class Duel {
         while(chainSize > 0) {
             const chainedEffect = chain[chainSize]
             if(!chainedEffect.negated) {
-                chainedEffect.effect()
+                await chainedEffect.effect()
             }
             wait(1)
             chainedEffect.card.chainLink.set(0)
@@ -267,7 +271,8 @@ export class Duel {
             if (includes(card.location.get(), "SZone") && 
                 !card.hasFloodgate("CONTINUOUS") && 
                 !includes(card.race.get(), "Continuous") && 
-                !includes(card.race.get(), "Equip")) {
+                !includes(card.race.get(), "Equip") &&
+                !card.hasFloodgate("EQUIPPED")) {
                 card.toGraveyard();
             }
             card.activated.set(false);
@@ -285,12 +290,10 @@ export class Duel {
                 this.attackingCard.get()?.attack(this.defendingCard.get())
             }
         }
-        this.attackingCard.set(undefined)
-        this.defendingCard.set(undefined)
         this.action.set([])
         this.handleCardFloodgates()
         this.chainResolving.set(false)
-        this.handlePendingEffects()
+        await this.handlePendingEffects()
     }
 
     handlingPendingEffects = false
@@ -298,29 +301,32 @@ export class Duel {
         if(this.handlingPendingEffects) return
         this.handlingPendingEffects = true
         const opponent = this.getOpponent(this.turnPlayer.get().player);
-        [this.turnPlayer.get(), opponent].forEach((player) => {
+        const handlePlayerPendingMandatoryEffect = [this.turnPlayer.get(), opponent].map((player) => async () => {
             const mandatoryEffect = () => this.pendingEffects.get().filter((pendingEffect) => {
                 return pendingEffect.card.controller.get() === player.player && !pendingEffect.effect.optional
             })
-            const pickedMandatoryEffectsSize = mandatoryEffect().size();
+            const pickedMandatoryEffects = mandatoryEffect();
+            const pickedMandatoryEffectsSize = pickedMandatoryEffects.size()
+
             if(pickedMandatoryEffectsSize >= 2) {
-                player.pickEffects(mandatoryEffect()).then(pickedMandatoryEffects => {
-                    for(const i of $range(1, pickedMandatoryEffectsSize)) {
-                        const pickedMandatoryEffect = pickedMandatoryEffects[i];
-                        const cost = pickedMandatoryEffect.effect.cost;
-                        if (cost) {
-                            cost();
-                        }
-                        const target = pickedMandatoryEffect.effect.target;
-                        if (target) {
-                            target();
-                        }
-                        this.addToChain(pickedMandatoryEffect.card, () => pickedMandatoryEffect.effect.effect!(pickedMandatoryEffect.card), undefined, false);
+                const orderedEffects = await player.pickEffects(pickedMandatoryEffects);
+                orderedEffects.forEach(async (orderedEffect, i) => {
+                    const cost =  orderedEffect.effect.cost;
+                    if (cost) {
+                        cost();
                     }
+                    const target =  orderedEffect.effect.target;
+                    if (target) {
+                        target();
+                    }
+                    await this.addToChain(orderedEffect.card, () => orderedEffect.effect.effect!(orderedEffect.card), {
+                        action: "Activate Effect",
+                        cards: [orderedEffect.card],
+                        player: orderedEffect.card.getController(),
+                        prediction: orderedEffect.prediction
+                    }, i === orderedEffects.size() - 1);
                 })
             } else if(pickedMandatoryEffectsSize === 1) {
-                const pickedMandatoryEffects = mandatoryEffect();
-                pickedMandatoryEffects[0];
                 const cost = pickedMandatoryEffects[0].effect.cost;
                 if (cost) {
                     cost();
@@ -329,11 +335,19 @@ export class Duel {
                 if (target) {
                     target();
                 }
-                this.addToChain(pickedMandatoryEffects[0].card, () => pickedMandatoryEffects[0].effect.effect!(pickedMandatoryEffects[0].card), undefined, false);
+                await this.addToChain(pickedMandatoryEffects[0].card, () => pickedMandatoryEffects[0].effect.effect!(pickedMandatoryEffects[0].card), {
+                    action: "Activate Effect",
+                    cards: [pickedMandatoryEffects[0].card],
+                    player: pickedMandatoryEffects[0].card.getController(),
+                    prediction: pickedMandatoryEffects[0].prediction
+                });
             }
         })
+
+        await handlePlayerPendingMandatoryEffect[0]()
+        await handlePlayerPendingMandatoryEffect[1]()
+
         this.pendingEffects.set([])
-        this.handleResponses(this.turnPlayer.get())
         this.handlingPendingEffects = false
     }
 
@@ -344,7 +358,8 @@ export class Duel {
     async addToChain(card: Card, effect: Callback, action: Action = {
         action: "ACTIVATE",
         cards: [],
-        player: this.actor.get()
+        player: this.actor.get(),
+        prediction: {}
     }, handleResponses: boolean = true) {
         this.gameState.set('CLOSED')
         card.activated.set(true)
@@ -354,13 +369,14 @@ export class Duel {
         newChain[chainLink] = {
             card,
             effect,
-            negated: false
+            negated: false,
+            prediction: action.prediction
         }
         this.chain.set(newChain)
         this.setAction(action)
         this.getOpponent(card.controller.get()).targets.set([])
         if(handleResponses) {
-            this.handleResponses(this.getOpponent(card.controller.get()))
+            await this.handleResponses(this.getOpponent(card.controller.get()))
         }
     }
 
@@ -382,43 +398,34 @@ export class Duel {
             this.phase.set(p)
             await Promise.delay(0.15)
             if (this.turn.get() === 1) {
-                const thread = [this.player1, this.player2].map((player) =>
-                    coroutine.wrap(async () => {
-                        await player.shuffle()
-                        await Promise.delay(player.cards.get().size() * 0.04)
-                        await player.draw(5)
-                    })
-                )
-                thread[0]()
-                thread[1]()
-            } 
-            await Promise.delay(1)
+                [this.player1, this.player2].map(async player => {
+                    await player.shuffle()
+                    await Promise.delay(player.cards.get().size() * 0.07)
+                    player.draw(5)
+                })
+            }
+            await Promise.delay(0.25)
             this.turnPlayer.get().draw(1)
-            this.handleResponses(this.turnPlayer.get())
-            await Promise.delay(0.15)
+            await this.handleResponses(this.turnPlayer.get())
+            await Promise.delay(0.25)
             await this.handlePhase('SP') 
         } else if (p === 'SP') {
             this.phase.set(p)
-            await Promise.delay(0.15)
-            this.handleResponses(this.turnPlayer.get())
+            await this.handleResponses(this.turnPlayer.get())
             await this.handlePhase('MP1')
         } else if (p === 'MP1') {
             this.phase.set(p)
-            await Promise.delay(0.15)
         } else if (p === 'BP') {
             this.phase.set(p)
-            await Promise.delay(0.15)
             this.battleStep.set('START')
-            this.handleResponses(this.turnPlayer.get())
+            await this.handleResponses(this.turnPlayer.get())
             this.battleStep.set('BATTLE')
         } else if (p === 'MP2') {
             this.phase.set(p)
-            await Promise.delay(0.15)
         } else if (p === 'EP') {
             if (this.phase.get() === 'MP1' || this.phase.get() === 'MP2') {
                 this.phase.set(p)
-                await Promise.delay(0.15)
-                this.handleResponses(this.turnPlayer.get())
+                await this.handleResponses(this.turnPlayer.get())
 
                 const cardsInHand = getFilteredCards(this, {
                     location: ['Hand'],
@@ -435,7 +442,7 @@ export class Duel {
 
                 await this.handlePhase('DP')
             } else if (this.phase.get() === 'BP') {
-                this.handleResponses(this.turnPlayer.get())
+                await this.handleResponses(this.turnPlayer.get())
                 await this.handlePhase('MP2')
             }
         }

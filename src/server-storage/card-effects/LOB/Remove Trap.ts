@@ -32,7 +32,7 @@ export default (card: Card) => {
 
     const effect = () => {
         const target = controller.targets.get()[0]
-        target.destroy("Effect")
+        target.destroy("Effect", card)
     }
 
     const effects: CardEffect[] = [

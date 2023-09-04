@@ -1,5 +1,5 @@
 import { Dictionary as Object } from "@rbxts/sift"
-import { Duel } from "./duel"
+import { Duel, getDuel } from "./duel"
 import { CardFilter } from "./types"
 import { Card } from "./card"
 import { includes } from "shared/utils"
@@ -17,12 +17,39 @@ export const getFilteredCards = (duel: Duel, cardFilter: CardFilter) => {
             if(key === "card") {
                 return (values as Card[]).includes(card)
             }
+            if(key === "exclude") {
+                return !card.hasSomeRestrictions(values as string[]);
+            }
+            if(key === "atk") {
+                return values!.some((value) => {
+                    value = `${value}` as string;
+                    if(value.match("<=").size() > 0) {
+                        return card.getAtk() <= tonumber(value.sub(3))!
+                    }
+                    if(value.match(">="). size() > 0) {
+                        return card.getAtk() >= tonumber(value.sub(3))!
+                    }
+                    return card.getAtk() === tonumber(value)
+                })
+            }
+            if(key === "def") {
+                return values!.some((value) => {
+                    value = `${value}` as string;
+                    if(value.match("<=").size() > 0) {
+                        return card.getDef() <= tonumber(value.sub(3))!
+                    }
+                    if(value.match(">="). size() > 0) {
+                        return card.getDef() >= tonumber(value.sub(3))!
+                    }
+                    return card.getDef() === tonumber(value)
+                })
+            }
             return values!.some((value) => card[key].get() === value)
         })
     )
 }
 
-const cardCache = new Map<string, Card[]>();
+//const cardCache = new Map<string, Card[]>();
 
 export const getCards = (duel: Duel): Card[] => {
    // const key = `${duel.player1.player.UserId},${duel.player1.cards.get().size()},${duel.player2.cards.get().size()}`;
@@ -41,8 +68,11 @@ export const getCards = (duel: Duel): Card[] => {
     return result;
 }
 
-export const getPublicCard = (player: Player, card: Card)=> {
-    const showArt = includes(card.position.get(), "FaceUp") || (["Hand", "BZone", "EZone", "GZone", "FZone", "MZone", "SZone"].some(z => includes(card.location.get(), z)) && card.controller.get() === player);
+export const getPublicCard = (player: Player, card: Card, showArt: boolean = false)=> {
+    showArt = includes(card.position.get(), "FaceUp") 
+    || (["Hand", "BZone", "EZone", "GZone", "FZone", "MZone", "SZone"]
+        .some(z => includes(card.location.get(), z)) && card.controller.get() === player)
+    || card.isTargettable(player);
     const showAtkDef = includes(card.position.get(), "FaceUp") && includes(card.location.get(), "MZone");
 
     return {

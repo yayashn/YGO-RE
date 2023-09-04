@@ -23,16 +23,20 @@ export default (card: Card) => {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             position: ['FaceDown']
         })
+        if(faceUpTraps.size() + faceDownCards.size() === 0) return;
         card.targets.set(controller.pickTargets(1, [...faceUpTraps, ...faceDownCards]))
     }
 
     const effect = () => {
         const target = card.targets.get()[0]
+
+        if(!target) return;
+
         if(target.position.get() === "FaceDown") {
             target.reveal()
         }
         if(target.type.get() === "Trap Card") {
-            target.destroy("Effect")
+            target.destroy("Effect", card)
         }
     }
 

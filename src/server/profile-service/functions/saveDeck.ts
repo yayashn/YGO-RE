@@ -9,20 +9,16 @@ export const saveDeck = (player: Player, deckName: string, mainDeck: CardTemplat
             acc[curr.name] = (acc[curr.name] || 0) + 1;
             return acc;
         }, {} as Record<string, number>)
-        print(1)
 
         const mainDeckCards = mainDeck.reduce((acc, curr) => {
             acc[curr.name] = (acc[curr.name] || 0) + 1;
             return acc;
         }, {} as Record<string, number>)
-        print(2)
 
         const extraDeckCards = extraDeck.reduce((acc, curr) => {
             acc[curr.name] = (acc[curr.name] || 0) + 1;
             return acc;
         }, {} as Record<string, number>)
-
-        print(3)
 
         for (const [key, value] of pairs(mainDeckCards)) {
             if (value > 3) {
@@ -32,8 +28,6 @@ export const saveDeck = (player: Player, deckName: string, mainDeck: CardTemplat
                 return false;
             }
         }
-        
-        print(4)
 
         for (const [key, value] of pairs(extraDeckCards)) {
             if (value > 3) {
@@ -43,18 +37,13 @@ export const saveDeck = (player: Player, deckName: string, mainDeck: CardTemplat
                 return false;
             }
         }
-        
-        print(5)
 
         try {
-            print(6, deckName)
             profile.Data.decks[deckName] = {
                 deck: mainDeck,
                 extra: extraDeck
             }
-            print(7)
             profileChanged(player, profile!.Data)
-            print(8)
             return true;
         } catch(e) {
             warn(e)

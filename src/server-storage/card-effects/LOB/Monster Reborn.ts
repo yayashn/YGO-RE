@@ -19,6 +19,7 @@ export default (card: Card) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['GZone'],
             type: ['Monster'],
+            exclude: ["CANNOT_SPECIAL_SUMMON"]
         })
         return targettableCards.size() >= 1 && hasEmptyZones;
     }
@@ -27,6 +28,7 @@ export default (card: Card) => {
         const targettableCards = getFilteredCards(duel, {
             location: ['GZone'],
             type: ['Monster'],
+            exclude: ["CANNOT_SPECIAL_SUMMON"]
         })
         card.targets.set(controller.pickTargets(1, targettableCards))
     }

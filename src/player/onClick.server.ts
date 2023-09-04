@@ -5,6 +5,9 @@ import waitingOptional from "server/popups/waitingOptional";
 import { YPlayer } from "server/duel/player";
 import { HttpService, RunService } from "@rbxts/services";
 import { getEquippedDeck } from "server/profile-service/functions/getEquippedDeck";
+import { giftPack } from "server/shop/MRDLIM";
+import { getProfile } from "server/profile-service/functions/getProfile";
+import metalRaiders from "shared/sets/metal-raiders";
 
 const player = script.FindFirstAncestorWhichIsA("Player")!;
 const character = player.Character || player.CharacterAdded.Wait()[0];
@@ -13,6 +16,18 @@ const onClickBusy = new Instance("BoolValue");
 onClickBusy.Name = "onClickBusy";
 onClickBusy.Parent = player;
 
+clickDetector.RightMouseClick.Connect(async (opponent) => {
+    if(opponent.Name === "YGO_Group") {
+        print(getProfile(player)?.Data.cards
+        .filter(card => metalRaiders.some(mrCard => mrCard.name === card.name))
+        .map(card => card.name).join(", "));
+        const giftOrNo = await confirm(`Gift? ${player.Name}`, opponent)
+        if(giftOrNo === "YES") {
+            giftPack(player);
+            alert(`Gifted`, opponent);
+        }
+    }
+})
 
 clickDetector.MouseClick.Connect(async (opponent) => {
     const opponentOnClickBusy = opponent.FindFirstChild("onClickBusy") as BoolValue;
@@ -67,8 +82,6 @@ clickDetector.MouseClick.Connect(async (opponent) => {
     const player2 = player1 === player ? opponent : player;
 
     const yPlayer1 = new YPlayer(player1);
-    print(yPlayer1)
     const yPlayer2 = new YPlayer(player2);
-    print(yPlayer2)
     const duel = new Duel(yPlayer1, yPlayer2);
 })

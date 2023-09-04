@@ -20,12 +20,12 @@ export default (card: Card) => {
     const opponent = duel.getOpponent(controller.player)
     
     const condition = () => {
-        return NormalEffect(card) && includes(card.location.get(), "MZone") && !card.hasFloodgate("EFFECT_ONCE_PER_TURN")
+        return NormalEffect(card) && includes(card.location.get(), "MZone") && !card.hasFloodgate("USED_EFFECT")
     }
 
     const effect = async () => {
         const turnActivated = duel.turn.get()
-        duel.addCardFloodgate("EFFECT_ONCE_PER_TURN", {
+        duel.addCardFloodgate("USED_EFFECT", {
             floodgateFilter: {
                 card: [card],
             },
@@ -49,7 +49,7 @@ export default (card: Card) => {
                 controller: [opponent.player],
             })
             monsters.forEach(monster => {
-                monster.destroy("Effect")
+                monster.destroy("Effect", card)
             })
         } else {
             const monsters = getFilteredCards(duel, {
@@ -58,7 +58,7 @@ export default (card: Card) => {
             })
             const totalAtk = monsters.reduce((acc, curr) => acc + curr.getAtk(), 0)
             monsters.forEach(monster => {
-                monster.destroy("Effect")
+                monster.destroy("Effect", card)
             })
             controller.changeLifePoints(-totalAtk / 2)
         }

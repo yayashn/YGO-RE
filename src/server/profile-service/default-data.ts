@@ -64,7 +64,7 @@ export const defaultPlayerData: PlayerData = {
     afkDailyDp: {
         [DateTime.now().FormatLocalTime("L", "en-us")]: {
             earnt: 0,
-            max: 43200
+            max: 50000
         },
     }
 }

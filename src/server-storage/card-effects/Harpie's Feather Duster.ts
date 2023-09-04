@@ -16,7 +16,7 @@ export default (card: Card) => {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
             controller: [duel.getOpponent(controller.player).player]
         })
-        cardsInSZone.forEach(card => card.destroy("Effect"))
+        cardsInSZone.forEach(c => c.destroy("Effect", card))
     }
 
     const condition = () => {
@@ -31,7 +31,15 @@ export default (card: Card) => {
         {
             condition: () => NormalSpell(card) && condition(),
             effect: () => effect(),
-            location: ['SZone']
+            location: ['SZone'],
+            prediction: () => {
+                return {
+                    destroy: getFilteredCards(duel, {
+                        location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5'],
+                        controller: [duel.getOpponent(controller.player).player]
+                    })
+                }
+            }
         }
     ]
 

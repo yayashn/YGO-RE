@@ -9,7 +9,7 @@ export default (card: Card) => {
     const inBottomRow = includes(card.location.get(), "SZone");
     const activated = card.activated.get()
     const isActor = duel.actor.get() === controller
-    const canActivate = !card.hasFloodgate("CANNOT_ACTIVATE");
+    const canActivate = !card.hasFloodgate("CANNOT_ACTIVATE") && !controller.getFloodgates("CANNOT_ACTIVATE_CARD")?.some(f => f.value === card.name.get())
 
     return isActor && inBottomRow && !activated && canActivate
 }

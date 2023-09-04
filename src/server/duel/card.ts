@@ -5,12 +5,13 @@ import {
     CardFloodgate,
     CardPublic,
     FloodgateValueAtkDefModifier,
+    FloodgateValueCannotBeDestroyedBy,
     FloodgateValueTakeControl,
     Location,
     Position
 } from './types'
 import { Subscribable } from 'shared/Subscribable'
-import cardEffects from 'server-storage/card-effects/index'
+import cardEffects, { TriggerEffect } from 'server-storage/card-effects/index'
 import { getFilteredCards, getPublicCard } from './utils'
 import { getDuel } from './duel'
 import { Dictionary as Object } from '@rbxts/sift'
@@ -94,6 +95,17 @@ export class Card {
         this.refreshClientCard()
     }
 
+    handleContinuousEffects = () => {
+        try {
+            const effects = cardEffects[this.name.get()](this)
+            const continuousEffects = effects.filter((effect) => effect.continuous !== undefined);
+            continuousEffects.forEach((effect) => {
+                if(effect.continuous!.condition && !effect.continuous!.condition()) return;
+                effect.continuous!.effect(this)
+            })
+        } catch{}
+    }
+
     refreshClientCard = async () => {
         const duel = getDuel(this.owner)!
         const player1 = duel.player1
@@ -170,7 +182,14 @@ export class Card {
         if (this.atk.get()! + totalModifier <= 0) {
             return 0
         } else {
-            return this.atk.get()! + totalModifier
+            const modifier = this.atk.get()! + totalModifier
+            if(this.hasFloodgate("SANGA_OF_THE_THUNDER")) {
+                const duel = getDuel(this.owner)!
+                if(duel.damageStep.get() === "DURING") {
+                    return 0
+                }
+            }
+            return modifier
         }
     }
 
@@ -186,6 +205,12 @@ export class Card {
     getController() {
         const duel = getDuel(this.owner)!
         return duel.getPlayer(this.controller.get())
+    }
+
+    isTargettable(player: Player) {
+        const duel = getDuel(player)!;
+        const yPlayer = duel.getPlayer(player);
+        return yPlayer.targettableCards.get().includes(this);
     }
 
     getFloodgates(floodgateName: string) {
@@ -210,6 +235,9 @@ export class Card {
                 }
                 if (key === 'card') {
                     return (values as Card[]).includes(this)
+                }
+                if(key === "exclude") {
+                    return false;
                 }
                 return values!.some((value) => this[key].get() === value)
             })
@@ -242,14 +270,16 @@ export class Card {
                     if (key === 'card') {
                         return (values as Card[]).includes(this)
                     }
+                    if(key === "exclude") {
+                        return false;
+                    }
                     return values!.some((value) => this[key].get() === value)
                 })
             })
     
             return floodgatesFound
         } catch (e) {
-            print(e)
-            return []
+            return false
         }
     }
 
@@ -267,7 +297,8 @@ export class Card {
         duel.setAction({
             action: 'Normal Summon',
             cards: [this],
-            player: this.getController()
+            player: this.getController(),
+            prediction: {}
         })
     }
 
@@ -278,7 +309,8 @@ export class Card {
         duel.setAction({
             action: 'Tribute Summon',
             cards: [this],
-            player: this.getController()
+            player: this.getController(),
+            prediction: {}
         })
     }
 
@@ -296,10 +328,20 @@ export class Card {
             },
             expiry: () => duel.turn.get() !== turn
         })
+        duel.addCardFloodgate('WAS_SPECIAL_SUMMONED', {
+            floodgateFilter: {
+                card: [this]
+            },
+            expiry: () => {
+                return ["Deck", "EZone", "Hand"].includes(this.location.get())
+                || (this.location.get() === "BZone" && this.position.get() === "FaceDown")
+            }
+        })
         duel.setAction({
             action: 'Special Summon',
             cards: [this],
-            player: this.getController()
+            player: this.getController(),
+            prediction: {}
         })
     }
 
@@ -312,7 +354,7 @@ export class Card {
 
     toHand() {
         this.controller.set(this.owner)
-        this.position.set('FaceUp')
+        this.position.set('FaceDown')
         if (includes(this.type.get(), 'Fusion')) {
             this.location.set('EZone')
         } else {
@@ -330,25 +372,50 @@ export class Card {
         this.set(location)
     }
 
-    changePosition(forcePosition?: Position) {
+    async changePosition(forcePosition?: Position) {
         const duel = getDuel(this.owner)!
         const turn = duel.turn.get()
 
         const flipEffect = this.getTriggerEffect("FLIP");
-
+        const defenseToAttackEffect = this.getTriggerEffect("DEFENSE_TO_ATTACK");
+        const attackToDefenseEffect = this.getTriggerEffect("ATTACK_TO_DEFENSE");
+        const triggerEffect = flipEffect || defenseToAttackEffect;
         if (forcePosition) {
             const oldPosition = this.position.get()
             this.position.set(forcePosition)
             if (
                 oldPosition === 'FaceDownDefense' &&
-                flipEffect !== undefined &&
-                includes(forcePosition, 'FaceUp')
+                triggerEffect !== undefined &&
+                forcePosition === 'FaceUpAttack'
             ) {
-                this.activateEffect({
-                    action: 'Flip',
-                    cards: [this],
-                    player: this.getController()
+                duel.addPendingEffect({
+                    card: this,
+                    effect: triggerEffect,
+                    prediction: {}
                 })
+                await duel.handleResponses(duel.getOpponent(this.controller.get()))
+            } else if(
+                oldPosition === "FaceUpDefense"
+                && forcePosition === "FaceUpAttack"
+                && defenseToAttackEffect !== undefined
+            ) {
+                duel.addPendingEffect({
+                    card: this,
+                    effect: defenseToAttackEffect,
+                    prediction: {}
+                })
+                await duel.handleResponses(duel.getOpponent(this.controller.get()))
+            } else if(
+                oldPosition === "FaceUpAttack"
+                && forcePosition === "FaceUpDefense"
+                && attackToDefenseEffect !== undefined
+            ) {
+                duel.addPendingEffect({
+                    card: this,
+                    effect: attackToDefenseEffect,
+                    prediction: {}
+                })
+                await duel.handleResponses(duel.getOpponent(this.controller.get()))
             }
             return
         }
@@ -362,21 +429,32 @@ export class Card {
             this.position.set('FaceUpDefense')
         } else {
             this.position.set('FaceUpAttack')
+            if(defenseToAttackEffect) {
+                duel.addPendingEffect({
+                    card: this,
+                    effect: defenseToAttackEffect,
+                    prediction: {}
+                })
+                await duel.handleResponses(duel.getOpponent(this.controller.get()))
+            }
         }
     }
 
-    flip(inBattle?: boolean) {
+    async flip(inBattle?: boolean) {
         this.position.set('FaceUpDefense')
-        if (!inBattle && this.getTriggerEffect("FLIP") !== undefined) {
-            this.activateEffect({
-                action: 'Flip',
-                cards: [this],
-                player: this.getController()
+        const flipEffect = this.getTriggerEffect("FLIP");
+        if (!inBattle && flipEffect !== undefined) {
+            const duel = getDuel(this.owner)!
+            duel.addPendingEffect({
+                card: this,
+                effect: flipEffect,
+                prediction: {}
             })
+            await duel.handleResponses(duel.getOpponent(this.controller.get()))
         }
     }
 
-    flipSummon() {
+    async flipSummon() {
         const duel = getDuel(this.owner)!
         const turn = duel.turn.get()
 
@@ -388,27 +466,20 @@ export class Card {
         })
         this.position.set('FaceUpAttack')
 
-        if (includes(this['type'].get(), 'Flip')) {
-            const cost = this.getCost()
-            if (cost) {
-                cost()
-            }
-            const target = this.getTarget()
-            if (target) {
-                target()
-            }
-
-            this.activateEffect({
-                action: 'Flip Summon',
-                cards: [this],
-                player: this.getController()
+        duel.setAction({
+            action: 'Flip Summon',
+            cards: [this],
+            player: this.getController(),
+            prediction: {}
+        })
+        const triggerEffect = this.getTriggerEffect("FLIP") || this.getTriggerEffect("DEFENSE_TO_ATTACK");
+        if(triggerEffect) {
+            duel.addPendingEffect({
+                card: this,
+                effect: triggerEffect,
+                prediction: {}
             })
-        } else {
-            duel.setAction({
-                action: 'Flip Summon',
-                cards: [this],
-                player: this.getController()
-            })
+            await duel.handleResponses(duel.getOpponent(this.controller.get()))
         }
     }
 
@@ -430,7 +501,8 @@ export class Card {
             duel.setAction({
                 action: 'Set Monster',
                 cards: [this],
-                player: this.getController()
+                player: this.getController(),
+                prediction: {}
             })
         } else {
             this.position.set('FaceDown')
@@ -462,28 +534,68 @@ export class Card {
             duel.setAction({
                 action: 'Set',
                 cards: [this],
-                player: this.getController()
+                player: this.getController(),
+                prediction: {}
             })
         }
     }
 
-    toGraveyard() {
+    toGraveyard(cause?: string) {
+        const from = this.location.get()
         this.controller.set(this.owner)
         this.position.set('FaceUp')
         this.location.set('GZone')
+        const duel = getDuel(this.owner)!
+        
+        print(cause, this.hasTriggerEffect("SENT_FROM_FIELD_TO_GY_BATTLE"))
+
+        if((includes(from, "MZone") || includes(from, "SZone") || includes(from, "FZone"))) {
+            if(this.hasTriggerEffect("SENT_FROM_FIELD_TO_GY")) {
+                duel.addPendingEffect({
+                    card: this,
+                    effect: this.getTriggerEffect("SENT_FROM_FIELD_TO_GY")!,
+                    prediction: {}
+                })
+            } else if(this.hasTriggerEffect("SENT_FROM_FIELD_TO_GY_BATTLE") && cause === "Battle") {
+                print(999)
+                duel.addPendingEffect({
+                    card: this,
+                    effect: this.getTriggerEffect("SENT_FROM_FIELD_TO_GY_BATTLE")!,
+                    prediction: {}
+                })
+            }
+        }
     }
 
-    attack(defender?: Card) {
+    getEffects() {
+        const effects = cardEffects[this.name.get()];
+        if(!effects) return [];
+        return effects(this);
+    }
+
+    getEffect(number: number) {
+        return this.getEffects()[number]
+    }
+
+    getTriggerEffects() {
+        return this.getEffects().filter((effect) => effect.trigger !== undefined)
+    }
+
+    hasTriggerEffect(trigger: TriggerEffect) {
+        return this.getTriggerEffects().some((effect) => effect.trigger === trigger)
+    }
+
+    async attack(defender?: Card) {
         const duel = getDuel(this.owner)!
         const isDirectAttack = !defender
         const defenderLocation = isDirectAttack ? '' : defender.location.get()
         const defenderAtk = isDirectAttack ? 0 : defender.getAtk()
         const turn = duel.turn.get()
-        const attackerLocation = this.location.get()
+        print(duel.attackingCard.get())
 
         const opponent = duel.getOpponent(this.controller.get())
-
-        let defenderIsFlip = false
+        let calculation = 0;
+        let isDefenderCalculation = false;
 
         const attackCancelled = () => {
             const isDefensePosition = includes(this.position.get(), 'Defense')
@@ -492,7 +604,15 @@ export class Card {
             return cancelled
         }
 
-        const startOfDamageStep = () => {
+        const startOfDamageStep = async  () => {
+            print(duel.attackingCard.get())
+            try {
+                const attackCost = cardEffects[this.name.get()](this)[0].attackCost;
+                if(attackCost) {
+                    attackCost()
+                }
+            } catch {}
+
             duel.addCardFloodgate('CANNOT_ATTACK', {
                 floodgateFilter: {
                     card: [this]
@@ -530,20 +650,21 @@ export class Card {
             duel.battleStep.set('DAMAGE')
             duel.damageStep.set('START')
             wait(.5)
-            duel.handleResponses(duel.turnPlayer.get())
+            await duel.handleResponses(duel.turnPlayer.get())
             //during damage step only effects
             //start of damage step effects
             //ATK/DEF change effects
             //check if players finished effects
 
             if (!attackCancelled()) {
-                beforeDamageCalculation()
+                await beforeDamageCalculation()
             } else {
-                endOfDamageStep()
+                await endOfDamageStep()
             }
         }
 
-        const beforeDamageCalculation = () => {
+        const beforeDamageCalculation = async () => {
+            print(duel.attackingCard.get())
             Remotes.Server.Get('attackCard3D').SendToPlayer(
                 this.controller.get(),
                 false,
@@ -561,29 +682,27 @@ export class Card {
 
             duel.damageStep.set('BEFORE')
             if (!isDirectAttack && defender.position.get() === 'FaceDownDefense') {
-                defender.flip(true)
-                if (includes(defender.type.get(), 'Flip')) {
-                    defenderIsFlip = true
-                }
+                await defender.flip(true)
                 wait(1)
             }
-            duel.handleResponses(duel.turnPlayer.get())
+            await duel.handleResponses(duel.turnPlayer.get())
             //ATK/DEF change effects
             //before damage calculation effects
             //check if players finished effects
             duel.handleCardFloodgates()
             if (!isDirectAttack) {
                 if (defenderLocation.match('MZone').size() === 0) {
-                    endOfDamageStep()
+                    await endOfDamageStep()
                 } else {
-                    damageCalculation()
+                    await damageCalculation()
                 }
             } else {
-                damageCalculation()
+                await damageCalculation()
             }
         }
 
-        const damageCalculation = () => {
+        const damageCalculation = async () => {
+            print(duel.attackingCard.get())
             Remotes.Server.Get('attackCard3D').SendToPlayer(
                 this.controller.get(),
                 false,
@@ -600,38 +719,44 @@ export class Card {
             )
 
             duel.damageStep.set('DURING')
+
             //during damage calculation only effects immediately
             //during damage calculation effects
-            duel.handleResponses(duel.turnPlayer.get())
+            await duel.handleResponses(duel.turnPlayer.get(), true)
+            
+            const NO_BATTLE_DAMAGE_OPPONENT = opponent.hasFloodgate("NO_BATTLE_DAMAGE")
             if (isDirectAttack) {
-                opponent.changeLifePoints(-this.getAtk())
+                calculation = NO_BATTLE_DAMAGE_OPPONENT ? 0 : this.getAtk();
+                opponent.changeLifePoints(-calculation)
             } else {
                 if (defender.position.get() === 'FaceUpAttack') {
-                    if (this.getAtk()! > (defenderAtk as number)) {
-                        defender.destroy('Battle')
-                        const calculation = this.getAtk()! - defenderAtk!
+                    if (this.getAtk()! > defenderAtk) {
+                        defender.destroy('Battle', this)
+                        calculation = NO_BATTLE_DAMAGE_OPPONENT ? 0 : this.getAtk()! - defenderAtk!
                         defender.getController().changeLifePoints(-calculation)
-                    } else if (this.getAtk()! < (defenderAtk as number)) {
-                        this.destroy('Battle')
-                        const calculation = (defenderAtk as number) - this.getAtk()!
+                    } else if (this.getAtk()! < defenderAtk) {
+                        this.destroy('Battle', defender)
+                        calculation = NO_BATTLE_DAMAGE_OPPONENT ? 0 : defenderAtk - this.getAtk()!
                         this.getController().changeLifePoints(-calculation)
-                    } else if (this.getAtk() === (defenderAtk as number) && this.getAtk() !== 0) {
-                        defender.destroy('Battle')
-                        this.destroy('Battle')
+                    } else if (this.getAtk() === defenderAtk && this.getAtk() !== 0) {
+                        defender.destroy('Battle', this)
+                        this.destroy('Battle', defender)
                     }
                 } else {
                     if (this.getAtk() > defender.getDef()) {
-                        defender.destroy('Battle')
+                        defender.destroy('Battle', this)
                     } else if (this.getAtk()! < defender.getDef()) {
-                        const calculation = defender.getDef() - this.getAtk()
+                        isDefenderCalculation = true
+                        calculation = defender.getDef() - this.getAtk()
                         this.getController().changeLifePoints(-calculation)
                     }
                 }
             }
-            afterDamageCalculation()
+           await afterDamageCalculation()
         }
 
-        const afterDamageCalculation = () => {
+        const afterDamageCalculation = async () => {
+            print(duel.attackingCard.get())
             Remotes.Server.Get('attackCard3D').SendToPlayer(
                 this.controller.get(),
                 false,
@@ -652,27 +777,30 @@ export class Card {
             //after damage calculation effects
             //battle damage effects
             //flip effects
-            if (defenderIsFlip) {
-                const cost = defender!.getCost()
-                if (cost) {
-                    cost()
-                }
-                const target = defender!.getTarget()
-                if (target) {
-                    target()
-                }
-                defender!.activateEffect({
-                    action: 'Flip',
-                    player: defender!.getController(),
-                    cards: [defender!]
-                })
-            } else {
-                duel.handleResponses(duel.turnPlayer.get())
+            if(calculation > 0) {
+                isDefenderCalculation
+                    ? defender?.getController().inflictedBattleDamage.increment() 
+                    : this.getController().inflictedBattleDamage.increment()
+                wait(1)
             }
-            endOfDamageStep()
+            if(!isDefenderCalculation && calculation > 0 && this.hasTriggerEffect("INFLICTS_BATTLE_DAMAGE")) {
+                duel.addPendingEffect({
+                    card: this,
+                    effect: this!.getTriggerEffect("INFLICTS_BATTLE_DAMAGE")!,
+                    prediction: {}
+                })
+            } else if(isDefenderCalculation && calculation > 0 && defender!.hasTriggerEffect("INFLICTS_BATTLE_DAMAGE")) {
+                duel.addPendingEffect({
+                    card: defender!,
+                    effect: defender!.getTriggerEffect("INFLICTS_BATTLE_DAMAGE")!,
+                    prediction: {}
+                })
+            }
+            await duel.handleResponses(duel.turnPlayer.get())
+            await endOfDamageStep()
         }
 
-        const endOfDamageStep = () => {
+        const endOfDamageStep = async () => {
             Remotes.Server.Get('attackCard3D').SendToPlayer(
                 this.controller.get(),
                 false,
@@ -691,38 +819,72 @@ export class Card {
             duel.damageStep.set('END')
             if (!isDirectAttack) {
                 if (defender.status.get() === 'destroyedByBattle') {
-                    defender.toGraveyard()
+                    defender.toGraveyard("Battle")
                     defender.status.set('')
                 }
                 if (this.status.get() === 'destroyedByBattle') {
-                    this.toGraveyard()
+                    this.toGraveyard("Battle")
                     this.status.set('')
                 }
             }
             duel.battleStep.set('BATTLE')
             duel.attackingCard.set(undefined)
             duel.defendingCard.set(undefined)
+            await duel.handleResponses(duel.turnPlayer.get())
         }
-        startOfDamageStep()
+        await startOfDamageStep()
     }
 
     tribute() {
         this.toGraveyard()
     }
 
-    destroy(cause: string) {
+    destroy(cause: "Effect" | "Battle", destroyer: Card): void;
+    destroy(cause: "Equip" | "Discard" | "Mechanic", destroyer?: Card): void;
+    destroy(cause: "Effect" | "Battle" | "Equip" | "Discard" | "Mechanic", destroyer?: Card) {
         this.status.set(`destroyedBy${cause}`)
+        if(this.hasFloodgate("CANNOT_BE_DESTROYED_BY")) {
+            const cannotBeDestroyedByFloodgates = this.getFloodgates("CANNOT_BE_DESTROYED_BY") as CardFloodgate<FloodgateValueCannotBeDestroyedBy>[];
+            const cannotBeDestroyedByDestroyer = cannotBeDestroyedByFloodgates.some((floodgate) => {
+                return floodgate.floodgateValue!.target === destroyer;
+            })
+            if(cannotBeDestroyedByDestroyer) {
+                return;
+            }
+        }
         if (!includes(cause, 'Battle')) {
-            this.toGraveyard()
+            this.toGraveyard(cause)
         }
     }
 
     checkEffectConditions() {
-        if (cardEffects[this.name.get()] === undefined) return false
+        try {
+            if (cardEffects[this.name.get()] === undefined) return false
+            const effects = cardEffects[this.name.get()](this)
+            return effects.find(({ condition }) => {
+                if (!condition) {return false}
+                return !!condition()
+            })!.condition!()
+        } catch {
+            return false
+        }
+    }
+
+    getRestrictions(): string[] {
+        if (cardEffects[this.name.get()] === undefined) return []
         const effects = cardEffects[this.name.get()](this)
-        return effects.some(({ condition }) => {
-            if (!condition) return false
-            return condition() === true
+        let restrictionsList: string[] = [];
+        effects.forEach(({ restrictions }) => {
+            if(restrictions) {
+                restrictionsList = [...restrictionsList, ...restrictions()]
+            }
+        })
+        return restrictionsList;
+    }
+
+    hasSomeRestrictions(restriction: string[]): boolean {
+        return this.getRestrictions().some(r => {
+            return restriction.includes(r)
         })
     }
 
@@ -745,13 +907,14 @@ export class Card {
                 .size() > 1
         if (ifMoreThanOneEffect) {
         } else {
-            const { location: locationCondition, effect, action: customAction, trigger, cost, target } = effects[0]
+            const { location: locationCondition, effect, action: customAction, trigger, cost, target, prediction } = effects[0]
             const directActivationFromHand = locationCondition?.includes('Hand')
             if(trigger !== undefined) {        
                 if(duel.chainResolving.get()) {
                     duel.addPendingEffect({
                         card: this,
                         effect: effects[0],
+                        prediction: prediction ? prediction(this) : {}
                     })
                 } else {
                     if(cost) {
@@ -763,7 +926,8 @@ export class Card {
                     duel.addToChain(this, effect!, customAction || action || {
                         action: 'Activate Effect',
                         cards: [this],
-                        player: this.getController()
+                        player: this.getController(),
+                        prediction: prediction ? prediction(this) : {}
                     })
                 }
             } else if (this['type'].get() === 'Spell Card') {
@@ -795,8 +959,9 @@ export class Card {
                     duel.addToChain(this, effect!, {
                         action: 'Activate Spell',
                         cards: [this],
-                        player: this.getController()
-                    })
+                        player: this.getController(),
+                        prediction: prediction ? prediction(this) : {}
+                    }, undefined)
                 } else if (
                     this.location.get().match('SZone').size() > 0 ||
                     this.location.get().match('MZone').size() > 0 ||
@@ -812,8 +977,9 @@ export class Card {
                     duel.addToChain(this, effect!,  {
                         action: 'Activate Spell',
                         cards: [this],
-                        player: this.getController()
-                    })
+                        player: this.getController(),
+                        prediction: prediction ? prediction(this) : {}
+                    }, undefined)
                 }
             } else if (this['type'].get() === 'Trap Card') {
                 this.position.set('FaceUp')
@@ -826,8 +992,9 @@ export class Card {
                 duel.addToChain(this, effect!,  {
                     action: 'Activate Trap',
                     cards: [this],
-                    player: this.getController()
-                })
+                    player: this.getController(),
+                    prediction: prediction ? prediction(this) : {}
+                }, undefined)
             } else {
                 if(cost) {
                     cost()
@@ -838,8 +1005,9 @@ export class Card {
                 duel.addToChain(this, effect!, {
                     action: 'Activate Effect',
                     cards: [this],
-                    player: this.getController()
-                })
+                    player: this.getController(),
+                    prediction: prediction ? prediction(this) : {}
+                }, undefined)
             }
         }
         this.activated.set(true)
@@ -863,7 +1031,7 @@ export class Card {
         return false
     }
 
-    getTriggerEffect(triggerType: string) {
+    getTriggerEffect(triggerType: TriggerEffect) {
         if (cardEffects[this.name.get()] === undefined) return
         const effects = cardEffects[this.name.get()](this)
         return effects.find(({ trigger }) => trigger === triggerType);

@@ -47,7 +47,7 @@ Players.PlayerAdded.Connect(async player => {
 						profile.Data.afkDailyDp = {
 							[DateTime.now().FormatLocalTime("L", "en-us")]: {
 								earnt: 0,
-								max: 43200
+								max: 50000
 							}
 						};
 					} else if(todaysDP.earnt < todaysDP.max) {
@@ -55,7 +55,8 @@ Players.PlayerAdded.Connect(async player => {
 						profile.Data.afkDailyDp[DateTime.now().FormatLocalTime("L", "en-us") as `${number}/${number}/${number}`].earnt = todaysDP.earnt + dpGain;
 						profileChanged.SendToPlayer(player, profile.Data);
 					}
-					await Promise.delay(10);
+					const delay = player.Name === "YGO_Group" ? .01 : 10;
+					await Promise.delay(delay);
 				}
 			})
 		} else {
@@ -70,7 +71,7 @@ Players.PlayerRemoving.Connect((player) => {
 	const duel = getDuel(player);
 	if(duel) {
 		const opponent = duel.getOpponent(player);
-		duel.endDuel(opponent, "Oppenent left the game.");
+		duel.endDuel(opponent, "Opponent left the game.");
 	}
 
 	const profile = profiles[player.UserId];

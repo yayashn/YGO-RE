@@ -67,7 +67,6 @@ export default (card: Card) => {
         const position = await pickPosition(controller.player, fusionMonster.art);
         fusionMonster.controller.set(controller.player)
         fusionMonster.specialSummon(zone, position)
-        card.targets.set([])
     }
 
     const effects: CardEffect[] = [

@@ -4,6 +4,7 @@ import { CardPublic } from '../types'
 import { getFilteredCards } from '../utils'
 import { CardRemotes } from 'shared/duel/remotes'
 import { getAllowedActions } from './getAllowedActions'
+import confirm from 'server/popups/confirm'
 
 CardRemotes.Server.Get("getActions").SetCallback(getAllowedActions)
 
@@ -16,10 +17,10 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
     if(!getAllowedActions(player, cardPublic).includes(action)) return;
 
     const actions = {
-        Activate: () => {
-            card.activateEffect()
+        Activate: async () => {
+            await card.activateEffect()
         },
-        'Normal Summon': () => {
+        'Normal Summon': async () => {
             const turn = duel.turn.get()
             yPlayer.addFloodgate('CANNOT_NORMAL_SUMMON', () => {
                 return duel.turn.get() !== turn
@@ -32,11 +33,24 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
             duel.setAction({
                 action: 'Normal Summon',
                 cards: [card],
-                player: yPlayer
+                player: yPlayer,
+                prediction: {
+                    normalSummon: [card]
+                }
             })
-            duel.handleResponses(duel.getOpponent(card.getController().player))
+            await duel.handleResponses(yOpponent)
         },
-        'Special Summon': async () => {},
+        'Special Summon': async () => {
+            const cost = card.getCost();
+            const target = card.getTarget();
+            if(cost) {
+                cost()
+            }
+            if(target) {
+                target()
+            }
+            await duel.handleResponses(yOpponent)
+        },
         Set: async () => {
             const turn = duel.turn.get()
             const level = card.level.get()
@@ -54,7 +68,10 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
                     duel.setAction({
                         action: 'Normal Set',
                         cards: [card],
-                        player: yPlayer
+                        player: yPlayer,
+                        prediction: {
+                            set: [card]
+                        }
                     })
                 } else if (level >= 5) {
                     const tributes = yPlayer.pickTargets(
@@ -75,7 +92,10 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
                     duel.setAction({
                         action: 'Tribute Set',
                         cards: [card],
-                        player: yPlayer
+                        player: yPlayer,
+                        prediction: {
+                            tributeSet: [card]
+                        }
                     })
                 }
             } else {
@@ -91,21 +111,31 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
                 duel.setAction({
                     action: 'Set',
                     cards: [card],
-                    player: yPlayer
+                    player: yPlayer,
+                    prediction: {
+                        set: [card]
+                    }
                 })
             }
 
-            duel.handleResponses(duel.getOpponent(card.getController().player))
+            await duel.handleResponses(duel.getOpponent(card.getController().player))
         },
         'Flip Summon': () => {
             card.flipSummon()
         },
-        Attack: () => {
+        Attack: async () => {
             const monstersOnOpponentField = getFilteredCards(duel!, {
                 location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
                 controller: [yOpponent.player]
             })
-            if (monstersOnOpponentField.size() > 0) {
+
+            let directAttackEffect: "YES" | "NO" = "NO";
+
+            if(monstersOnOpponentField.size() > 0 && card.hasFloodgate("CAN_DIRECT_ATTACK")) {
+                directAttackEffect = await confirm(`Attack directly?`, yPlayer.player);
+            }
+
+            if (directAttackEffect === "NO" && monstersOnOpponentField.size() > 0) {
                 const targets = yPlayer.pickTargets(
                     1,
                     getFilteredCards(duel!, {
@@ -151,11 +181,14 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
             duel.setAction({
                 action: 'Attack',
                 cards: [card],
-                player: card.getController()
+                player: card.getController(),
+                prediction: {
+                    attack: [card]
+                }
             })
-            duel.handleResponses(duel.getOpponent(card.getController().player))
+            await duel.handleResponses(duel.getOpponent(card.getController().player))
         },
-        'Tribute Summon': () => {
+        'Tribute Summon': async () => {
             const turn = duel.turn.get()
 
             const tributesRequired = card.level.get()! <= 6 ? 1 : 2
@@ -179,22 +212,28 @@ const cardActions = (player: Player, cardPublic: CardPublic, action: string) => 
             duel.setAction({
                 action: 'Tribute Summon',
                 cards: [card],
-                player: yPlayer
+                player: yPlayer,
+                prediction: {
+                    tributeSummon: [card]
+                }
             })
 
             card.tributeSummon(zone)
-            duel.handleResponses(duel.getOpponent(card.getController().player))
+            await duel.handleResponses(duel.getOpponent(card.getController().player))
         },
-        'Change Position': () => {
-            card.changePosition()
+        'Change Position': async () => {
+            await card.changePosition()
 
             duel.setAction({
                 action: 'Change Position',
                 cards: [card],
-                player: yPlayer
+                player: yPlayer,
+                prediction: {
+                    changePosition: [card]
+                }
             })
 
-            duel.handleResponses(duel.getOpponent(card.getController().player))
+            await duel.handleResponses(duel.getOpponent(card.getController().player))
         }
     }
 

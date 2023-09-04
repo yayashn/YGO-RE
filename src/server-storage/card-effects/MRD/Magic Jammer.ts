@@ -51,7 +51,7 @@ export default (card: Card) => {
             const chain = duel.chain.get()
             chain[Object.keys(chain).size() - 1].negated = true
         }
-        targets.forEach(target => target.destroy("Effect"))
+        targets.forEach(target => target.destroy("Effect", card))
     }
 
     const effects: CardEffect[] = [

@@ -3,11 +3,12 @@ import Flex from 'shared/components/Flex'
 import Padding from 'shared/components/Padding'
 import theme from 'shared/theme'
 import { Position } from 'server/duel/types'
+import { Subscribable } from 'shared/Subscribable'
 
 export default async (player: Player, art?: string) => {
     return new Promise<Position>((resolve) => {
         const prompt = Roact.mount(
-            <screengui Key="Dialog" IgnoreGuiInset>
+            <screengui key="Dialog" IgnoreGuiInset>
                 <PickPosition 
                     art={art}
                     positions={{
@@ -25,6 +26,31 @@ export default async (player: Player, art?: string) => {
             player.FindFirstChildWhichIsA("PlayerGui")
         )
     })
+}
+
+export const pickPositionSync = (player: Player, art?: string) => {
+    let position = new Subscribable<Position | undefined>(undefined)
+
+    const prompt = Roact.mount(
+        <screengui key="Dialog" IgnoreGuiInset>
+            <PickPosition 
+                art={art}
+                positions={{
+                    FaceUpAttack: () => {
+                        position.set("FaceUpAttack")
+                    },
+                    FaceUpDefense: () => {
+                        position.set("FaceUpDefense")
+                    }
+                }}  
+            />
+        </screengui>, 
+        player.FindFirstChildWhichIsA("PlayerGui")
+    )
+
+    const pickedPosition = position.wait()!
+    Roact.unmount(prompt)
+    return pickedPosition
 }
 
 type PickPositionProps = {

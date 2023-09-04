@@ -22,9 +22,10 @@ export default (card: Card) => {
             location: ['SZone1', 'SZone2', 'SZone3', 'SZone4', 'SZone5', 'FZone'],
             position: ['FaceDown']
         })
-        if(faceUpSpells.size() === 0 || faceDownCards.size() === 0) {
-            card.targets.set(controller.pickTargets(1, [...faceUpSpells, ...faceDownCards]))
-        }
+
+        if(faceUpSpells.size() + faceDownCards.size() === 0) return;
+
+        card.targets.set(controller.pickTargets(1, [...faceUpSpells, ...faceDownCards]))
     }
 
     const effect = () => {
@@ -35,7 +36,7 @@ export default (card: Card) => {
             target.reveal()
         }
         if(target.type.get() === "Spell Card") {
-            target.destroy("Effect")
+            target.destroy("Effect", card)
         }
     }
 

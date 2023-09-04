@@ -30,24 +30,7 @@ const positionOrientation = {
     }
 }
 
-const zoneOrientation = {
-    Player: {
-        FaceUp: new Vector3(0, -90, -180),
-        FaceDown: new Vector3(0, -90, 0),
-        FaceUpAttack: new Vector3(0, -90, -180),
-        FaceUpDefense: new Vector3(0, -90, -180),
-        FaceDownDefense: new Vector3(0, -90, 0)
-    },
-    Opponent: {
-        FaceUp: new Vector3(0, 90, -180),
-        FaceDown: new Vector3(0, 90, 0),
-        FaceUpAttack: new Vector3(0, 90, -180),
-        FaceUpDefense: new Vector3(0, 90, -180),
-        FaceDownDefense: new Vector3(0, 90, 0)
-    }
-}
-
-;[field.Player, field.Opponent].forEach((playerField) => {
+;[field.Player, field.Opponent].forEach(async (playerField) => {
 // Hand animations
 const center = playerField.Hand.Center.Position;
 const orientation = playerField.Hand.Center.Orientation;
@@ -78,16 +61,16 @@ const layoutCards = () => {
                 currentX,
                 center.Y,
                 center.Z
-            )
+            ),
+            Orientation: orientation,
         };
+        const tween = tweenService.Create(card3D, tweenInfo, tweenGoal);
         card3D.Orientation = orientation;
-        tweenService.Create(card3D, tweenInfo, tweenGoal).Play();
-
+        tween.Play();
+        card3D.Orientation = orientation;
         currentX += CARD_WIDTH + gap;
     });
 };
-
-
 
 playerField.Hand.ChildAdded.Connect(layoutCards);
 playerField.Hand.ChildRemoved.Connect(layoutCards);

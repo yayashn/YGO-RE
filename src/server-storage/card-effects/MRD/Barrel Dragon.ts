@@ -3,7 +3,6 @@ import NormalEffect from "server-storage/conditions/NormalEffect";
 import { getDuel } from "server/duel/duel";
 import { CardEffect } from "..";
 import { getFilteredCards } from "server/duel/utils";
-import options from "server/popups/options";
 import waiting from "server/popups/waiting";
 import { includes } from "shared/utils";
 
@@ -17,7 +16,7 @@ export default (card: Card) => {
     const opponent = duel.getOpponent(controller.player)
     
     const condition = () => {
-        return NormalEffect(card) && includes(card.location.get(), "MZone") && !card.hasFloodgate("EFFECT_ONCE_PER_TURN")
+        return NormalEffect(card) && includes(card.location.get(), "MZone") && !card.hasFloodgate("USED_EFFECT")
     }
     
     const target = () => {
@@ -31,7 +30,7 @@ export default (card: Card) => {
     const effect = async () => {
         const target = card.targets.get()[0]
         const turnActivated = duel.turn.get()
-        duel.addCardFloodgate("EFFECT_ONCE_PER_TURN", {
+        duel.addCardFloodgate("USED_EFFECT", {
             floodgateFilter: {
                 card: [card],
             },
@@ -53,7 +52,7 @@ export default (card: Card) => {
         finishWaiting();
         finishWaiting2();
         if(numberOfHeads >= 2) {
-            target.destroy("Effect");
+            target.destroy("Effect", card);
         }
     }
 

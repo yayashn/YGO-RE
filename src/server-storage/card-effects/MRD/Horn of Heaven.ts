@@ -47,7 +47,7 @@ export default (card: Card) => {
     const effect = () => {
         const targets = duel.getSecondLastAction()!.cards
 
-        targets.forEach(target => target.destroy("Effect"))
+        targets.forEach(target => target.destroy("Effect", card))
     }
 
     const effects: CardEffect[] = [

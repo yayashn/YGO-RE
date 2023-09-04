@@ -1,12 +1,13 @@
 import { Card } from "./card";
 import { Subscribable } from "shared/Subscribable";
-import { Location, PendingEffect, Position, SelectableZone } from "./types";
+import { ChainedEffect, Location, PendingEffect, Position, SelectableZone } from "./types";
 import { Floodgate } from "./floodgate";
 import { getDuel } from "./duel";
 import { getFilteredCards, getPublicCard } from "./utils";
 import { PlayerRemotes } from "shared/duel/remotes";
 import { getEquippedDeck } from "server/profile-service/functions/getEquippedDeck";
 import confirm from "server/popups/confirm";
+import confirmSync from "server/popups/confirmSync";
 
 export class YPlayer {
     changed = new Subscribable(0);
@@ -50,6 +51,7 @@ export class YPlayer {
     });
     selectedPosition = new Subscribable<Position | undefined>(undefined);
     selectedPositionCard = new Subscribable<Card | undefined>(undefined);
+    inflictedBattleDamage = new Subscribable(0);
 
     constructor(player: Player) {
         const equippedDeck = getEquippedDeck(player);
@@ -62,6 +64,7 @@ export class YPlayer {
     onChanged = () => {
         this.changed.set(this.changed.get() + 1);
     }
+    
 
     async shuffle() {
         const deck = this.cards.get().filter(
@@ -75,7 +78,6 @@ export class YPlayer {
         for (let i = 0; i < deck.size(); i++) {
             deck[i].order.set(i)
         }
-        await Promise.delay(deck.size() * 0.03)
     }
 
     changeLifePoints(n: number) {
@@ -106,8 +108,8 @@ export class YPlayer {
         }
     }
 
-    addFloodgate(floodgateName: string, expiryCondition: () => boolean, card?: Card) {
-        const floodgate = new Floodgate(floodgateName, expiryCondition, card);
+    addFloodgate(floodgateName: string, expiryCondition: () => boolean, card?: Card, value?: unknown) {
+        const floodgate = new Floodgate(floodgateName, expiryCondition, card, value);
         this.floodgates.set([
             ...this.floodgates.get(),
             floodgate
@@ -121,11 +123,15 @@ export class YPlayer {
         return floodgates.size() === 0 ? undefined : floodgates;
     }
 
+    hasFloodgate(floodgateString: string) {
+        return this.getFloodgates(floodgateString) !== undefined;
+    }
+
     handleFloodgates() {
         this.floodgates.set(this.floodgates.get().filter(floodgate => !floodgate.expired()));
     }
 
-    pickTargets(n: number, targettables: Card[]) {
+    pickTargets(n: number, targettables: Card[], minimum = n) {
         const duel = getDuel(this.player)!;
         const currentBusy = duel.busy.get()
         duel.busy.set(false)
@@ -133,7 +139,13 @@ export class YPlayer {
         this.targettableCards.set(targettables)
         let pickedTargets: Card[] = [];
         const connection = this.targets.changed((targets: Card[]) => {
-            if (targets.size() === n) {
+            if (targets.size() >= minimum) {
+                if(targets.size() < n) { 
+                    const pickAnother = confirmSync(`Pick another target?`, this.player);
+                    if(pickAnother === "YES") {
+                        return;
+                    }
+                }
                 connection.Disconnect()
                 pickedTargets = targets
             }
@@ -141,49 +153,50 @@ export class YPlayer {
         while (connection.Connected) {
             wait()
         }
+        this.targettedCards.set([])
         this.targettableCards.set([])
         duel.busy.set(currentBusy)
         return pickedTargets
-    }
+    }    
 
-    async pickEffects(pendingEffects: PendingEffect[], optional: boolean = true) {
+    async pickEffects(pendingEffects: PendingEffect[], mandatory = true) {
         const duel = getDuel(this.player)!;
         const currentBusy = duel.busy.get()
         duel.busy.set(false)
         this.targets.set([])
-        const targettables = pendingEffects.map((pendingEffect) => pendingEffect.card)
-        this.targettableCards.set(targettables)
-        let pickedEffects: Record<number, PendingEffect> = {};
-        let wantsToActivate: "YES" | "NO" = "YES";
-        if(optional) {
-            const wantsToActivatePrompt = confirm(`Activate an effect?`, this.player);
-            wantsToActivate = await wantsToActivatePrompt
+        this.targettableCards.set(pendingEffects.map((pendingEffect) => pendingEffect.card))
+        let pickedTargets: PendingEffect[] = [];
+
+        let activate: "YES" | "NO" = "YES";
+
+        if(!mandatory) {
+            activate = await confirm(`Activate an effect?`, this.player);
         }
-        if(wantsToActivate === "YES") {
+        
+        if(activate === "YES") {
             const connection = this.targets.changed(async (targets: Card[]) => {
-                if (optional ? targets.size() >= 1 : targets.size() === pendingEffects.size()) {
-                    if(optional && targets.size() < pendingEffects.size()) {
-                        const pickAnotherEffectPrompt = await confirm(`Activate another effect?`, this.player);
-                        if (pickAnotherEffectPrompt === "YES") {
-                            return
-                        }
-                    }
-                    targets.forEach((target, i) => {
-                        pickedEffects[i + 1] = {
-                            card: target,
-                            effect: pendingEffects.find((pendingEffect) => pendingEffect.card === target)!.effect
-                        }
-                    })
+                pickedTargets = pendingEffects.filter((pendingEffect) => targets.includes(pendingEffect.card))
+                if(pickedTargets.size() === pendingEffects.size()) {
                     connection.Disconnect()
+                    return;
+                }
+                if(!mandatory) {
+                    activate = await confirm(`Activate an effect?`, this.player);
+                    if (activate === "NO") {
+                        connection.Disconnect()
+                        return;
+                    }
                 }
             })
             while (connection.Connected) {
                 wait()
             }
         }
+        
+        this.targettedCards.set([])
         this.targettableCards.set([])
         duel.busy.set(currentBusy)
-        return pickedEffects
+        return pickedTargets
     }
 
     pickZone(zones: SelectableZone[] = []) {

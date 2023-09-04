@@ -125,7 +125,7 @@ const Card = ({ card }: { card: CardPublic }) => {
                 TextStrokeColor3={theme.colours.white}
                 TextStrokeTransparency={0}
             />
-            {isTarget && <uistroke LineJoinMode="Miter" Color={Color3.fromRGB(0, 255, 0)} Thickness={30} />}
+            {isTarget && <uistroke LineJoinMode="Miter" Color={Color3.fromRGB(0, 255, 0)} Thickness={2} />}
         </imagebutton>
     )
 }

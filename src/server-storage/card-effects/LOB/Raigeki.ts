@@ -16,7 +16,7 @@ export default (card: Card) => {
             location: ['MZone1', 'MZone2', 'MZone3', 'MZone4', 'MZone5'],
             controller: [duel.getOpponent(controller.player).player]
         })
-        cardsInMZone.forEach(card => card.destroy("Effect"))
+        cardsInMZone.forEach(c => c.destroy("Effect", card))
     }
 
     const condition = () => {

@@ -31,7 +31,7 @@ export default (card: Card) => {
 
     const effect = () => {
         const target = card.targets.get()[0]
-        target.destroy("Effect")
+        target.destroy("Effect", card)
         card.targets.set([])
     }
 

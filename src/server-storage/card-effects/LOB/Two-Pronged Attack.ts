@@ -50,7 +50,7 @@ export default (card: Card) => {
     const effect = () => {
         const targets = card.targets.get()
         targets.forEach(target => {
-            target.destroy("Effect")
+            target.destroy("Effect", card)
         })
     }
 
