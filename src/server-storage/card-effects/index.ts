@@ -96,6 +96,15 @@ import DreamClown from "./MRD/Dream Clown"
 import ThunderDragon from "./MRD/Thunder Dragon"
 import TheUnhappyMaiden from "./MRD/The Unhappy Maiden"
 import StimPack from "./MRD/Stim-Pack"
+import LarvaeMoth from "./MRD/Larvae Moth"
+import BigEye from "./MRD/Big Eye"
+import SteelScorpion from "./MRD/Steel Scorpion"
+import BlastJuggler from "./MRD/Blast Juggler"
+import ElectricLizard from "./MRD/Electric Lizard"
+import LavaBattleguard from "./MRD/Lava Battleguard"
+import SwampBattleguard from "./MRD/Swamp Battleguard"
+import TheCheerfulCoffin from "./MRD/The Cheerful Coffin"
+import SoulRelease from "./MRD/Soul Release"
 
 export type TriggerEffect = "FLIP" | "INFLICTS_BATTLE_DAMAGE" | "SENT_FROM_FIELD_TO_GY" | "ATTACK"
 | "DEFENSE_TO_ATTACK" | "ATTACK_TO_DEFENSE" | "SENT_FROM_FIELD_TO_GY_BATTLE"
@@ -219,7 +228,16 @@ export default {
     "Dream Clown": DreamClown,
     "Thunder Dragon": ThunderDragon,
     "The Unhappy Maiden": TheUnhappyMaiden,
-    "Stim-Pack": StimPack
+    "Stim-Pack": StimPack,
+    "Larvae Moth": LarvaeMoth,
+    "Big Eye": BigEye,
+    "Steel Scorpion": SteelScorpion,
+    "Blast Juggler": BlastJuggler,
+    "Electric Lizard": ElectricLizard,
+    "Lava Battleguard": LavaBattleguard,
+    "Swamp Battleguard": SwampBattleguard,
+    "The Cheerful Coffin": TheCheerfulCoffin,
+    "Soul Release": SoulRelease
 } as {
     [key: string]: (card: Card) => CardEffect[]
 }

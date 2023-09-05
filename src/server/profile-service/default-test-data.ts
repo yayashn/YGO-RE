@@ -1,9 +1,12 @@
 import { CardTemplate, PlayerData } from "../types";
 
 const c: CardTemplate[] = [
-    "The Unhappy Maiden",
-    "Stim-Pack",
-    "Kuriboh"
+    "Electric Lizard",
+    "Soul Release",
+    "Blast Juggler",
+    "Swamp Battleguard",
+    "Lava Battleguard",
+    "The Cheerful Coffin"
 ].map(name => ({ name }))
 
 export const defaultCards = [...c, ...c, ...c, ...c]

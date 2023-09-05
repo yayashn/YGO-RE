@@ -63,6 +63,7 @@ export type CardFilter = {
     atk?: (`<=${number}` | number | `>=${number}`)[]
     attribute?: string[]
     def?: (`<=${number}` | number | `>=${number}`)[]
+    order?: number[]
 }
 
 export type CardFloodgate<T = unknown> = {
